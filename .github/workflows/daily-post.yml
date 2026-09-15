@@ -53,4 +53,4 @@ jobs:
           IG_ACCOUNT_ID: ${{ secrets.IG_ACCOUNT_ID }}
           IMAGE_PUBLIC_URL: https://raw.githubusercontent.com/${{ github.repository }}/main/content_queue/rendered/${{ steps.render.outputs.queue_id }}.png
         run: |
-          python scripts/post_to_instagram.py "${{ steps.render.outputs.queue_id }}" "Add caption logic here"
+          python scripts/post_to_instagram.py "${{ steps.render.outputs.queue_id }}"
