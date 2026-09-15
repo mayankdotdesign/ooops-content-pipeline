@@ -1,0 +1,54 @@
+name: Daily Ooops Post
+
+on:
+  schedule:
+    # 7:30 AM UTC = 1:00 PM IST — adjust to your best-engagement time
+    - cron: "30 7 * * *"
+  workflow_dispatch: {}  # lets you trigger manually from GitHub UI too
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pillow requests
+
+      - name: Render next queued post
+        id: render
+        run: |
+          NEXT_ID=$(python -c "
+          import json
+          with open('content_queue/queue.json') as f:
+              q = json.load(f)
+          nxt = next((i for i in q if i['status'] == 'queued'), None)
+          print(nxt['id'] if nxt else '')
+          ")
+          echo "queue_id=$NEXT_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Render image
+        if: steps.render.outputs.queue_id != ''
+        run: python scripts/render_post.py ${{ steps.render.outputs.queue_id }}
+
+      - name: Commit rendered image (so it has a public raw URL)
+        if: steps.render.outputs.queue_id != ''
+        run: |
+          git config user.name "ooops-bot"
+          git config user.email "bot@ooopsapp.com"
+          git add content_queue/
+          git commit -m "Render post ${{ steps.render.outputs.queue_id }}" || echo "nothing to commit"
+          git push
+
+      - name: Post to Instagram
+        if: steps.render.outputs.queue_id != ''
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_ACCOUNT_ID: ${{ secrets.IG_ACCOUNT_ID }}
+          IMAGE_PUBLIC_URL: https://raw.githubusercontent.com/${{ github.repository }}/main/content_queue/rendered/${{ steps.render.outputs.queue_id }}.png
+        run: |
+          python scripts/post_to_instagram.py "${{ steps.render.outputs.queue_id }}" "Add caption logic here"
