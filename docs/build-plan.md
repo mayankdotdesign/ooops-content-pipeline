@@ -350,13 +350,15 @@ above (which doesn't change).
   bitmap-size quirk and keeps the repo light. Add a Twemoji credit line
   to the README when this ships.
 
-  **Open question raised with user, not yet resolved**: the reference
-  posts show a small corner "ooops" watermark badge (+ `ooopsapp.com`
-  text on the text-post layout) on posts that are clearly `relatable`
-  content (the LDR/jar posts), not `app_promo`. This appears distinct
-  from the big `logo_endcard` slide (seen as the *last* slide of the IG
-  carousel reference, with the large logo + "join the waitlist" CTA) —
-  reading is: small watermark = on every post regardless of
-  `post_type`; big `logo_endcard` layout = `app_promo`-only, per the
-  original rule. Needs explicit user confirmation before Phase 2 encodes
-  it either way.
+  **Logo placement — resolved by user, but conflicts with the reference
+  files as uploaded**: user's explicit call is **no logo at all (small
+  watermark or big `logo_endcard`) on `relatable` posts** — any branding
+  only appears on `app_promo` posts. This is the strict reading of the
+  original cross-phase rule. However, the uploaded reference files
+  (`Reference_text_post_1/2.png`, `Reference_image_post_1/2.png`) *do*
+  show the small corner watermark + `ooopsapp.com` text on content that
+  reads as pure `relatable` (the "long distance" post has no app
+  mention at all). Flagged back to user — not yet reconciled. Until
+  clarified, Phase 2's renderer should follow the explicit rule (no logo
+  on `relatable`) and NOT copy the watermark treatment from those two
+  reference files for relatable-post renders.
