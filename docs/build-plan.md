@@ -321,3 +321,42 @@ above (which doesn't change).
   (`content_queue/rendered/1.png`) was removed — it was never actually
   published to Instagram (queue status never reached `"posted"`), only
   rendered and committed.
+
+- **2026-09-15 (later)** — Logo (`Logo.png`, 815x254), both backgrounds
+  (`BG1.png` light peach, `BG2.png` coral, both 1620x2025 — will
+  downscale to 1080x1350), and 6 design-reference files verified
+  (`Reference_text_post_1/2`, `Reference_image_post_1/2`, `IG carousel`,
+  `Webpage UI` — each as matched PNG+SVG pairs, SVGs confirmed
+  well-formed Figma exports). `voice-reference/` still empty — user is
+  adding those separately, Phase 1 stays blocked until they land.
+
+  **Typography spec confirmed for Phase 2**: Nunito **Bold**, -3%
+  letter-spacing, 100% line-height. Matches what's visible in the
+  reference PNGs (tight tracking, no extra leading).
+
+  **Emoji rendering researched for Phase 2** (Pillow can't draw color
+  emoji from a plain unicode string by default): Apple's actual iOS
+  emoji artwork (`Apple Color Emoji`) is proprietary and not
+  redistributable — can't legally ship it in this public repo. Two free
+  options: **Noto Color Emoji** (Google, OFL 1.1, no attribution
+  required, ships as one large ~10-25MB font with fixed-size color
+  strikes) or **Twemoji** (CC-BY 4.0, attribution needed — a README
+  credit line is enough per the project's own guidance). Given the
+  reference designs use a small, curated emoji set (🚩❤️🎮😴😬🎉📦🍕🛏️😤 etc.)
+  as bullet markers/chips rather than arbitrary user text, the planned
+  approach is: pull just the needed Twemoji PNGs as static assets and
+  `Image.paste()` them onto the canvas at render time, rather than
+  bundling a multi-MB emoji font — avoids Noto Color Emoji's fixed
+  bitmap-size quirk and keeps the repo light. Add a Twemoji credit line
+  to the README when this ships.
+
+  **Open question raised with user, not yet resolved**: the reference
+  posts show a small corner "ooops" watermark badge (+ `ooopsapp.com`
+  text on the text-post layout) on posts that are clearly `relatable`
+  content (the LDR/jar posts), not `app_promo`. This appears distinct
+  from the big `logo_endcard` slide (seen as the *last* slide of the IG
+  carousel reference, with the large logo + "join the waitlist" CTA) —
+  reading is: small watermark = on every post regardless of
+  `post_type`; big `logo_endcard` layout = `app_promo`-only, per the
+  original rule. Needs explicit user confirmation before Phase 2 encodes
+  it either way.
