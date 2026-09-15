@@ -1,5 +1,23 @@
 # Ooops Content Pipeline — 100% Free
 
+## Content Engine v3 (in progress)
+
+This repo is being extended from a single-post/day manual-idea pipeline
+into a full content engine: Reddit/IG-researched weekly batches, a
+carousel-capable queue schema, an email-based two-cycle approval flow,
+and a 2-posts/day US-evening cadence. Full spec, constraints, and
+non-obvious lessons from the original build: **[docs/build-plan.md](docs/build-plan.md)**
+— read that before changing `scripts/render_post.py`,
+`scripts/post_to_instagram.py`, or the queue schema. Current phase
+status is tracked in that file's "Status log" section.
+
+Assets the engine depends on live under `assets/`:
+- `assets/logo/` — app logo, used only on `post_type: app_promo` posts
+- `assets/backgrounds/` — `bg-1.png` / `bg-2.png`, user-designed, used as-is
+- `assets/design-reference/` — Figma sample exports, the visual spec for the renderer
+- `assets/voice-reference/` — screenshots used to derive `docs/voice-guide.md`
+- `assets/fonts/` — Nunito family (Regular through Black, + italics)
+
 ## What this does
 1. `scripts/generate_ideas.py` — Claude (via Claude Code) writes new post
    concepts into `content_queue/queue.json` weekly.
