@@ -3,7 +3,7 @@
     "id": 1,
     "text": "Things that would land you in the jar this week: left me on read for 4 hours, said 'fine' when it wasn't fine, forgot the timezone again.",
     "angle": "jar_entry",
-    "status": "rendered",
+    "status": "queued",
     "scheduled_for": null,
     "created_at": "2026-09-15T00:00:00"
   }
