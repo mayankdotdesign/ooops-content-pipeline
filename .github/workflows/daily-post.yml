@@ -44,6 +44,7 @@ jobs:
           git add content_queue/
           git commit -m "Render post ${{ steps.render.outputs.queue_id }}" || echo "nothing to commit"
           git push
+          sleep 8
 
       - name: Post to Instagram
         if: steps.render.outputs.queue_id != ''
