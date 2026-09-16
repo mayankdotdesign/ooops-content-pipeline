@@ -121,11 +121,18 @@ def _write_hyperlinked_urls(spreadsheet, worksheet, row_idx, col_idx, urls):
     joined = "\n".join(urls)
     runs = []
     offset = 0
-    for url in urls:
+    for i, url in enumerate(urls):
         runs.append({"startIndex": offset, "format": {"link": {"uri": url}}})
         offset += len(url)
-        runs.append({"startIndex": offset, "format": {}})
-        offset += 1  # the "\n" separator
+        if i < len(urls) - 1:
+            # More urls follow (separated by "\n") — reset formatting for
+            # the separator. Skipped after the LAST url: the Sheets API
+            # rejects a run whose startIndex == len(string) ("must be less
+            # than the length of the string being formatted"), which a
+            # trailing reset run always would be, single-url case included
+            # (real bug, caught 2026-09-17 — crashed every resubmit).
+            runs.append({"startIndex": offset, "format": {}})
+            offset += 1  # the "\n" separator
     _with_retry(spreadsheet.batch_update, {
         "requests": [{
             "updateCells": {
