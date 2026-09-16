@@ -1027,3 +1027,36 @@ above (which doesn't change).
   anything inside actually changed. Audited `daily-post.yml`'s commit
   step too: it targets `content_queue/queue.json`, which always exists,
   so it wasn't at risk of this same bug.
+
+- **2026-09-17 (one-time Sheet migration)** — User request: all 9 posts'
+  data (content AND images) should live on the single `content-2026-09-16`
+  tab, and the leftover `visual-2026-09-16` tab (items 3-9's original
+  separate visual tab, predating the schema unification) should be
+  deleted. Since all 9 posts' rows were written to `content-2026-09-16`
+  together in the very first content-review cycle, they were already
+  there — just missing their `Image Link(s)` value, which existed only
+  on the legacy tab. `scripts/migrate_legacy_visual_tab.py` (run once
+  via the new `migrate-sheet.yml` workflow_dispatch-only workflow)
+  copies each image link across via the same `write_visual_columns()`
+  the regular pipeline uses, then deletes the legacy tab. Idempotent —
+  safe to re-run, skips any post that already has an image link on the
+  content tab, no-ops cleanly if the legacy tab is already gone.
+  Tested against a simulated live sheet state before running for real.
+
+  After a successful real run, `review_tab` for items 3-9 needs
+  updating from `"visual-2026-09-16"` to `"content-2026-09-16"` in
+  `queue.json` — do this only after confirming the migration actually
+  succeeded, not before (the check/resubmit functions read
+  `review_tab` to find the tab, so pointing it at the content tab
+  before the data is actually there would show blank rows). Once
+  confirmed working, `migrate_legacy_visual_tab.py` and
+  `migrate-sheet.yml` are one-time-use and should be deleted — don't
+  leave unused migration tooling lying around after it's served its
+  purpose.
+
+  **Going forward, this is a one-time transitional fix, not an ongoing
+  concern**: any batch drafted after 2026-09-17's schema unification
+  already gets exactly one tab for its whole lifecycle from the start
+  — `send_content_review` creates it, `send_visual_review`/
+  `resubmit_visual_review` write into that same tab. Nothing to migrate
+  for future batches.
