@@ -68,6 +68,28 @@ Example phrasings in-voice (illustrative, not to reuse verbatim):
 - "she was hungry." (a one-line non-answer as the punchline — commit to
   the bit, don't explain the joke)
 
+## CTA — always direct-engagement, always shareable
+
+`cta` is a separate schema field from `caption` — it gets appended
+into the final Instagram caption text at post time
+(`post_to_instagram.py`'s `build_caption()`: caption → CTA → hashtags),
+it is never rendered onto the image itself.
+
+**Every CTA should give the reader something concrete to do that drives
+either sharing or comments** (user directive, 2026-09-17) — not a vague
+"let us know your thoughts." Favor:
+- Tag-your-partner framing ("tag someone who...", "send this to the
+  person who...") — this is the primary organic distribution mechanic
+  for relatable-post content; a post someone tags their partner in or
+  DMs to their partner reaches a second real person for free.
+- Direct comment prompts ("comment your [specific thing]", "drop a
+  [specific emoji] if...") — specific beats generic; "comment below"
+  alone is weaker than "comment your countdown."
+
+Most drafts already do this (see the 2026-09-17 batch — "tag your
+co-defendant," "comment your countdown"), keep it that way rather than
+defaulting to a flat statement with no ask.
+
 ## Cliché / AI-tell avoidance list — hard no
 
 Cross-check every draft against this list. If a line could've been

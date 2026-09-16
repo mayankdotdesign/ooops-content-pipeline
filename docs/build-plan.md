@@ -873,3 +873,18 @@ above (which doesn't change).
   stored `review_tab` (not recomputed from today's date), calling a
   write function twice with the same items doesn't duplicate rows, and
   a new item joining an already-populated tab gets appended correctly.
+
+- **2026-09-17 (Phase 5 content-mix correction)** — User feedback: the
+  9-post batch skewed too LDR-heavy (6 of 9 posts were LDR-specific:
+  #3, #4, #8 explicitly LDR-tagged, plus others LDR-adjacent). LDR is a
+  strong niche, not the whole primary audience — co-located/general
+  couples are just as much the target. Updated
+  `docs/ooops-context.md` §2 to state this explicitly: **every future
+  batch should mix co-located/general-couple scenarios in alongside
+  LDR, not default to LDR.** Also added a CTA section to
+  `docs/voice-guide.md`: every CTA should drive concrete
+  sharing/comments (tag-your-partner framing, specific comment
+  prompts), not a vague "thoughts?" — and clarified that `cta` is a
+  separate schema field appended into the IG caption at post time
+  (`post_to_instagram.py`'s `build_caption()`), never rendered onto the
+  image itself.

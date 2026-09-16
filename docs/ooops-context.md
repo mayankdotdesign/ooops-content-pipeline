@@ -27,7 +27,7 @@ Mayank (the founder) kept a physical notepad with his girlfriend during a long-d
 ## 2. Audience — who this content is for
 
 - **Primary target for the Instagram pipeline specifically: English-speaking couples, 22–32, skewing US/UK/Canada.** This is a deliberate choice — Western audiences are more likely to convert to a paid app, so IG content should default to Western/English relatable scenarios and phrasing, not Indian-specific references, unless a post is explicitly for a different channel.
-- Long-distance relationships (LDR) are a especially strong niche — high relatability, high Reddit engagement, a specific and underserved pain point.
+- Long-distance relationships (LDR) are an especially strong niche — high relatability, high Reddit engagement, a specific and underserved pain point. **But LDR is one segment of the primary audience, not the whole thing** (corrected 2026-09-17 after a batch skewed too LDR-heavy — 6 of 9 posts were LDR-specific). The jar mechanic is just as relevant to couples who live together or see each other daily — shared chores, gaming/screen time, who-forgot-what, meeting-the-parents, etc. **Every batch should mix co-located/general-couple content in alongside LDR, not default to LDR as the assumed scenario.**
 - Secondary audience (not the IG content priority): Indian couples, LDR and co-located, 22–35.
 - **Not the audience:** couples who share finances, or anyone who'd treat the jar as punitive/real financial tracking rather than a bit.
 
