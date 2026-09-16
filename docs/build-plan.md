@@ -445,10 +445,29 @@ above (which doesn't change).
   Emoji: fetched 18 Twemoji PNGs (the 12 offense-category emoji + a few
   seen in references) as static assets in `assets/emoji/` per the
   Phase 0 research, composited via `Image.paste`/`alpha_composite`, not
-  a font. Generated `assets/logo/Logo-white.png` (programmatic recolor
-  of the same logo mark, alpha-preserved) for use on BG2/coral
-  backgrounds, matching the white logo shown in `IG carousel.png`'s
-  endcard slide.
+  a font.
+
+  **Corrected 2026-09-17 — logo treatment was wrong on two counts:**
+  1. First pass generated `assets/logo/Logo-white.png` (a recolored
+     variant) for BG2/coral slides. User's explicit ruling: **never
+     recolor the logo, use `assets/logo/Logo.png` only, everywhere** —
+     that file has been deleted and must not be recreated.
+  2. First pass put the small corner watermark logo inside a white
+     rounded-rect "pill" background. Pixel-level inspection of
+     `Reference_text_post_1/2.png` and `Reference_image_post_1/2.png`
+     showed this was wrong — there is no pill/capsule shape. What's
+     actually there is a **white outline stroke that hugs the logo's own
+     letterforms** (a sticker/badge effect), present at both small
+     (watermark) and large (`logo_endcard`) size. `_logo_with_white_outline()`
+     now reproduces this correctly by dilating `Logo.png`'s own alpha
+     channel at render time — computed from the one source file, no
+     extra logo asset committed, matching the user's "logo.png only"
+     instruction exactly. Applies uniformly to the watermark AND the
+     `logo_endcard` slide — confirmed by user, even though this reads as
+     red-with-white-outline rather than solid-white on the endcard,
+     which diverges slightly from how `IG carousel.png`'s reference
+     slide looks. That divergence is intentional per the user, not an
+     oversight.
 
   **Known gaps, not yet resolved:**
   - `render_photo()` (the `photo` layout) is only geometry-tested with a

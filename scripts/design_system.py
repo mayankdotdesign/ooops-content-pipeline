@@ -23,7 +23,7 @@ see docs/build-plan.md's note on why that was a real bug.
 import json
 import os
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 FONT_DIR = os.path.join(ROOT, "assets", "fonts")
@@ -208,11 +208,28 @@ def load_background(variant):
     return bg
 
 
-def _load_logo(for_bg_variant):
-    # BG1 is light -> coral logo reads fine. BG2 is coral/dark -> use the
-    # white recolor (generated from Logo.png, see docs/build-plan.md).
-    fname = "Logo.png" if for_bg_variant == 1 else "Logo-white.png"
-    return Image.open(os.path.join(LOGO_DIR, fname)).convert("RGBA")
+def _load_logo():
+    """The only logo source file, per the user's explicit instruction
+    (2026-09-17): use assets/logo/Logo.png only — no recolored variants
+    committed to the repo."""
+    return Image.open(os.path.join(LOGO_DIR, "Logo.png")).convert("RGBA")
+
+
+def _logo_with_white_outline(logo_img, outline_px):
+    """Reproduces the white outline that hugs the logo's own letterforms in
+    every reference file (Reference_text_post_*.png, Reference_image_post_*.png,
+    Webpage UI.png) — confirmed by pixel inspection, it's a stroke around the
+    glyph shapes, NOT a background pill/capsule (that was wrong, removed
+    2026-09-17). Computed from Logo.png's own alpha channel at render time —
+    no extra logo asset file, per the user's "logo.png only" instruction."""
+    alpha = logo_img.split()[-1]
+    dilated = alpha.filter(ImageFilter.MaxFilter(outline_px * 2 + 1))
+    outline_layer = Image.new("RGBA", logo_img.size, (255, 255, 255, 255))
+    outline_layer.putalpha(dilated)
+    result = Image.new("RGBA", logo_img.size, (0, 0, 0, 0))
+    result.alpha_composite(outline_layer)
+    result.alpha_composite(logo_img)
+    return result
 
 
 def draw_watermark(img, draw, bg_variant):
@@ -226,18 +243,12 @@ def draw_watermark(img, draw, bg_variant):
     label_w = _run_width(small_font, label, tracking_px, int(small_font.size * 0.95))
     draw_tracked_line(draw, ((W - label_w) / 2, 48), label, small_font, text_color, emoji_layer=img)
 
-    logo = _load_logo(1)  # small watermark logo is always the coral mark on a white pill
+    logo = _load_logo()
     logo_w = 130
     logo_h = int(logo.height * (logo_w / logo.width))
     logo_resized = logo.resize((logo_w, logo_h), Image.LANCZOS)
-    pad_x, pad_y = 22, 14
-    pill = Image.new("RGBA", (logo_w + pad_x * 2, logo_h + pad_y * 2), (0, 0, 0, 0))
-    pill_draw = ImageDraw.Draw(pill)
-    pill_draw.rounded_rectangle(
-        [0, 0, pill.width - 1, pill.height - 1], radius=pill.height // 2, fill=(255, 255, 255, 255)
-    )
-    pill.alpha_composite(logo_resized, (pad_x, pad_y))
-    img.alpha_composite(pill, (W - pill.width - 48, H - pill.height - 48))
+    logo_outlined = _logo_with_white_outline(logo_resized, outline_px=6)
+    img.alpha_composite(logo_outlined, (W - logo_outlined.width - 48, H - logo_outlined.height - 48))
 
 
 def render_logo_endcard():
@@ -247,12 +258,13 @@ def render_logo_endcard():
     img = load_background(2)
     draw = ImageDraw.Draw(img)
 
-    logo = _load_logo(2)
+    logo = _load_logo()
     logo_w = 620
     logo_h = int(logo.height * (logo_w / logo.width))
     logo_resized = logo.resize((logo_w, logo_h), Image.LANCZOS)
+    logo_outlined = _logo_with_white_outline(logo_resized, outline_px=14)
     logo_y = 520
-    img.alpha_composite(logo_resized, ((W - logo_w) // 2, logo_y))
+    img.alpha_composite(logo_outlined, ((W - logo_outlined.width) // 2, logo_y - 14))
 
     tagline_font = load_font("bold", 34)
     tagline = "we're building something for this."
