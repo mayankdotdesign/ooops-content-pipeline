@@ -888,3 +888,28 @@ above (which doesn't change).
   separate schema field appended into the IG caption at post time
   (`post_to_instagram.py`'s `build_caption()`), never rendered onto the
   image itself.
+
+- **2026-09-17 (Phase 6 — two more fixes from real usage)**
+  1. **Scheduled cron never fired once, in 5 real runs, all manual.**
+     Checked the Actions run history directly rather than assume —
+     confirmed 0 automatic runs. GitHub explicitly documents that
+     high-frequency schedules aren't guaranteed and are most likely to
+     be delayed/dropped right at the hour/quarter-hour boundary, which
+     is exactly what `*/15 * * * *` hits every time. Changed to
+     `7,27,47 * * * *` — offset from the boundary, every 20 min. This
+     is a real platform limitation, not something fixable with
+     certainty from the workflow side — if it's still unreliable after
+     this, the fallback is accepting periodic manual triggers.
+  2. **Visual review now waits for the WHOLE batch's content review to
+     finish, not just the individual item.** User's explicit ask:
+     content gen → content review (+ revisions) → **all** approved →
+     visual gen → visual review (+ revisions) → **all** approved. Fixed
+     in `send_visual_review`: an item only proceeds to rendering once
+     no batch-mate (same `review_tab`) is still sitting in
+     `content_review`/`content_needs_change`. Verified: 2 approved +
+     1 needing-change in the same batch → both held back, no visual
+     tab created; once the third is approved too, all 3 proceed
+     together. Didn't retroactively unwind the 7 items that had
+     already reached `visual_review` before this request — that would
+     have thrown away real completed render work for no benefit: the
+     gate only affects items still waiting to be sent.

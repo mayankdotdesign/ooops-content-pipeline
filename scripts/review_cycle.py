@@ -142,9 +142,29 @@ def check_content_review(queue, spreadsheet):
 
 
 def send_visual_review(queue, spreadsheet, repo):
+    """Only renders/sends items whose whole batch has FINISHED content
+    review — per user request (2026-09-17): content gen -> content
+    review (+ revision rounds) -> ALL content approved -> visual gen ->
+    visual review (+ revision rounds) -> ALL visuals approved. An item
+    stuck in content_needs_change blocks its batch-mates (same
+    review_tab) from moving to rendering, even if they're individually
+    already content_approved — don't spend render effort until the
+    copy for the whole batch is locked."""
     approved = [i for i in queue if i["stage"] == "content_approved"]
     if not approved:
         return False
+
+    still_reviewing_tabs = {
+        i["review_tab"] for i in queue if i["stage"] in ("content_review", "content_needs_change")
+    }
+    ready = [i for i in approved if i["review_tab"] not in still_reviewing_tabs]
+    held_back = len(approved) - len(ready)
+    if held_back:
+        print(f"{held_back} content_approved item(s) held back — their batch still has "
+              f"content review in progress.")
+    if not ready:
+        return False
+    approved = ready
 
     image_urls_by_id = {}
     for item in approved:
