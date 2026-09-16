@@ -186,12 +186,24 @@ def read_tab_rows(worksheet):
     outcomes. Not exercised by any tab created after this change."""
     records = worksheet.get_all_records()
     headers = worksheet.row_values(1)
+    # The live content-2026-09-16 tab predates the "Content Status"/
+    # "Content Comments" rename (it was created when those columns were
+    # just called "Status"/"My Comments") -- fall back to the old names
+    # so that tab keeps working. Not exercised by any tab created after
+    # this fix.
+    legacy_content_tab = "Content Status" not in headers and "Status" in headers
     legacy_visual_tab = "Visual Status" not in headers and "Status" in headers
 
     results = []
     for row in records:
         if not row.get("Post ID"):
             continue
+        if legacy_content_tab:
+            content_status = str(row.get("Status", "")).strip()
+            content_comments = str(row.get("My Comments", "")).strip()
+        else:
+            content_status = str(row.get("Content Status", "")).strip()
+            content_comments = str(row.get("Content Comments", "")).strip()
         if legacy_visual_tab:
             visual_status = str(row.get("Status", "")).strip()
             visual_comments = str(row.get("My Comments", "")).strip()
@@ -200,16 +212,9 @@ def read_tab_rows(worksheet):
             visual_comments = str(row.get("Visual Comments", "")).strip()
         results.append({
             "post_id": int(row["Post ID"]),
-            "content_status": str(row.get("Content Status", "")).strip(),
-            "content_comments": str(row.get("Content Comments", "")).strip(),
+            "content_status": content_status,
+            "content_comments": content_comments,
             "visual_status": visual_status,
             "visual_comments": visual_comments,
         })
     return results
-
-
-def is_fully_reviewed(rows, field):
-    """`field` is 'content_status' or 'visual_status'. True once every
-    row has a non-blank value in that field — the signal that the user
-    is done, checked by re-reading the live sheet."""
-    return bool(rows) and all(r[field] in STATUS_OPTIONS for r in rows)

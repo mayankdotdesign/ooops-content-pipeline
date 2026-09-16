@@ -97,6 +97,13 @@ def _group_by_tab(items):
 
 
 def check_content_review(queue, spreadsheet):
+    """Processes each outstanding item independently, based on whatever
+    its OWN row currently says — NOT gated on every row in the tab
+    being filled in. That all-or-nothing gate used to deadlock: e.g.
+    post 2 already marked Approved would sit blocked forever just
+    because post 1's row was blank pending a revision. Items resolve
+    at their own pace; send_visual_review is what waits for a whole
+    batch to finish before rendering (see its docstring)."""
     outstanding = [i for i in queue if i["stage"] == "content_review"]
     if not outstanding:
         return False
@@ -109,15 +116,14 @@ def check_content_review(queue, spreadsheet):
             continue  # tab not written yet this run (shouldn't normally happen)
 
         rows = sheets_utils.read_tab_rows(ws)
-        if not sheets_utils.is_fully_reviewed(rows, "content_status"):
-            continue
-
         by_id = {i["id"]: i for i in items}
         dropped_ids = set()
+        processed_count = 0
         for row in rows:
             item = by_id.get(row["post_id"])
-            if item is None:
+            if item is None or row["content_status"] not in sheets_utils.STATUS_OPTIONS:
                 continue
+            processed_count += 1
             if row["content_status"] == "Approved":
                 item["stage"] = "content_approved"
             elif row["content_status"] == "Need Change":
@@ -128,9 +134,10 @@ def check_content_review(queue, spreadsheet):
 
         if dropped_ids:
             queue[:] = [i for i in queue if i["id"] not in dropped_ids]
-        print(f"Processed content review in tab '{tab_title}': "
-              f"{len(items) - len(dropped_ids)} item(s) updated, {len(dropped_ids)} dropped.")
-        any_processed = True
+        if processed_count:
+            print(f"Processed content review in tab '{tab_title}': "
+                  f"{processed_count - len(dropped_ids)} item(s) updated, {len(dropped_ids)} dropped.")
+            any_processed = True
     return any_processed
 
 
@@ -189,15 +196,14 @@ def check_visual_review(queue, spreadsheet):
             continue
 
         rows = sheets_utils.read_tab_rows(ws)
-        if not sheets_utils.is_fully_reviewed(rows, "visual_status"):
-            continue
-
         by_id = {i["id"]: i for i in items}
         dropped_ids = set()
+        processed_count = 0
         for row in rows:
             item = by_id.get(row["post_id"])
-            if item is None:
+            if item is None or row["visual_status"] not in sheets_utils.STATUS_OPTIONS:
                 continue
+            processed_count += 1
             if row["visual_status"] == "Approved":
                 item["stage"] = "queued"
             elif row["visual_status"] == "Need Change":
@@ -208,9 +214,10 @@ def check_visual_review(queue, spreadsheet):
 
         if dropped_ids:
             queue[:] = [i for i in queue if i["id"] not in dropped_ids]
-        print(f"Processed visual review in tab '{tab_title}': "
-              f"{len(items) - len(dropped_ids)} item(s) updated, {len(dropped_ids)} dropped.")
-        any_processed = True
+        if processed_count:
+            print(f"Processed visual review in tab '{tab_title}': "
+                  f"{processed_count - len(dropped_ids)} item(s) updated, {len(dropped_ids)} dropped.")
+            any_processed = True
     return any_processed
 
 

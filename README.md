@@ -17,6 +17,11 @@ features, hard content-safety boundaries) and
 **[docs/voice-guide.md](docs/voice-guide.md)** (tone/voice patterns, cliché
 avoidance) before writing anything.
 
+New to how this all fits together? **[docs/pipeline-walkthrough.md](docs/pipeline-walkthrough.md)**
+is a plain-language, step-by-step explanation of the whole automated
+pipeline with a realistic example — read that before `docs/build-plan.md`'s
+denser phase-by-phase log if you just want to understand how it works.
+
 Assets the engine depends on live under `assets/`:
 - `assets/logo/` — app logo, used only on `post_type: app_promo` posts
 - `assets/backgrounds/` — `bg-1.png` / `bg-2.png`, user-designed, used as-is

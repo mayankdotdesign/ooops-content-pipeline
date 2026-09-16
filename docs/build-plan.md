@@ -948,3 +948,28 @@ above (which doesn't change).
   gets Image Link(s) filled in, no new tab → visual approved → queued.
   Also re-verified the batch-gating logic and the legacy-tab fallback
   both still work under the new code.
+
+- **2026-09-17 (Phase 6 — real deadlock bug fixed via testing)** —
+  Two bugs found while preparing to test the whole pipeline end to end,
+  both from the same-tab-merge change just before this entry:
+  1. `read_tab_rows` looked for a "Content Status" header, but the
+     live `content-2026-09-16` tab still has the pre-rename header
+     "Status" (created before Content Status/Content Comments existed
+     as distinct names from Visual Status/Visual Comments) — would have
+     silently read every row as unreviewed forever. Added the same kind
+     of legacy fallback already in place for the visual side.
+  2. Real deadlock: `check_content_review`/`check_visual_review`
+     required *every* row in a tab to have a status before processing
+     *any* of them. Once revisions could reuse the same tab, this meant
+     an already-`Approved` row would sit blocked forever just because a
+     *different* row in the same tab was mid-revision (freshly cleared,
+     blank). Fixed: each outstanding item is now processed independently
+     based on its own row's status — no more all-or-nothing gate at the
+     read step. `send_visual_review`'s whole-batch gate (added earlier
+     today) is the only place that still waits for the full batch —
+     that one's correct, it's specifically about not rendering until
+     copy is locked, not about reading individual statuses.
+
+  `docs/pipeline-walkthrough.md` added: a plain-language, example-driven
+  explanation of the whole pipeline, for anyone who wants the simple
+  version before `build-plan.md`'s denser log. Linked from README.
