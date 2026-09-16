@@ -3,14 +3,23 @@
     "id": 1,
     "post_type": "relatable",
     "slides": [
-      { "layout": "hook", "text": "you mess up.\n\nnow it's twenty questions until one of us cracks and just says what it was." }
+      {
+        "layout": "hook",
+        "text": "you mess up.\n\nnow it's twenty questions until one of us cracks and just says what it was."
+      }
     ],
     "bg_variant": 1,
-    "caption": "the guessing game is the real punishment. skip it — go straight to the jar.",
-    "hashtags": ["#relatablecouple", "#relationshipmemes", "#coupleproblems", "#relatable", "#datingadvice"],
+    "caption": "the guessing game is the real punishment. skip it \u2014 go straight to the jar.",
+    "hashtags": [
+      "#relatablecouple",
+      "#relationshipmemes",
+      "#coupleproblems",
+      "#relatable",
+      "#datingadvice"
+    ],
     "cta": "what's the worst 'guess what you did' spiral you've been in? tell us.",
     "angle": "relatable_text",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
     "source_note": "Inspired by @slammermemes IG post (1.1M followers, Adventure Time meme format) on 'that universal helpless panic when you know you messed up but your partner expects you to magically read their mind to figure out what it was.' Reframed from meme/video format into Ooops' direct-address text-post voice with a new punchline; no wording reused from the source.",
     "created_at": "2026-09-17T00:00:00",
@@ -20,16 +29,25 @@
     "id": 2,
     "post_type": "relatable",
     "slides": [
-      { "layout": "hook", "text": "trying to stay mad at you is a full time job\n\nand I keep getting fired after four minutes." }
+      {
+        "layout": "hook",
+        "text": "trying to stay mad at you is a full time job\n\nand I keep getting fired after four minutes."
+      }
     ],
     "bg_variant": 2,
     "caption": "petty anger has a shelf life. ours is about four minutes, give or take.",
-    "hashtags": ["#relatablecouple", "#couplegoals", "#relationshipgoals", "#funnycouple", "#datingadvice"],
+    "hashtags": [
+      "#relatablecouple",
+      "#couplegoals",
+      "#relationshipgoals",
+      "#funnycouple",
+      "#datingadvice"
+    ],
     "cta": "how long does your mad usually last? be honest.",
     "angle": "relatable_text",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
-    "source_note": "Inspired by @tag__your__pa... IG post (1.2M followers): 'Trying to stay mad is a full-time job I'm failing at.' Adapted into first-person present tense with a new punchline ('fired after four minutes') — the source is a single line with no punchline of its own.",
+    "source_note": "Inspired by @tag__your__pa... IG post (1.2M followers): 'Trying to stay mad is a full-time job I'm failing at.' Adapted into first-person present tense with a new punchline ('fired after four minutes') \u2014 the source is a single line with no punchline of its own.",
     "created_at": "2026-09-17T00:05:00",
     "ig_media_id": null
   },
@@ -37,14 +55,23 @@
     "id": 3,
     "post_type": "relatable",
     "slides": [
-      { "layout": "hook", "text": "the worst part of long distance isn't the miles.\n\nit's turning around to tell you something and remembering you're not there." }
+      {
+        "layout": "hook",
+        "text": "the worst part of long distance isn't the miles.\n\nit's turning around to tell you something and remembering you're not there."
+      }
     ],
     "bg_variant": 1,
     "caption": "some days it's the big stuff. most days it's just forgetting, for a second, that you're not in the room.",
-    "hashtags": ["#longdistancerelationship", "#ldrcouple", "#ldrproblems", "#relatable", "#longdistancelove"],
+    "hashtags": [
+      "#longdistancerelationship",
+      "#ldrcouple",
+      "#ldrproblems",
+      "#relatable",
+      "#longdistancelove"
+    ],
     "cta": "tag someone who gets the turning-around thing.",
     "angle": "ldr_pain",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
     "source_note": "Inspired by @dhilkrishnadk IG post (6.7M followers): 'instinctively turning around to share a quiet moment... only to remember you're miles away.' Rewritten in Ooops' own phrasing and structure (setup/twist), not quoted from the source, which was framed as a longer reel voiceover.",
     "created_at": "2026-09-17T00:10:00",
@@ -54,16 +81,25 @@
     "id": 4,
     "post_type": "relatable",
     "slides": [
-      { "layout": "hook", "text": "we have a goodnight phrase.\n\nsame three words, every night, since the day we started long distance." }
+      {
+        "layout": "hook",
+        "text": "we have a goodnight phrase.\n\nsame three words, every night, since the day we started long distance."
+      }
     ],
     "bg_variant": 2,
     "caption": "none of this is efficient. all of it is the point.",
-    "hashtags": ["#longdistancerelationship", "#ldrcouple", "#ldrlove", "#longdistancelove", "#relatable"],
+    "hashtags": [
+      "#longdistancerelationship",
+      "#ldrcouple",
+      "#ldrlove",
+      "#longdistancelove",
+      "#relatable"
+    ],
     "cta": "what's your version of the goodnight phrase?",
     "angle": "ldr_pain",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
-    "source_note": "Inspired by @datinglegacy IG post (2.4M followers) describing a nightly 'sleep calling' ritual built around a shared goodnight phrase. Reduced to a single-slide hook (2026-09-17: no carousels for now) — the original bullet_list of ritual details was dropped rather than folded in, not padded to preserve carousel content.",
+    "source_note": "Inspired by @datinglegacy IG post (2.4M followers) describing a nightly 'sleep calling' ritual built around a shared goodnight phrase. Reduced to a single-slide hook (2026-09-17: no carousels for now) \u2014 the original bullet_list of ritual details was dropped rather than folded in, not padded to preserve carousel content.",
     "created_at": "2026-09-17T00:15:00",
     "ig_media_id": null
   },
@@ -71,16 +107,25 @@
     "id": 5,
     "post_type": "relatable",
     "slides": [
-      { "layout": "hook", "text": "he's great at everything except being the one who texts first.\n\nI've sent the last message in this chat for six days." }
+      {
+        "layout": "hook",
+        "text": "he's great at everything except being the one who texts first.\n\nI've sent the last message in this chat for six days."
+      }
     ],
     "bg_variant": 1,
     "caption": "keeping score by who reached out first is exhausting. that's kind of the whole point of the jar.",
-    "hashtags": ["#relatablecouple", "#relationshipgoals", "#datingadvice", "#coupleproblems", "#relatable"],
+    "hashtags": [
+      "#relatablecouple",
+      "#relationshipgoals",
+      "#datingadvice",
+      "#coupleproblems",
+      "#relatable"
+    ],
     "cta": "who initiates more in your relationship? no judgment. maybe a little judgment.",
     "angle": "relatable_text",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
-    "source_note": "Inspired by @datinglegacy IG post (178k followers), '5 Things That End Long-Distance Relationships' — specifically the point on one partner doing most of the emotional work and resentment building. Reframed as a specific first-person scenario (six days of texting first) rather than the source's general advice-listicle framing.",
+    "source_note": "Inspired by @datinglegacy IG post (178k followers), '5 Things That End Long-Distance Relationships' \u2014 specifically the point on one partner doing most of the emotional work and resentment building. Reframed as a specific first-person scenario (six days of texting first) rather than the source's general advice-listicle framing.",
     "created_at": "2026-09-17T00:20:00",
     "ig_media_id": null
   },
@@ -88,16 +133,25 @@
     "id": 6,
     "post_type": "relatable",
     "slides": [
-      { "layout": "hook", "text": "'so, how did you two meet?'\n\nmy mother, interrogating my girlfriend like she's applying for a visa." }
+      {
+        "layout": "hook",
+        "text": "'so, how did you two meet?'\n\nmy mother, interrogating my girlfriend like she's applying for a visa."
+      }
     ],
     "bg_variant": 2,
     "caption": "meeting the parents should come with a lawyer present.",
-    "hashtags": ["#relatablecouple", "#relationshipmemes", "#funnycouple", "#datingadvice", "#relatable"],
+    "hashtags": [
+      "#relatablecouple",
+      "#relationshipmemes",
+      "#funnycouple",
+      "#datingadvice",
+      "#relatable"
+    ],
     "cta": "worst 'meet the parents' question you've gotten? go.",
     "angle": "relatable_text",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
-    "source_note": "Inspired by @meowmeddy IG post (1M followers): 'When You Introduce Your GF to Your Mom... Mom: so, how did you two meet?' Rewritten with a new punchline (visa-interview comparison) — the source was a cat-video meme format with a different joke.",
+    "source_note": "Inspired by @meowmeddy IG post (1M followers): 'When You Introduce Your GF to Your Mom... Mom: so, how did you two meet?' Rewritten with a new punchline (visa-interview comparison) \u2014 the source was a cat-video meme format with a different joke.",
     "created_at": "2026-09-17T00:25:00",
     "ig_media_id": null
   },
@@ -105,16 +159,31 @@
     "id": 7,
     "post_type": "relatable",
     "slides": [
-      { "layout": "bullet_list", "items": ["📵 left on read for 4 hours", "🍕 finished the shared snacks, no confession", "🎮 gametime ran into date night", "🛏️ stole every inch of the blanket", "🙄 the eye-roll that started a whole thing"] }
+      {
+        "layout": "bullet_list",
+        "items": [
+          "\ud83d\udcf5 left on read for 4 hours",
+          "\ud83c\udf55 finished the shared snacks, no confession",
+          "\ud83c\udfae gametime ran into date night",
+          "\ud83d\udecf\ufe0f stole every inch of the blanket",
+          "\ud83d\ude44 the eye-roll that started a whole thing"
+        ]
+      }
     ],
     "bg_variant": 1,
     "caption": "every couple has a version of this list. we just happen to have a jar for it.",
-    "hashtags": ["#relatablecouple", "#coupleproblems", "#relationshipgoals", "#funnycouple", "#datingadvice"],
+    "hashtags": [
+      "#relatablecouple",
+      "#coupleproblems",
+      "#relationshipgoals",
+      "#funnycouple",
+      "#datingadvice"
+    ],
     "cta": "which one's you? tag your co-defendant.",
     "angle": "jar_entry",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
-    "source_note": "Drawn directly from Ooops' own default offense category list (docs/ooops-context.md §4) — first-party product content, not externally sourced. Categories rewritten as specific one-line scenarios rather than the flat category names used in-app.",
+    "source_note": "Drawn directly from Ooops' own default offense category list (docs/ooops-context.md \u00a74) \u2014 first-party product content, not externally sourced. Categories rewritten as specific one-line scenarios rather than the flat category names used in-app.",
     "created_at": "2026-09-17T00:30:00",
     "ig_media_id": null
   },
@@ -122,16 +191,25 @@
     "id": 8,
     "post_type": "relatable",
     "slides": [
-      { "layout": "hook", "text": "long distance math:\n\ntwo months apart equals roughly 61 'good morning' texts and zero actual mornings together." }
+      {
+        "layout": "hook",
+        "text": "long distance math:\n\ntwo months apart equals roughly 61 'good morning' texts and zero actual mornings together."
+      }
     ],
     "bg_variant": 2,
     "caption": "the math never checks out. you do it anyway.",
-    "hashtags": ["#longdistancerelationship", "#ldrcouple", "#ldrproblems", "#longdistancelove", "#relatable"],
+    "hashtags": [
+      "#longdistancerelationship",
+      "#ldrcouple",
+      "#ldrproblems",
+      "#longdistancelove",
+      "#relatable"
+    ],
     "cta": "how many days until you're in the same room again? comment your countdown.",
     "angle": "ldr_pain",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
-    "source_note": "Inspired by @jensandmaya IG post (3.8M followers): 'The hardest moment in long distance knowing you won't touch them for another 2 months.' Reframed into a new 'math' conceit — wording not reused from the source.",
+    "source_note": "Inspired by @jensandmaya IG post (3.8M followers): 'The hardest moment in long distance knowing you won't touch them for another 2 months.' Reframed into a new 'math' conceit \u2014 wording not reused from the source.",
     "created_at": "2026-09-17T00:35:00",
     "ig_media_id": null
   },
@@ -139,16 +217,25 @@
     "id": 9,
     "post_type": "relatable",
     "slides": [
-      { "layout": "hook", "text": "long distance taught us to actually be present when we're together.\n\nnow if one of us checks a phone at dinner, that's going in the jar." }
+      {
+        "layout": "hook",
+        "text": "long distance taught us to actually be present when we're together.\n\nnow if one of us checks a phone at dinner, that's going in the jar."
+      }
     ],
     "bg_variant": 2,
     "caption": "we got good at presence out of necessity. now it's just the rule.",
-    "hashtags": ["#relatablecouple", "#longdistancerelationship", "#ldrcouple", "#relatable", "#datingadvice"],
+    "hashtags": [
+      "#relatablecouple",
+      "#longdistancerelationship",
+      "#ldrcouple",
+      "#relatable",
+      "#datingadvice"
+    ],
     "cta": "what's the one thing that goes straight in the jar in your house?",
     "angle": "relatable_text",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
-    "source_note": "Replaces the app_promo post pulled 2026-09-17 (user: no app_promo for a few weeks). Inspired by @febbyfly IG post (4.6M followers): 'long distance taught me to live in the present and actually enjoy what's right in front of me, instead of getting lost in what was or what might be.' Reframed with a new punchline tying the sentiment to Ooops' own jar mechanic — the source had no product/jar tie-in of its own.",
+    "source_note": "Replaces the app_promo post pulled 2026-09-17 (user: no app_promo for a few weeks). Inspired by @febbyfly IG post (4.6M followers): 'long distance taught me to live in the present and actually enjoy what's right in front of me, instead of getting lost in what was or what might be.' Reframed with a new punchline tying the sentiment to Ooops' own jar mechanic \u2014 the source had no product/jar tie-in of its own.",
     "created_at": "2026-09-17T01:00:00",
     "ig_media_id": null
   }
