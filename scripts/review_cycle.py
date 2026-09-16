@@ -168,7 +168,7 @@ def send_visual_review(queue, spreadsheet, repo):
             rp.render_item(item)
             item["stage"] = "rendered"
             urls = image_urls_for_item(item, repo)
-            sheets_utils.write_visual_columns(ws, item, urls)
+            sheets_utils.write_visual_columns(spreadsheet, ws, item, urls)
             item["stage"] = "visual_review"
         print(f"Rendered and filled in Image Link(s) for {len(items)} item(s) in tab '{tab_title}'.")
         _notify(
@@ -246,7 +246,7 @@ def resubmit_visual_review(queue, spreadsheet, repo):
         rp.render_item(item)  # re-render with whatever changed
         urls = image_urls_for_item(item, repo)
         ws = spreadsheet.worksheet(item["review_tab"])
-        sheets_utils.write_visual_columns(ws, item, urls)
+        sheets_utils.write_visual_columns(spreadsheet, ws, item, urls)
         item["stage"] = "visual_review"
     print(f"Re-rendered and resubmitted {len(ready)} revised item(s) for visual review.")
     return True

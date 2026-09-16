@@ -59,28 +59,30 @@ def get_or_create_worksheet(spreadsheet, title):
         return ws, True
 
 
+def _dropdown_request(worksheet, col_index_1based, n_rows):
+    return {
+        "setDataValidation": {
+            "range": {
+                "sheetId": worksheet.id,
+                "startRowIndex": 1,
+                "endRowIndex": n_rows + 1,
+                "startColumnIndex": col_index_1based - 1,
+                "endColumnIndex": col_index_1based,
+            },
+            "rule": {
+                "condition": {
+                    "type": "ONE_OF_LIST",
+                    "values": [{"userEnteredValue": v} for v in STATUS_OPTIONS],
+                },
+                "showCustomUi": True,
+                "strict": True,
+            },
+        }
+    }
+
+
 def _apply_dropdowns(spreadsheet, worksheet, n_rows):
-    requests = []
-    for col_index_1based in (CONTENT_STATUS_COL, VISUAL_STATUS_COL):
-        requests.append({
-            "setDataValidation": {
-                "range": {
-                    "sheetId": worksheet.id,
-                    "startRowIndex": 1,
-                    "endRowIndex": n_rows + 1,
-                    "startColumnIndex": col_index_1based - 1,
-                    "endColumnIndex": col_index_1based,
-                },
-                "rule": {
-                    "condition": {
-                        "type": "ONE_OF_LIST",
-                        "values": [{"userEnteredValue": v} for v in STATUS_OPTIONS],
-                    },
-                    "showCustomUi": True,
-                    "strict": True,
-                },
-            }
-        })
+    requests = [_dropdown_request(worksheet, col, n_rows) for col in (CONTENT_STATUS_COL, VISUAL_STATUS_COL)]
     spreadsheet.batch_update({"requests": requests})
 
 
@@ -152,24 +154,55 @@ def update_content_row(worksheet, item):
     worksheet.update(f"A{row_idx}:H{row_idx}", [row])
 
 
-def write_visual_columns(worksheet, item, image_urls):
-    """Fills in the Image Link(s) column (I) for a row that's already
-    there from content review, leaving Visual Status/Comments (J-K)
-    blank for the reviewer. Does not touch columns A-H.
+def _is_legacy_visual_only_tab(headers):
+    """The very first batch's items (3-9) got their own separate tab
+    before visual review moved onto the content tab — 5 columns, Post
+    ID / Image link(s) / Caption (context) / Status / My Comments."""
+    return len(headers) >= 2 and headers[1] == "Image link(s)"
 
-    Back-compat (2026-09-17): the legacy 5-column visual tab (see
-    read_tab_rows) has Image Link(s) at B and Status/My Comments at
-    D-E instead — write there for that one tab so a revision round on
-    an item from the very first batch still lands in the right place."""
+
+def write_visual_columns(spreadsheet, worksheet, item, image_urls):
+    """Fills in the Image Link(s) column for a row that's already there
+    from content review, leaving Visual Status/Comments blank for the
+    reviewer. Does not touch the content columns.
+
+    Handles three tab shapes (2026-09-17):
+    1. New unified 11-column tab (created after this design existed) —
+       Image Link(s)/Visual Status/Visual Comments are already columns
+       I-K, just write to them.
+    2. The legacy 5-column visual-only tab from the very first batch
+       (see _is_legacy_visual_only_tab) — Image Link(s) is at B,
+       Status/My Comments at D-E.
+    3. A content-only tab that predates the unified schema and has
+       NEVER had visual columns (the live content-2026-09-16 tab, items
+       1-2's batch) — append the 3 visual headers once, with their own
+       dropdown, then write to them. Without this, writing blindly to
+       I-K would either land on the wrong existing columns (corrupting
+       content data) or create headerless columns get_all_records()
+       can't see — both real bugs caught by testing before this fix."""
     row_idx = _find_row_index(worksheet, item["id"])
     if row_idx is None:
         raise ValueError(f"Post ID {item['id']} not found in tab '{worksheet.title}'")
     headers = worksheet.row_values(1)
-    if "Visual Status" not in headers and "Status" in headers:
+
+    if _is_legacy_visual_only_tab(headers):
         worksheet.update(f"B{row_idx}", [["\n".join(image_urls)]])
         worksheet.update(f"D{row_idx}:E{row_idx}", [["", ""]])
+        return
+
+    if "Image Link(s)" not in headers:
+        image_col = len(headers) + 1
+        start = gspread.utils.rowcol_to_a1(1, image_col)
+        end = gspread.utils.rowcol_to_a1(1, image_col + 2)
+        worksheet.update(f"{start}:{end}", [["Image Link(s)", "Visual Status", "Visual Comments"]])
+        n_rows = len(worksheet.col_values(1)) - 1
+        spreadsheet.batch_update({"requests": [_dropdown_request(worksheet, image_col + 1, n_rows)]})
     else:
-        worksheet.update(f"I{row_idx}:K{row_idx}", [["\n".join(image_urls), "", ""]])
+        image_col = headers.index("Image Link(s)") + 1
+
+    start = gspread.utils.rowcol_to_a1(row_idx, image_col)
+    end = gspread.utils.rowcol_to_a1(row_idx, image_col + 2)
+    worksheet.update(f"{start}:{end}", [["\n".join(image_urls), "", ""]])
 
 
 def read_tab_rows(worksheet):
@@ -189,10 +222,14 @@ def read_tab_rows(worksheet):
     # The live content-2026-09-16 tab predates the "Content Status"/
     # "Content Comments" rename (it was created when those columns were
     # just called "Status"/"My Comments") -- fall back to the old names
-    # so that tab keeps working. Not exercised by any tab created after
-    # this fix.
-    legacy_content_tab = "Content Status" not in headers and "Status" in headers
-    legacy_visual_tab = "Visual Status" not in headers and "Status" in headers
+    # so that tab keeps working. Explicitly excludes the legacy
+    # visual-only tab (its "Status" means something else entirely) --
+    # conflating the two was a real bug caught by testing: it made a
+    # freshly-content-approved item read as already visually approved
+    # too, before visual review had even started. Not exercised by any
+    # tab created after this fix.
+    legacy_visual_tab = _is_legacy_visual_only_tab(headers)
+    legacy_content_tab = (not legacy_visual_tab) and "Content Status" not in headers and "Status" in headers
 
     results = []
     for row in records:

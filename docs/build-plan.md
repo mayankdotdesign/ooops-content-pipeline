@@ -973,3 +973,40 @@ above (which doesn't change).
   `docs/pipeline-walkthrough.md` added: a plain-language, example-driven
   explanation of the whole pipeline, for anyone who wants the simple
   version before `build-plan.md`'s denser log. Linked from README.
+
+- **2026-09-17 (Phase 6 — real data-corruption bug caught before it
+  could fire)** — Traced through exactly what would happen when items
+  1 & 2 (the live `content-2026-09-16` tab, 8 columns, created before
+  the unified-schema redesign) reach visual review for the first time,
+  before telling the user it was safe to test. Found two serious bugs
+  that would have fired on the very next real run:
+  1. `write_visual_columns`'s legacy fallback matched ANY tab with a
+     "Status" column and no "Visual Status" column — which incorrectly
+     included this 8-column *content* tab, not just the old 5-column
+     *visual-only* tab it was written for. Would have overwritten
+     column B (`Content/slide text`, replaced with the image URL) and
+     wiped Hashtags/CTA — real data loss on the live tab.
+  2. `read_tab_rows` had the same over-broad match for `legacy_visual_tab`,
+     so it would have read the *content* Status column as if it were
+     also the *visual* Status — meaning an item would appear
+     "already visually approved" the instant it was content-approved,
+     before visual review had even started.
+
+  Root cause: both checks used "has a Status column, lacks a Visual
+  Status column" as the signal for "this is the old visual-only tab" —
+  but that's also true of any content-only tab that simply hasn't
+  gained visual columns yet. Fixed by checking the SPECIFIC legacy
+  visual-tab signature instead (`_is_legacy_visual_only_tab`: header B
+  is literally "Image link(s)"), and by teaching `write_visual_columns`
+  to append the 3 visual headers (with their own dropdown) to a
+  content-only tab the first time it needs them, rather than guessing
+  which existing columns to reuse.
+
+  Verified with the exact live scenario end to end (8-column tab →
+  resubmit → both items approved → visual columns correctly appended,
+  content columns untouched → both approved → queued) and re-confirmed
+  the legacy 5-column visual-only tab (items 3-9) still works
+  unaffected. Caught entirely through testing before the user ran
+  anything against the real sheet — worth remembering: always trace
+  through the exact live data shape for a schema change, not just the
+  new-data-from-scratch case.
