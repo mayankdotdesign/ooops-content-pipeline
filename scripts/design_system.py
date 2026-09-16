@@ -177,22 +177,30 @@ def draw_tracked_line(draw, xy, text, font, fill, tracking_pct=DEFAULT_TRACKING_
 
 def draw_paragraph(img, draw, xy, text, font, fill, max_width,
                     tracking_pct=DEFAULT_TRACKING_PCT,
-                    line_height_pct=DEFAULT_LINE_HEIGHT_PCT, align="left"):
+                    line_height_pct=DEFAULT_LINE_HEIGHT_PCT, align="left",
+                    measure_only=False):
     """Draws possibly-multi-paragraph text (blank-line-separated), wrapped to
     max_width, with manual tracking and 100%-style line-height. Returns the
-    y-coordinate just below the last line drawn."""
+    y-coordinate just below the last line drawn.
+
+    measure_only=True skips the actual drawing (img/draw/fill can be None)
+    and just returns that same y-extent — used to measure a block's height
+    before drawing it, for vertical centering (2026-09-17). This reuses the
+    exact same wrap/advance logic as the real draw pass so the measurement
+    can never drift out of sync with what actually gets rendered."""
     x0, y = xy
     line_advance = font.size * line_height_pct
     tracking_px = font.size * tracking_pct
     emoji_size = int(font.size * 0.95)
     for paragraph in text.split("\n\n"):
         for line in wrap_tracked(font, paragraph, max_width, tracking_pct):
-            if align == "left":
-                lx = x0
-            else:
-                line_w = _run_width(font, line, tracking_px, emoji_size)
-                lx = x0 + (max_width - line_w) / 2 if align == "center" else x0 + max_width - line_w
-            draw_tracked_line(draw, (lx, y), line, font, fill, tracking_pct, emoji_layer=img)
+            if not measure_only:
+                if align == "left":
+                    lx = x0
+                else:
+                    line_w = _run_width(font, line, tracking_px, emoji_size)
+                    lx = x0 + (max_width - line_w) / 2 if align == "center" else x0 + max_width - line_w
+                draw_tracked_line(draw, (lx, y), line, font, fill, tracking_pct, emoji_layer=img)
             y += line_advance
         y += line_advance * 0.4  # small paragraph gap
     return y
@@ -239,19 +247,28 @@ def draw_watermark(img, draw, bg_variant):
     pass wrongly tried to synthesize one — that synthesis dilated the
     alpha channel without expanding the canvas, clipping the outline at
     the logo's tight crop edges. Fixed 2026-09-17: paste Logo.png as-is,
-    no processing, per the user's explicit correction)."""
+    no processing, per the user's explicit correction).
+
+    Placement (2026-09-17, Reference_text_post_1/2.png re-upload): logo
+    moved from bottom-right to top-right, "ooopsapp.com" moved from
+    top-center to bottom-center — the LOGIC of when this gets called is
+    unchanged (still app_promo-single-post only), only where the two
+    pieces sit. Measured off the 1620x1620 reference at its native
+    resolution then scaled by 1080/1620 (2/3) to this canvas: logo right
+    edge ~60px from the right edge, ~59px from the top; url text
+    ~59px from the bottom edge, horizontally centered."""
     text_color = COLORS["maroon"] if bg_variant == 1 else COLORS["white"]
     small_font = load_font("bold", 24)
     label = "ooopsapp.com"
     tracking_px = small_font.size * DEFAULT_TRACKING_PCT
     label_w = _run_width(small_font, label, tracking_px, int(small_font.size * 0.95))
-    draw_tracked_line(draw, ((W - label_w) / 2, 48), label, small_font, text_color, emoji_layer=img)
+    draw_tracked_line(draw, ((W - label_w) / 2, H - 80), label, small_font, text_color, emoji_layer=img)
 
     logo = _load_logo()
-    logo_w = 130
+    logo_w = 166
     logo_h = int(logo.height * (logo_w / logo.width))
     logo_resized = logo.resize((logo_w, logo_h), Image.LANCZOS)
-    img.alpha_composite(logo_resized, (W - logo_resized.width - 48, H - logo_resized.height - 48))
+    img.alpha_composite(logo_resized, (W - logo_resized.width - 60, 59))
 
 
 def render_logo_endcard():
@@ -306,10 +323,13 @@ def render_hook(text, bg_variant=1, branded=False):
     text_color = COLORS["coral"] if bg_variant == 1 else COLORS["cream"]
     font = load_font("bold", 64)
     margin = 108
-    # Vertical anchor scaled by 1080/1350 (0.8) for Phase 7's 1080x1080
-    # canvas (was 430 on the old 1080x1350) — font sizes are untouched
-    # since W didn't change, only H did.
-    draw_paragraph(img, draw, (margin, 344), text, font, text_color, W - margin * 2)
+    max_width = W - margin * 2
+    # Text is always vertically centered on the canvas (2026-09-17,
+    # matches the new design reference) — measure the block first so
+    # the centering math can't drift from what draw_paragraph draws.
+    block_h = draw_paragraph(None, None, (0, 0), text, font, None, max_width, measure_only=True)
+    y_start = (H - block_h) / 2
+    draw_paragraph(img, draw, (margin, y_start), text, font, text_color, max_width)
     if branded:
         draw_watermark(img, draw, bg_variant)
     return img
@@ -323,10 +343,21 @@ def render_bullet_list(items, bg_variant=1, branded=False):
     text_color = COLORS["coral"] if bg_variant == 1 else COLORS["cream"]
     font = load_font("bold", 52)
     margin = 108
-    y = 344  # same 0.8-scaled anchor as render_hook, see its comment
+    max_width = W - margin * 2
+    item_gap = font.size * 0.3
+
+    # Measure the whole stacked block first (mirrors the draw loop below
+    # exactly) so it can be vertically centered — same rule as render_hook.
+    y = 0
     for item in items:
-        y = draw_paragraph(img, draw, (margin, y), item, font, text_color, W - margin * 2)
-        y += font.size * 0.3
+        y = draw_paragraph(None, None, (0, y), item, font, None, max_width, measure_only=True)
+        y += item_gap
+    block_h = y - item_gap
+
+    y = (H - block_h) / 2
+    for item in items:
+        y = draw_paragraph(img, draw, (margin, y), item, font, text_color, max_width)
+        y += item_gap
     if branded:
         draw_watermark(img, draw, bg_variant)
     return img
@@ -345,16 +376,22 @@ def render_stat_card(stat, caption, bg_variant=1, branded=False):
     draw = ImageDraw.Draw(img)
     text_color = COLORS["coral"] if bg_variant == 1 else COLORS["cream"]
     margin = 108
+    max_width = W - margin * 2
     stat_font = load_font("black", 120)
     tracking_px = stat_font.size * DEFAULT_TRACKING_PCT
     stat_w = _run_width(stat_font, stat, tracking_px, int(stat_font.size * 0.95))
-    stat_y = 384  # 480 * 0.8, see render_hook's comment on the Phase 7 canvas resize
+    caption_font = load_font("bold", 44)
+    stat_h = stat_font.size  # single line, no wrapping
+    gap = 40
+    caption_h = draw_paragraph(None, None, (0, 0), caption, caption_font, None, max_width,
+                                align="center", measure_only=True)
+    block_h = stat_h + gap + caption_h
+    stat_y = (H - block_h) / 2
     draw_tracked_line(draw, ((W - stat_w) / 2, stat_y), stat, stat_font, text_color, emoji_layer=img)
 
-    caption_font = load_font("bold", 44)
     draw_paragraph(
-        img, draw, (margin, stat_y + stat_font.size + 40), caption, caption_font, text_color,
-        W - margin * 2, align="center",
+        img, draw, (margin, stat_y + stat_h + gap), caption, caption_font, text_color,
+        max_width, align="center",
     )
     if branded:
         draw_watermark(img, draw, bg_variant)
