@@ -29,6 +29,6 @@ jobs:
         run: |
           git config user.name "ooops-bot"
           git config user.email "bot@ooopsapp.com"
-          git add content_queue/performance.json
+          git add content_queue/
           git commit -m "Update engagement performance data" || echo "nothing to commit"
           git push

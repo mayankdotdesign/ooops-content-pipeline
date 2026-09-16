@@ -1010,3 +1010,20 @@ above (which doesn't change).
   anything against the real sheet — worth remembering: always trace
   through the exact live data shape for a schema change, not just the
   new-data-from-scratch case.
+
+- **2026-09-17 (Track Engagement — first real scheduled failure, fixed)**
+  — `track-engagement.yml`'s cron fired for real for the first time
+  (confirming GitHub's scheduler does work for this repo — it just
+  needed real time to reach its first activation) and failed:
+  `fatal: pathspec 'content_queue/performance.json' did not match any
+  files`. Simple bug, not the git-push-conflict theory floated before
+  seeing the actual log: `performance.json` doesn't exist until the
+  first real post goes live and `track_engagement.py` has something to
+  write — correctly no-ops otherwise (see Phase 3 notes above). `git
+  add <exact nonexistent file>` fails fatally with no `|| echo`
+  fallback (unlike the `git commit` line right after it). Fixed by
+  matching `review-cycle.yml`'s safer pattern: `git add content_queue/`
+  (the directory, not a specific file) — succeeds whether or not
+  anything inside actually changed. Audited `daily-post.yml`'s commit
+  step too: it targets `content_queue/queue.json`, which always exists,
+  so it wasn't at risk of this same bug.
