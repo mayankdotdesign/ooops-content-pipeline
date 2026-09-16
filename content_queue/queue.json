@@ -241,12 +241,12 @@
     ],
     "cta": "what would be your first jar entry today?",
     "angle": "jar_conflict",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
     "source_note": "First-party product content: reframes Ooops' own jar mechanic (docs/ooops-context.md) as the couple's actual way of defusing conflict, not just a complaint list. Not adapted from any external post. Replaces the discarded 'twenty questions' concept originally drafted as post 1 (2026-09-16: user found the concept itself, not just the wording, artificial).",
     "created_at": "2026-09-17T01:05:00",
     "ig_media_id": null,
-    "review_tab": null
+    "review_tab": "content-2026-09-16"
   },
   {
     "id": 11,
@@ -268,12 +268,12 @@
     ],
     "cta": "how well can your partner read you? be honest.",
     "angle": "silent_communication",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
     "source_note": "Generated directly from this session's ideation (2026-09-17) as one of three replacement concepts for the discarded post 1. Not adapted from a specific external post.",
     "created_at": "2026-09-17T01:10:00",
     "ig_media_id": null,
-    "review_tab": null
+    "review_tab": "content-2026-09-16"
   },
   {
     "id": 12,
@@ -295,12 +295,12 @@
     ],
     "cta": "how does your partner apologize without saying the word?",
     "angle": "wordless_apology",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
     "source_note": "Generated directly from this session's ideation (2026-09-17) as one of three replacement concepts for the discarded post 1. Not adapted from a specific external post.",
     "created_at": "2026-09-17T01:15:00",
     "ig_media_id": null,
-    "review_tab": null
+    "review_tab": "content-2026-09-16"
   },
   {
     "id": 13,
@@ -308,7 +308,7 @@
     "slides": [
       {
         "layout": "hook",
-        "text": "nobody should know when you and your partner are on bad terms except you and your partner.\n\nand nobody means nobody. (except the jar 🫙💸🤏🏻)"
+        "text": "nobody should know when you and your partner are on bad terms except you and your partner.\n\nand nobody means nobody. (except the jar \ud83e\uded9\ud83d\udcb8\ud83e\udd0f\ud83c\udffb)"
       }
     ],
     "bg_variant": 2,
@@ -322,11 +322,11 @@
     ],
     "cta": "tag the one person who already knows what's in your jar.",
     "angle": "jar_twist",
-    "stage": "drafted",
+    "stage": "content_review",
     "reviewer_comments": "",
     "source_note": "User-supplied image: a widely-circulated, uncredited relationship-privacy quote graphic ('nobody should know... except you and your partner... nobody means nobody'). Kept close to the original wording since it reads as a generic, non-attributable saying rather than one creator's distinctive joke; the punchline ('except the jar') is new, added by Ooops to tie it to the app's own tracking mechanic.",
     "created_at": "2026-09-17T01:20:00",
     "ig_media_id": null,
-    "review_tab": null
+    "review_tab": "content-2026-09-16"
   }
 ]
