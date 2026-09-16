@@ -247,5 +247,113 @@
     "created_at": "2026-09-17T01:00:00",
     "ig_media_id": null,
     "review_tab": "content-2026-09-16"
+  },
+  {
+    "id": 10,
+    "post_type": "relatable",
+    "slides": [
+      {
+        "layout": "hook",
+        "text": "we don't really fight anymore.\n\nwe just say \"that's going in the jar\" and keep it moving."
+      }
+    ],
+    "bg_variant": 1,
+    "caption": "conflict resolution, but make it petty and efficient.",
+    "hashtags": [
+      "#relatablecouple",
+      "#relationshipgoals",
+      "#coupleproblems",
+      "#datingadvice",
+      "#couplegoals"
+    ],
+    "cta": "what would be your first jar entry today?",
+    "angle": "jar_conflict",
+    "stage": "drafted",
+    "reviewer_comments": "",
+    "source_note": "First-party product content: reframes Ooops' own jar mechanic (docs/ooops-context.md) as the couple's actual way of defusing conflict, not just a complaint list. Not adapted from any external post. Replaces the discarded 'twenty questions' concept originally drafted as post 1 (2026-09-16: user found the concept itself, not just the wording, artificial).",
+    "created_at": "2026-09-17T01:05:00",
+    "ig_media_id": null,
+    "review_tab": null
+  },
+  {
+    "id": 11,
+    "post_type": "relatable",
+    "slides": [
+      {
+        "layout": "hook",
+        "text": "I can tell something's wrong from across the room.\n\nyou haven't said a word, but I already know it's serious."
+      }
+    ],
+    "bg_variant": 2,
+    "caption": "years of practice reading a face that barely changes.",
+    "hashtags": [
+      "#relatablecouple",
+      "#relationshipgoals",
+      "#datingadvice",
+      "#couplegoals",
+      "#relatable"
+    ],
+    "cta": "how well can your partner read you? be honest.",
+    "angle": "silent_communication",
+    "stage": "drafted",
+    "reviewer_comments": "",
+    "source_note": "Generated directly from this session's ideation (2026-09-17) as one of three replacement concepts for the discarded post 1. Not adapted from a specific external post.",
+    "created_at": "2026-09-17T01:10:00",
+    "ig_media_id": null,
+    "review_tab": null
+  },
+  {
+    "id": 12,
+    "post_type": "relatable",
+    "slides": [
+      {
+        "layout": "hook",
+        "text": "he never says sorry.\n\nhe just shows up with my favorite snack and we both pretend that's the apology."
+      }
+    ],
+    "bg_variant": 1,
+    "caption": "our love language is silently agreeing to skip the actual apology.",
+    "hashtags": [
+      "#relatablecouple",
+      "#relationshipgoals",
+      "#funnycouple",
+      "#datingadvice",
+      "#relatable"
+    ],
+    "cta": "how does your partner apologize without saying the word?",
+    "angle": "wordless_apology",
+    "stage": "drafted",
+    "reviewer_comments": "",
+    "source_note": "Generated directly from this session's ideation (2026-09-17) as one of three replacement concepts for the discarded post 1. Not adapted from a specific external post.",
+    "created_at": "2026-09-17T01:15:00",
+    "ig_media_id": null,
+    "review_tab": null
+  },
+  {
+    "id": 13,
+    "post_type": "relatable",
+    "slides": [
+      {
+        "layout": "hook",
+        "text": "nobody should know when you and your partner are on bad terms except you and your partner.\n\nand nobody means nobody. (except the jar 🫙💸🤏🏻)"
+      }
+    ],
+    "bg_variant": 2,
+    "caption": "the jar has no chill and even less discretion.",
+    "hashtags": [
+      "#relatablecouple",
+      "#relationshipgoals",
+      "#coupleproblems",
+      "#datingadvice",
+      "#relatable"
+    ],
+    "cta": "tag the one person who already knows what's in your jar.",
+    "angle": "jar_twist",
+    "stage": "drafted",
+    "reviewer_comments": "",
+    "source_note": "User-supplied image: a widely-circulated, uncredited relationship-privacy quote graphic ('nobody should know... except you and your partner... nobody means nobody'). Kept close to the original wording since it reads as a generic, non-attributable saying rather than one creator's distinctive joke; the punchline ('except the jar') is new, added by Ooops to tie it to the app's own tracking mechanic.",
+    "created_at": "2026-09-17T01:20:00",
+    "ig_media_id": null,
+    "review_tab": null
   }
 ]
