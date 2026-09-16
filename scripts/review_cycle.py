@@ -230,11 +230,22 @@ def resubmit_content_review(queue, spreadsheet):
     ready = [i for i in queue if i["stage"] == "content_needs_change" and not i["reviewer_comments"]]
     if not ready:
         return False
+    tabs = set()
     for item in ready:
         ws = spreadsheet.worksheet(item["review_tab"])
         sheets_utils.update_content_row(ws, item)
         item["stage"] = "content_review"
+        tabs.add(item["review_tab"])
     print(f"Resubmitted {len(ready)} revised item(s) for content review.")
+    _notify(
+        subject=f"Ooops Content Revision Resubmitted — {_today()}",
+        body=(
+            f"{len(ready)} revised post(s) pushed back into content review.\n\n"
+            f"Tab(s): {', '.join(sorted(tabs))}\n"
+            f"Open the sheet: {_sheet_url()}\n\n"
+            "Fill in Content Status (Approved / Need Change / Rejected) again for each revised row."
+        ),
+    )
     return True
 
 
@@ -242,13 +253,24 @@ def resubmit_visual_review(queue, spreadsheet, repo):
     ready = [i for i in queue if i["stage"] == "visual_needs_change" and not i["reviewer_comments"]]
     if not ready:
         return False
+    tabs = set()
     for item in ready:
         rp.render_item(item)  # re-render with whatever changed
         urls = image_urls_for_item(item, repo)
         ws = spreadsheet.worksheet(item["review_tab"])
         sheets_utils.write_visual_columns(spreadsheet, ws, item, urls)
         item["stage"] = "visual_review"
+        tabs.add(item["review_tab"])
     print(f"Re-rendered and resubmitted {len(ready)} revised item(s) for visual review.")
+    _notify(
+        subject=f"Ooops Visual Revision Resubmitted — {_today()}",
+        body=(
+            f"{len(ready)} revised post(s) re-rendered with updated Image Link(s).\n\n"
+            f"Tab(s): {', '.join(sorted(tabs))}\n"
+            f"Open the sheet: {_sheet_url()}\n\n"
+            "Fill in Visual Status (Approved / Need Change / Rejected) again for each revised row."
+        ),
+    )
     return True
 
 
