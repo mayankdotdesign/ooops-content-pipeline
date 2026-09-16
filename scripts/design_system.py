@@ -23,7 +23,7 @@ see docs/build-plan.md's note on why that was a real bug.
 import json
 import os
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 FONT_DIR = os.path.join(ROOT, "assets", "fonts")
@@ -215,27 +215,17 @@ def _load_logo():
     return Image.open(os.path.join(LOGO_DIR, "Logo.png")).convert("RGBA")
 
 
-def _logo_with_white_outline(logo_img, outline_px):
-    """Reproduces the white outline that hugs the logo's own letterforms in
-    every reference file (Reference_text_post_*.png, Reference_image_post_*.png,
-    Webpage UI.png) — confirmed by pixel inspection, it's a stroke around the
-    glyph shapes, NOT a background pill/capsule (that was wrong, removed
-    2026-09-17). Computed from Logo.png's own alpha channel at render time —
-    no extra logo asset file, per the user's "logo.png only" instruction."""
-    alpha = logo_img.split()[-1]
-    dilated = alpha.filter(ImageFilter.MaxFilter(outline_px * 2 + 1))
-    outline_layer = Image.new("RGBA", logo_img.size, (255, 255, 255, 255))
-    outline_layer.putalpha(dilated)
-    result = Image.new("RGBA", logo_img.size, (0, 0, 0, 0))
-    result.alpha_composite(outline_layer)
-    result.alpha_composite(logo_img)
-    return result
-
-
 def draw_watermark(img, draw, bg_variant):
     """Small corner branding for an app_promo SINGLE post only. Never call
     this for relatable posts or for non-last carousel slides — see the
-    2026-09-16 logo-placement ruling in docs/build-plan.md."""
+    2026-09-16 logo-placement ruling in docs/build-plan.md.
+
+    Logo.png already has its white outline baked into the artwork (it was
+    invisible against a white preview backdrop, which is why an earlier
+    pass wrongly tried to synthesize one — that synthesis dilated the
+    alpha channel without expanding the canvas, clipping the outline at
+    the logo's tight crop edges. Fixed 2026-09-17: paste Logo.png as-is,
+    no processing, per the user's explicit correction)."""
     text_color = COLORS["maroon"] if bg_variant == 1 else COLORS["white"]
     small_font = load_font("bold", 24)
     label = "ooopsapp.com"
@@ -247,14 +237,14 @@ def draw_watermark(img, draw, bg_variant):
     logo_w = 130
     logo_h = int(logo.height * (logo_w / logo.width))
     logo_resized = logo.resize((logo_w, logo_h), Image.LANCZOS)
-    logo_outlined = _logo_with_white_outline(logo_resized, outline_px=6)
-    img.alpha_composite(logo_outlined, (W - logo_outlined.width - 48, H - logo_outlined.height - 48))
+    img.alpha_composite(logo_resized, (W - logo_resized.width - 48, H - logo_resized.height - 48))
 
 
 def render_logo_endcard():
     """The big branded slide — ONLY the last slide of an app_promo carousel,
     or a dedicated app_promo single post. Matches IG carousel.png's final
-    slide: coral bg, big white logo, tagline, waitlist CTA."""
+    slide: coral bg, big logo (as-is, see draw_watermark's note on why no
+    outline processing is applied), tagline, waitlist CTA."""
     img = load_background(2)
     draw = ImageDraw.Draw(img)
 
@@ -262,9 +252,8 @@ def render_logo_endcard():
     logo_w = 620
     logo_h = int(logo.height * (logo_w / logo.width))
     logo_resized = logo.resize((logo_w, logo_h), Image.LANCZOS)
-    logo_outlined = _logo_with_white_outline(logo_resized, outline_px=14)
     logo_y = 520
-    img.alpha_composite(logo_outlined, ((W - logo_outlined.width) // 2, logo_y - 14))
+    img.alpha_composite(logo_resized, ((W - logo_resized.width) // 2, logo_y))
 
     tagline_font = load_font("bold", 34)
     tagline = "we're building something for this."

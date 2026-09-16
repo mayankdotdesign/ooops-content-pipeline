@@ -566,3 +566,23 @@ above (which doesn't change).
   once Phase 5 drafts something and Phase 6 (once built) pushes an item
   through to `queued`. Per the build order, Phase 5 (weekly research +
   batch generation) is next.
+
+- **2026-09-17 (logo fix, root cause)** — The white-outline logo was
+  clipping/distorting on every post. Root cause: `Logo.png` **already
+  has the white outline baked into the artwork** — it was invisible
+  when I first inspected the file because my preview rendered it
+  against a white backdrop (white outline on white background = looks
+  like no outline). Not knowing that, an earlier pass synthesized a
+  *second* outline via alpha-channel dilation (`ImageFilter.MaxFilter`)
+  without expanding the canvas — which clipped at the logo's tight crop
+  edges, on top of double-thickening the outline that was already
+  there. Fixed by deleting `_logo_with_white_outline()` entirely and
+  pasting `Logo.png` completely unmodified everywhere (watermark and
+  `logo_endcard`) — confirmed against a black-background composite that
+  the file's own outline is clean and complete on all sides. Re-rendered
+  and confirmed no clipping across all layout types.
+
+  Lesson for this project: before assuming an asset needs a visual
+  treatment, composite it against a few different background colors
+  first — a white/transparent preview can hide detail that's actually
+  already in the file.
