@@ -16,6 +16,23 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
+def send_notification_email(subject, body):
+    """Link-only notification (2026-09-17 Sheets redesign) — no
+    attachment, just tells the user a new tab is ready to review."""
+    address = os.environ["GMAIL_ADDRESS"]
+    app_password = os.environ["GMAIL_APP_PASSWORD"]
+
+    msg = MIMEMultipart()
+    msg["From"] = address
+    msg["To"] = address
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "plain"))
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(address, app_password)
+        server.sendmail(address, [address], msg.as_string())
+
+
 def send_review_email(subject, body, attachment_path):
     address = os.environ["GMAIL_ADDRESS"]
     app_password = os.environ["GMAIL_APP_PASSWORD"]

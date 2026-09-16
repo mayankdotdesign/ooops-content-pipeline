@@ -722,3 +722,59 @@ above (which doesn't change).
   **Phase 6 is built.** Per the build order, Phase 7 (cadence update)
   is last — but should wait until Phase 6 has been exercised for real
   at least once, since Phase 7 assumes 4+6 work correctly already.
+
+- **2026-09-17 (Phase 6 redesign)** — User feedback after seeing the
+  email/xlsx-attachment flow (before the first real send went out):
+  wanted a persistent Google Sheet instead of downloading/re-uploading
+  a file every cycle, with a new tab per cycle switchable at the
+  bottom, not a fresh file each time.
+
+  **What this actually required**: my live Drive API access in this
+  chat session can create/read/share whole files but has no tool to
+  add a tab to an existing spreadsheet or edit cells after creation —
+  that needs the full Google Sheets API. User chose to do this
+  properly (a Google Cloud service account) rather than the simpler
+  chat-mediated fallback, so the pipeline can run fully unattended.
+
+  **Rebuilt Phase 6 around Sheets, not email attachments:**
+  - `scripts/sheets_utils.py` — auth via `GOOGLE_SERVICE_ACCOUNT_JSON`
+    (service account key, full JSON pasted as a secret) +
+    `GOOGLE_SHEET_ID` (a repo *variable*, not a secret — it's just the
+    ID from the sheet's URL). `get_or_create_worksheet` adds a new tab
+    named `content-{date}` / `visual-{date}` only if it doesn't already
+    exist — never overwrites an in-progress review. Status dropdown
+    applied via a raw `setDataValidation` batch_update request (ONE_OF_LIST,
+    strict).
+  - `scripts/gmail_utils.py` — kept, but now only sends a short
+    **link-only notification** (`send_notification_email`, no
+    attachment) pointing at the sheet + tab name. The heavy lifting
+    (building/parsing xlsx, IMAP polling for a reply) is gone entirely.
+  - `scripts/review_cycle.py` — same 4-step structure and same-run
+    cascade as before, but "check for reply" became "re-read the live
+    tab and check whether every row has a non-blank Status" —
+    `is_tab_fully_reviewed()`. Simpler and more robust than the old
+    IMAP attachment-matching logic it replaced (no email thread state
+    to track, no risk of a reply arriving without its attachment).
+  - Old `docs/build-plan.md` entry for the email/xlsx version above
+    this one is now superseded — the code it describes
+    (`review_xlsx.py`, IMAP polling in `gmail_utils.py`) never sent a
+    real email; removed before the first live send per the user's
+    "haven't received the mail yet" confirmation.
+
+  **Tested the same way as the email version** — this time against an
+  in-memory fake `gspread` Spreadsheet/Worksheet (not the real Google
+  API): tab creation, row writes, the full 4-stage cascade (content
+  review filled in → approved item rendered + visual tab written in
+  the same run, Need Change preserved with comments), the
+  partial-fill wait (not all rows have Status yet → correct no-op,
+  don't process early), and the Rejected-drop path. No real Google
+  credentials touched during development.
+
+  **Setup still needed from the user** (given as exact steps in chat):
+  create a GCP service account, enable the Sheets API, download the
+  JSON key, create one Google Sheet and share it with the service
+  account's `client_email` as Editor, add `GOOGLE_SERVICE_ACCOUNT_JSON`
+  as a repo secret and `GOOGLE_SHEET_ID` as a repo variable. Phase 6
+  isn't live again until that's done — `.github/workflows/review-cycle.yml`
+  will fail on every run until both are set (fails loud in Actions
+  logs, doesn't silently do nothing).
