@@ -31,7 +31,7 @@ EMOJI_DIR = os.path.join(ROOT, "assets", "emoji")
 BG_DIR = os.path.join(ROOT, "assets", "backgrounds")
 LOGO_DIR = os.path.join(ROOT, "assets", "logo")
 
-W, H = 1080, 1350
+W, H = 1080, 1080
 
 COLORS = {
     "coral": "#EA4330",   # brand accent; main body text on light (BG1) slides
@@ -199,12 +199,26 @@ def draw_paragraph(img, draw, xy, text, font, fill, max_width,
 
 
 def load_background(variant):
-    """BG1 (light) or BG2 (coral). Uploaded at 1620x2025 — same 4:5 ratio as
-    the 1080x1350 canvas, so a straight resize is correct, no crop needed."""
+    """BG1 (light) or BG2 (coral). Was 1620x2025 (4:5, exact match for the
+    old 1080x1350 canvas, straight resize, no crop needed). Phase 7
+    (2026-09-17) moved the canvas to 1080x1080 (1:1); the source PNGs are
+    still 4:5 until re-uploaded square, so this now does a center-crop
+    resize (same cover-fit approach as render_photo below) instead of a
+    naive stretch-resize — a straight resize to a mismatched aspect ratio
+    would visibly distort the gradient. Once square source PNGs land in
+    assets/backgrounds/, this crops nothing (already the target ratio)."""
     fname = "BG1.png" if variant == 1 else "BG2.png"
     bg = Image.open(os.path.join(BG_DIR, fname)).convert("RGBA")
     if bg.size != (W, H):
-        bg = bg.resize((W, H), Image.LANCZOS)
+        src_ratio = bg.width / bg.height
+        dst_ratio = W / H
+        if src_ratio > dst_ratio:
+            new_h, new_w = H, int(H * src_ratio)
+        else:
+            new_w, new_h = W, int(W / src_ratio)
+        bg = bg.resize((new_w, new_h), Image.LANCZOS)
+        left, top = (new_w - W) // 2, (new_h - H) // 2
+        bg = bg.crop((left, top, left + W, top + H))
     return bg
 
 
@@ -252,7 +266,7 @@ def render_logo_endcard():
     logo_w = 620
     logo_h = int(logo.height * (logo_w / logo.width))
     logo_resized = logo.resize((logo_w, logo_h), Image.LANCZOS)
-    logo_y = 520
+    logo_y = 416  # 520 * 0.8, see render_hook's comment on the Phase 7 canvas resize
     img.alpha_composite(logo_resized, ((W - logo_resized.width) // 2, logo_y))
 
     tagline_font = load_font("bold", 34)
@@ -292,7 +306,10 @@ def render_hook(text, bg_variant=1, branded=False):
     text_color = COLORS["coral"] if bg_variant == 1 else COLORS["cream"]
     font = load_font("bold", 64)
     margin = 108
-    draw_paragraph(img, draw, (margin, 430), text, font, text_color, W - margin * 2)
+    # Vertical anchor scaled by 1080/1350 (0.8) for Phase 7's 1080x1080
+    # canvas (was 430 on the old 1080x1350) — font sizes are untouched
+    # since W didn't change, only H did.
+    draw_paragraph(img, draw, (margin, 344), text, font, text_color, W - margin * 2)
     if branded:
         draw_watermark(img, draw, bg_variant)
     return img
@@ -306,7 +323,7 @@ def render_bullet_list(items, bg_variant=1, branded=False):
     text_color = COLORS["coral"] if bg_variant == 1 else COLORS["cream"]
     font = load_font("bold", 52)
     margin = 108
-    y = 430
+    y = 344  # same 0.8-scaled anchor as render_hook, see its comment
     for item in items:
         y = draw_paragraph(img, draw, (margin, y), item, font, text_color, W - margin * 2)
         y += font.size * 0.3
@@ -331,11 +348,12 @@ def render_stat_card(stat, caption, bg_variant=1, branded=False):
     stat_font = load_font("black", 120)
     tracking_px = stat_font.size * DEFAULT_TRACKING_PCT
     stat_w = _run_width(stat_font, stat, tracking_px, int(stat_font.size * 0.95))
-    draw_tracked_line(draw, ((W - stat_w) / 2, 480), stat, stat_font, text_color, emoji_layer=img)
+    stat_y = 384  # 480 * 0.8, see render_hook's comment on the Phase 7 canvas resize
+    draw_tracked_line(draw, ((W - stat_w) / 2, stat_y), stat, stat_font, text_color, emoji_layer=img)
 
     caption_font = load_font("bold", 44)
     draw_paragraph(
-        img, draw, (margin, 480 + stat_font.size + 40), caption, caption_font, text_color,
+        img, draw, (margin, stat_y + stat_font.size + 40), caption, caption_font, text_color,
         W - margin * 2, align="center",
     )
     if branded:

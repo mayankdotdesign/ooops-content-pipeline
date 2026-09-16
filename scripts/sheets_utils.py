@@ -86,6 +86,42 @@ def _apply_dropdowns(spreadsheet, worksheet, n_rows):
     spreadsheet.batch_update({"requests": requests})
 
 
+def _write_hyperlinked_urls(spreadsheet, worksheet, row_idx, col_idx, urls):
+    """Writes urls joined by "\n" into one cell, each one an actual
+    clickable hyperlink — not relying on Sheets' own auto-linking, which
+    only kicks in when a cell's ENTIRE content is a single URL. A
+    carousel's Image Link(s) cell holds 2+ URLs on separate lines, so
+    none of them got auto-linked and showed up as plain text (caught
+    2026-09-17 testing post 14, the first carousel through the sheet).
+    A plain gspread `update()` can only set cell text, not per-substring
+    link metadata, so this goes through the same raw batch_update()
+    escape hatch _dropdown_request already uses."""
+    joined = "\n".join(urls)
+    runs = []
+    offset = 0
+    for url in urls:
+        runs.append({"startIndex": offset, "format": {"link": {"uri": url}}})
+        offset += len(url)
+        runs.append({"startIndex": offset, "format": {}})
+        offset += 1  # the "\n" separator
+    spreadsheet.batch_update({
+        "requests": [{
+            "updateCells": {
+                "rows": [{"values": [{
+                    "userEnteredValue": {"stringValue": joined},
+                    "textFormatRuns": runs,
+                }]}],
+                "fields": "userEnteredValue,textFormatRuns",
+                "start": {
+                    "sheetId": worksheet.id,
+                    "rowIndex": row_idx - 1,
+                    "columnIndex": col_idx - 1,
+                },
+            }
+        }]
+    })
+
+
 def _slide_summary(item):
     parts = []
     for i, slide in enumerate(item["slides"], start=1):
@@ -203,6 +239,7 @@ def write_visual_columns(spreadsheet, worksheet, item, image_urls):
     start = gspread.utils.rowcol_to_a1(row_idx, image_col)
     end = gspread.utils.rowcol_to_a1(row_idx, image_col + 2)
     worksheet.update(f"{start}:{end}", [["\n".join(image_urls), "", ""]])
+    _write_hyperlinked_urls(spreadsheet, worksheet, row_idx, image_col, image_urls)
 
 
 def read_tab_rows(worksheet):
