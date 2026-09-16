@@ -71,6 +71,22 @@ def _sheet_url():
     return f"https://docs.google.com/spreadsheets/d/{os.environ['GOOGLE_SHEET_ID']}/edit"
 
 
+def _notify(subject, body):
+    """Best-effort notification — never let an email hiccup crash the
+    script before stage transitions get saved. The sheet is always the
+    source of truth; the email is just a convenience ping. A failure
+    here means the user won't get pinged for this run, but nothing about
+    the actual queue state is lost, and the next run's state is still
+    correct (unlike a mid-function crash, which used to skip _save()
+    entirely and cause the next run to redo work — see docs/build-plan.md
+    2026-09-17)."""
+    try:
+        gmail_utils.send_notification_email(subject, body)
+    except Exception as e:
+        print(f"WARNING: notification email failed ({e!r}) — continuing anyway, "
+              "state is already saved.")
+
+
 def check_content_review(queue, spreadsheet):
     outstanding = [i for i in queue if i["stage"] == "content_review"]
     if not outstanding:
@@ -119,7 +135,10 @@ def send_visual_review(queue, spreadsheet, repo):
 
     tab_title = f"visual-{_today()}"
     sheets_utils.write_visual_review_tab(spreadsheet, tab_title, approved, image_urls_by_id)
-    gmail_utils.send_notification_email(
+    for item in approved:
+        item["stage"] = "visual_review"
+    print(f"Rendered and wrote visual review tab '{tab_title}' for {len(approved)} item(s).")
+    _notify(
         subject=f"Ooops Visual Review — {_today()}",
         body=(
             f"{len(approved)} post(s) rendered and ready for visual review.\n\n"
@@ -127,9 +146,6 @@ def send_visual_review(queue, spreadsheet, repo):
             "Fill in Status (Approved / Need Change / Rejected) and My Comments for each row."
         ),
     )
-    for item in approved:
-        item["stage"] = "visual_review"
-    print(f"Rendered and wrote visual review tab '{tab_title}' for {len(approved)} item(s).")
     return True
 
 
@@ -174,7 +190,10 @@ def send_content_review(queue, spreadsheet):
         return False
     tab_title = f"content-{_today()}"
     sheets_utils.write_content_review_tab(spreadsheet, tab_title, drafted)
-    gmail_utils.send_notification_email(
+    for item in drafted:
+        item["stage"] = "content_review"
+    print(f"Wrote content review tab '{tab_title}' for {len(drafted)} item(s).")
+    _notify(
         subject=f"Ooops Content Review — {_today()}",
         body=(
             f"{len(drafted)} post(s) ready for content review.\n\n"
@@ -182,9 +201,6 @@ def send_content_review(queue, spreadsheet):
             "Fill in Status (Approved / Need Change / Rejected) and My Comments for each row."
         ),
     )
-    for item in drafted:
-        item["stage"] = "content_review"
-    print(f"Wrote content review tab '{tab_title}' for {len(drafted)} item(s).")
     return True
 
 
@@ -194,16 +210,24 @@ def main():
     spreadsheet = sheets_utils.open_spreadsheet(client)
 
     queue = _load()
-    changed = False
+    any_step_ran = False
 
-    changed |= check_content_review(queue, spreadsheet)
-    changed |= send_visual_review(queue, spreadsheet, repo)
-    changed |= check_visual_review(queue, spreadsheet)
-    changed |= send_content_review(queue, spreadsheet)
+    # Save after each step rather than once at the end — a crash partway
+    # through (e.g. render_post failing on step 2) then never loses an
+    # earlier step's already-completed work on the next run. This is the
+    # fix for the 2026-09-17 incident where a step failure skipped the
+    # single end-of-run save entirely and caused a later run to redo work.
+    for step, args in [
+        (check_content_review, (queue, spreadsheet)),
+        (send_visual_review, (queue, spreadsheet, repo)),
+        (check_visual_review, (queue, spreadsheet)),
+        (send_content_review, (queue, spreadsheet)),
+    ]:
+        if step(*args):
+            any_step_ran = True
+            _save(queue)
 
-    if changed:
-        _save(queue)
-    else:
+    if not any_step_ran:
         print("Nothing to do this run.")
     return 0
 

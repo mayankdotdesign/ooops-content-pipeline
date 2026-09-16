@@ -802,3 +802,35 @@ above (which doesn't change).
   tested with mocks. Waiting on the user to fill in the sheet — once
   every row has a Status, the next cron tick processes it and cascades
   into rendering + the visual-review tab automatically.
+
+- **2026-09-17 (Phase 6 robustness fix)** — Traced through why the real
+  email came back dated 2026-09-16: `datetime.date.today()` uses the
+  GitHub Actions runner's system clock, which is UTC, not the user's
+  local timezone — not itself a bug, just a label that won't always
+  match the user's wall calendar depending on time of day and their
+  offset from UTC.
+
+  Tracing it surfaced a real bug, though: the run that failed on the
+  app-password `UnicodeEncodeError` had *already* written the content-
+  review tab to the live Sheet before that crash — but because the
+  crash happened before `main()`'s single end-of-run `_save(queue)`,
+  the stage transition never got persisted, so the next run would have
+  redone the tab write (only avoided duplication because both runs
+  happened to land on the same UTC date, purely by luck of timing).
+
+  Fixed two ways in `scripts/review_cycle.py`:
+  1. Each step now flips the item stage *before* attempting the
+     notification email, and the email send is wrapped in `_notify()`,
+     which catches and logs any failure instead of propagating it — a
+     failed notification is recoverable (the sheet is still correct,
+     right check will just be a run late), a lost stage transition
+     isn't.
+  2. `main()` now calls `_save(queue)` after *each* step that reports
+     it did something, not once at the very end — so a crash in a
+     later step can never erase an earlier step's already-completed
+     work within the same run.
+
+  Verified with the fake-gspread harness: the happy path still works
+  unchanged, and a simulated `send_notification_email` exception no
+  longer crashes the run — the stage transition and tab write both
+  persist correctly regardless.
