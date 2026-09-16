@@ -778,3 +778,27 @@ above (which doesn't change).
   isn't live again until that's done — `.github/workflows/review-cycle.yml`
   will fail on every run until both are set (fails loud in Actions
   logs, doesn't silently do nothing).
+
+- **2026-09-17 (Phase 6 — first real run, confirmed working)** — After
+  setup, the workflow failed twice before succeeding, both real,
+  useful gotchas worth remembering for this project:
+  1. `GOOGLE_SHEET_ID` was initially added under the **Secrets** tab
+     instead of **Variables** — the workflow reads it as `vars.GOOGLE_SHEET_ID`,
+     so it silently resolved to an empty string and `gspread` returned
+     a generic Google "Page Not Found" HTML page (not a clean
+     permission error) when opening the sheet. Moving it to Variables
+     fixed this immediately.
+  2. `GMAIL_APP_PASSWORD` contained a **non-breaking space** (`\xa0`,
+     not a regular space) instead of being a clean 16-character string
+     — copying an App Password directly off Google's account page can
+     carry that over, and `smtplib`'s AUTH LOGIN step requires plain
+     ASCII, so it failed with `UnicodeEncodeError`. Fixed by re-entering
+     the secret with all spaces removed entirely.
+
+  **First real run succeeded** after both fixes: wrote the
+  `content-2026-09-17` tab with all 9 items, sent the real
+  notification email, committed `queue.json` with all 9 items at
+  `stage: "content_review"`. Phase 6 is genuinely live now, not just
+  tested with mocks. Waiting on the user to fill in the sheet — once
+  every row has a Status, the next cron tick processes it and cascades
+  into rendering + the visual-review tab automatically.
