@@ -586,3 +586,61 @@ above (which doesn't change).
   treatment, composite it against a few different background colors
   first — a white/transparent preview can hide detail that's actually
   already in the file.
+
+- **2026-09-17 (Phase 5)** — Weekly research + batch drafting, with a
+  real sourcing constraint documented rather than papered over:
+
+  **Reddit: unavailable this cycle.** `reddit.com` is blocked outright
+  in the browser tool (safety restriction), and 7+ varied web searches
+  never surfaced a directly citable `reddit.com` URL — only secondary
+  sites paraphrasing Reddit content, which isn't a real citation. User
+  attempted to set up a Reddit API MCP (`Arindam200/reddit-mcp`) to fix
+  this properly; got blocked on Reddit's own CAPTCHA, and research
+  surfaced that Reddit's 2026 API access now requires a separate
+  developer-platform registration plus a manual OAuth approval process
+  with no published SLA (weeks, sometimes no response). Repo cloned to
+  `~/reddit-mcp` (outside this public repo, deliberately — a project-level
+  `.mcp.json` with real credentials would leak them into a public repo)
+  and `uv` installed, ready for the user to finish registration whenever
+  Reddit approval comes through. Revisit Reddit sourcing for a future
+  cycle once/if that clears — don't assume it's permanently unavailable.
+
+  **Instagram: real research, done properly.** Browsed
+  `#longdistancerelationship`, `#relationshipmemes`, `#ldrproblems`,
+  `#relationshipproblems` unauthenticated (hit Instagram's own
+  rate-limiting between hashtags — expected behavior, not a bug, so
+  paced across several attempts) — 24 distinct real accounts/posts
+  reviewed, exceeding the 15+ minimum. Also checked `@ooops.app`
+  directly: confirmed only 2 posts are currently live (the origin-story
+  carousel — matches `IG carousel.png`, excluded from reuse per user
+  instruction — and an unopenable Reel about a "$20" jar entry via a
+  video-call/text exchange, a content pattern this pipeline doesn't
+  produce since it's static images only).
+
+  **9 posts drafted, not 14** — per the plan's own instruction to draft
+  fewer well-sourced posts rather than pad to hit a number. Each has a
+  `source_note` citing its real, distinct IG source; several IG posts
+  found during research were deliberately NOT used:
+  - 3 accounts converged on near-identical "LDR isn't for the weak"
+    phrasing — using any of them risked reproducing exactly the kind of
+    generic templated line `docs/voice-guide.md`'s cliché list warns
+    against.
+  - One post (`@jessyka_hagen`) covered real marriage struggles
+    (problematic drinking, therapy) — excluded per
+    `docs/ooops-context.md` §6's hard content boundaries (real issues
+    aren't jar-worthy pettiness), even though it was a rich, specific
+    post.
+  - One post cited an unverified "70% of LDRs fail" statistic from an
+    influencer account — not used as a stated fact in any draft, since
+    Ooops has no data of its own to back a claim like that yet
+    (pre-launch, per `ooops-context.md` §7).
+
+  Mix achieved: 8 `relatable` + 1 `app_promo` (carousel ending in
+  `logo_endcard`, using the already-validated "not a scorecard" Reddit-
+  tested positioning copy from `ooops-context.md` as first-party
+  source, not newly researched). 6 single-slide + 2 carousels + 1
+  3-slide app_promo carousel. `bg_variant` alternated close to evenly
+  (5x BG1, 4x BG2). All validated via `scripts/validate_queue.py`,
+  spot-rendered via `scripts/render_post.py` to confirm output before
+  committing. Sitting at `stage: "drafted"` — nothing posted, Phase 6
+  (which doesn't exist yet) is what would move these forward.
