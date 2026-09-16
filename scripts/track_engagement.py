@@ -64,7 +64,7 @@ def main():
         return 1
 
     queue = load_queue()
-    posted = [item for item in queue if item.get("status") == "posted" and item.get("ig_media_id")]
+    posted = [item for item in queue if item.get("stage") == "posted" and item.get("ig_media_id")]
     if not posted:
         print("No posted items with an ig_media_id yet — nothing to track.")
         return 0

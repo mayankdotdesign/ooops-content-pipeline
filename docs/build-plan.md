@@ -512,3 +512,57 @@ above (which doesn't change).
 
   **Phase 2 and Phase 3 are both done.** Per the build order, Phase 4
   (queue schema) is next.
+
+- **2026-09-17 (Phase 4)** — Full schema + wiring, per user's explicit
+  choice (not schema-only):
+  - `docs/queue-schema.md`: formal schema doc, including the
+    "Logo placement" derivation rule and where rendering actually
+    happens in the new flow (see below).
+  - `scripts/validate_queue.py`: validates post_type/stage enums,
+    hashtag count, slides length 1-10, per-layout required fields, and
+    that `logo_endcard` only appears as the last slide of an app_promo
+    carousel. Tested against synthetic good/bad cases.
+  - `scripts/render_post.py` rewritten: dispatches each slide to
+    `design_system.py` by `layout`, applies the logo-placement rule
+    (derived from post_type + slide count/position, not a settable
+    field), writes `content_queue/rendered/<id>.png` for single posts
+    or `content_queue/rendered/<id>/1.png, 2.png, ...` for carousels.
+    Sets `stage: "rendered"` (the old `status` field is gone from the
+    new schema). Tested end-to-end: relatable single, app_promo single
+    (watermark), and app_promo carousel (unbranded slides +
+    logo_endcard last) all render correctly.
+  - `scripts/post_to_instagram.py` extended for carousel posting: child
+    containers (`is_carousel_item=true`) → parent `CAROUSEL` container
+    → publish. Image URLs now built internally from `GITHUB_REPOSITORY`
+    + the render-output convention above, rather than passed in as a
+    single `IMAGE_PUBLIC_URL` env var. Now sets `stage: "posted"` and
+    `ig_media_id`. Tested the URL-building and caption logic without
+    hitting the real API.
+  - `scripts/track_engagement.py` updated to check `stage == "posted"`
+    instead of the old `status` field.
+  - `.github/workflows/daily-post.yml` restructured: **no longer
+    renders anything**. Per Phase 6's own spec, rendering happens during
+    the visual-approval cycle (`content_approved` → render → `rendered`
+    → `visual_review` → `queued`) — by the time an item reaches
+    `stage: "queued"`, its image(s) are already rendered and already
+    committed/pushed, days before publish day. So this job now just
+    finds the next `stage: "queued"` item, posts it, and commits the
+    `stage: "posted"` update.
+
+    **This also means the `sleep 8` after push is gone.** Not an
+    oversight — the reason it existed (a *freshly pushed* image not yet
+    propagated to Instagram's fetch) doesn't apply when the image has
+    already been live on `raw.githubusercontent.com` for however long
+    review took. If Phase 6 turns out to render+push on the *same day*
+    as posting in some edge case, revisit this — but the documented
+    Phase 6 flow explicitly separates visual-review-approval from
+    publish day, so that shouldn't happen. Flagging clearly here per the
+    plan's own "don't fix without understanding why" instruction — this
+    was fixed with full understanding of why it was there, not dropped
+    carelessly.
+
+  **Phase 4 is done.** Nothing in this wiring has run against real
+  content yet (queue.json is empty) — it'll get its first real test
+  once Phase 5 drafts something and Phase 6 (once built) pushes an item
+  through to `queued`. Per the build order, Phase 5 (weekly research +
+  batch generation) is next.

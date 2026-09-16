@@ -1,66 +1,76 @@
 """
-Renders a queued text idea into a 1080x1350 IG post image,
-styled to match the Ooops visual system (coral-red / salmon-peach
-gradient bg, dark maroon-brown text).
+Renders a queued item (Phase 4 schema, see docs/queue-schema.md) into
+its slide image(s) via scripts/design_system.py.
 
-Free — uses Pillow only, no paid image generation API.
+Single-slide item -> content_queue/rendered/<id>.png
+Carousel item      -> content_queue/rendered/<id>/1.png, .../2.png, ...
+
+Called by the (future) Phase 6 visual-approval step when an item
+reaches stage "content_approved" — NOT by the daily posting cron.
+Rendering happens during review, well before publish day; see
+docs/queue-schema.md's "Where rendering actually happens". Still usable
+standalone for ad-hoc testing:
 
 Usage:
   python render_post.py <queue_id>
-Outputs to: content_queue/rendered/<queue_id>.png
 """
 
 import json
 import os
 import sys
-import textwrap
-from PIL import Image, ImageDraw, ImageFont
+
+sys.path.insert(0, os.path.dirname(__file__))
+import design_system as ds
 
 QUEUE_PATH = os.path.join(os.path.dirname(__file__), "..", "content_queue", "queue.json")
 OUT_DIR = os.path.join(os.path.dirname(__file__), "..", "content_queue", "rendered")
-FONT_PATH = os.path.join(os.path.dirname(__file__), "..", "assets", "fonts")
 
-# Ooops palette (from project design system — update if brand shifts)
-COLOR_BG_TOP = (255, 175, 145)      # salmon-peach
-COLOR_BG_BOTTOM = (235, 110, 95)    # warm coral-red
-COLOR_TEXT = (61, 26, 22)           # dark maroon-brown
 
-W, H = 1080, 1350
+def render_slide(slide, bg_variant, branded):
+    layout = slide["layout"]
+    if layout == "hook":
+        return ds.render_hook(slide["text"], bg_variant=bg_variant, branded=branded)
+    if layout == "bullet_list":
+        return ds.render_bullet_list(slide["items"], bg_variant=bg_variant, branded=branded)
+    if layout == "stat_card":
+        return ds.render_stat_card(slide["stat"], slide["caption"], bg_variant=bg_variant, branded=branded)
+    if layout == "photo":
+        return ds.render_photo(slide["photo_path"], slide["caption"], bg_variant=bg_variant, branded=branded)
+    if layout == "logo_endcard":
+        return ds.render_logo_endcard()
+    raise ValueError(f"Unknown layout '{layout}'")
 
-def make_gradient_bg():
-    base = Image.new("RGB", (W, H), COLOR_BG_TOP)
-    top_r, top_g, top_b = COLOR_BG_TOP
-    bot_r, bot_g, bot_b = COLOR_BG_BOTTOM
-    for y in range(H):
-        ratio = y / H
-        r = int(top_r + (bot_r - top_r) * ratio)
-        g = int(top_g + (bot_g - top_g) * ratio)
-        b = int(top_b + (bot_b - top_b) * ratio)
-        ImageDraw.Draw(base).line([(0, y), (W, y)], fill=(r, g, b))
-    return base
 
-def get_font(size):
-    # Falls back to default if custom font isn't dropped into assets/fonts yet
-    candidates = [f for f in os.listdir(FONT_PATH)] if os.path.exists(FONT_PATH) else []
-    ttf = next((f for f in candidates if f.endswith(".ttf")), None)
-    if ttf:
-        return ImageFont.truetype(os.path.join(FONT_PATH, ttf), size)
-    return ImageFont.load_default()
+def render_item(item):
+    """Returns a list of output paths (length 1 for a single post, N for
+    a carousel). Applies the logo-placement rule (docs/queue-schema.md
+    'Logo placement') — this is derived from post_type + slide count/
+    position, never a per-slide flag a caller sets directly."""
+    slides = item["slides"]
+    post_type = item["post_type"]
+    bg_variant = item["bg_variant"]
+    is_carousel = len(slides) > 1
 
-def render(text, out_path):
-    img = make_gradient_bg()
-    draw = ImageDraw.Draw(img)
-    font = get_font(64)
+    paths = []
+    if not is_carousel:
+        branded = post_type == "app_promo"
+        img = render_slide(slides[0], bg_variant, branded)
+        out_path = os.path.join(OUT_DIR, f"{item['id']}.png")
+        os.makedirs(OUT_DIR, exist_ok=True)
+        img.convert("RGB").save(out_path)
+        paths.append(out_path)
+    else:
+        item_dir = os.path.join(OUT_DIR, str(item["id"]))
+        os.makedirs(item_dir, exist_ok=True)
+        for i, slide in enumerate(slides):
+            # app_promo carousels are unbranded except the fixed last
+            # logo_endcard slide; relatable carousels are never branded.
+            img = render_slide(slide, bg_variant, branded=False)
+            out_path = os.path.join(item_dir, f"{i + 1}.png")
+            img.convert("RGB").save(out_path)
+            paths.append(out_path)
+    return paths
 
-    wrapped = textwrap.fill(text, width=22)
-    bbox = draw.multiline_textbbox((0, 0), wrapped, font=font, spacing=16)
-    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    draw.multiline_text(
-        ((W - tw) / 2, (H - th) / 2),
-        wrapped, font=font, fill=COLOR_TEXT, spacing=16, align="center"
-    )
-    img.save(out_path)
-    print(f"Rendered -> {out_path}")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -74,10 +84,10 @@ if __name__ == "__main__":
         print("Queue id not found")
         sys.exit(1)
 
-    os.makedirs(OUT_DIR, exist_ok=True)
-    out_path = os.path.join(OUT_DIR, f"{item['id']}.png")
-    render(item["text"], out_path)
+    paths = render_item(item)
+    for p in paths:
+        print(f"Rendered -> {p}")
 
-    item["status"] = "rendered"
+    item["stage"] = "rendered"
     with open(QUEUE_PATH, "w") as f:
         json.dump(queue, f, indent=2)
