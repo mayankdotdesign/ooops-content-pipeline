@@ -644,3 +644,26 @@ above (which doesn't change).
   spot-rendered via `scripts/render_post.py` to confirm output before
   committing. Sitting at `stage: "drafted"` — nothing posted, Phase 6
   (which doesn't exist yet) is what would move these forward.
+
+- **2026-09-17 (Phase 5 revision)** — User directive: **no `app_promo`
+  posts for a few weeks, and no carousels for now — single-slide posts
+  only.** Not a schema change (the schema still supports both,
+  unchanged), just a current operating constraint on what Phase 5
+  should draft until the user says otherwise. Applied to the batch:
+  - Item 9 (the 3-slide `app_promo` carousel using the tested "not a
+    scorecard" positioning) was pulled entirely and replaced with a new
+    single-slide `relatable` post, sourced from a real IG post
+    (`@febbyfly`, presence/reunion theme, reframed with a jar-mechanic
+    punchline) not used anywhere else in the batch.
+  - Item 4 (2-slide carousel: goodnight-phrase hook + ritual
+    bullet_list) was reduced to just the hook slide. The bullet_list
+    content was dropped, not folded into the caption or padded
+    elsewhere — a smaller honest post beats stretching one slide's
+    worth of content to look complete.
+
+  Batch is still 9 posts, now 100% single-slide `relatable`. Re-run
+  through `scripts/validate_queue.py` (all valid) and re-rendered all 9
+  to confirm. **Future Phase 5 cycles should default to single-slide
+  relatable only until the user explicitly says to resume app_promo
+  and/or carousels** — don't revert to the original mix on your own
+  judgment once "a few weeks" have passed; ask first.

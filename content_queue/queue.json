@@ -54,8 +54,7 @@
     "id": 4,
     "post_type": "relatable",
     "slides": [
-      { "layout": "hook", "text": "we have a goodnight phrase.\n\nsame three words, every night, since the day we started long distance." },
-      { "layout": "bullet_list", "items": ["📞 falling asleep on a call, not a movie", "🌙 the same goodnight phrase, every night", "🔇 muting the mic but staying on the line", "⏰ 'good morning' timed to when they wake up"] }
+      { "layout": "hook", "text": "we have a goodnight phrase.\n\nsame three words, every night, since the day we started long distance." }
     ],
     "bg_variant": 2,
     "caption": "none of this is efficient. all of it is the point.",
@@ -64,7 +63,7 @@
     "angle": "ldr_pain",
     "stage": "drafted",
     "reviewer_comments": "",
-    "source_note": "Inspired by @datinglegacy IG post (2.4M followers) describing a nightly 'sleep calling' ritual built around a shared goodnight phrase. The specific ritual list on slide 2 (goodnight phrase, muting mic, timed good mornings) is written fresh for Ooops, not copied from the source's own 5-point structure.",
+    "source_note": "Inspired by @datinglegacy IG post (2.4M followers) describing a nightly 'sleep calling' ritual built around a shared goodnight phrase. Reduced to a single-slide hook (2026-09-17: no carousels for now) — the original bullet_list of ritual details was dropped rather than folded in, not padded to preserve carousel content.",
     "created_at": "2026-09-17T00:15:00",
     "ig_media_id": null
   },
@@ -138,21 +137,19 @@
   },
   {
     "id": 9,
-    "post_type": "app_promo",
+    "post_type": "relatable",
     "slides": [
-      { "layout": "hook", "text": "not a scorecard.\n\na running joke you both laugh at." },
-      { "layout": "bullet_list", "items": ["📵 left on read", "🍕 finished the snacks", "🛏️ stole the covers"] },
-      { "layout": "logo_endcard" }
+      { "layout": "hook", "text": "long distance taught us to actually be present when we're together.\n\nnow if one of us checks a phone at dinner, that's going in the jar." }
     ],
     "bg_variant": 2,
-    "caption": "cash, coffee, or just keeping score — you make the rules.",
-    "hashtags": ["#couplegoals", "#relationshipapp", "#datingadvice", "#relatable", "#newapp"],
-    "cta": "",
-    "angle": "app_promo_positioning",
+    "caption": "we got good at presence out of necessity. now it's just the rule.",
+    "hashtags": ["#relatablecouple", "#longdistancerelationship", "#ldrcouple", "#relatable", "#datingadvice"],
+    "cta": "what's the one thing that goes straight in the jar in your house?",
+    "angle": "relatable_text",
     "stage": "drafted",
     "reviewer_comments": "",
-    "source_note": "Uses Ooops' own validated positioning copy ('Not a scorecard. A running joke you both laugh at.' / 'Cash, coffee, or just keeping score — you make the rules.') — first-party copy already tested on Reddit per docs/ooops-context.md (51 upvotes), not newly generated or externally sourced. Does not reuse the ₹18k origin-story content, which is already live on @ooops.app.",
-    "created_at": "2026-09-17T00:40:00",
+    "source_note": "Replaces the app_promo post pulled 2026-09-17 (user: no app_promo for a few weeks). Inspired by @febbyfly IG post (4.6M followers): 'long distance taught me to live in the present and actually enjoy what's right in front of me, instead of getting lost in what was or what might be.' Reframed with a new punchline tying the sentiment to Ooops' own jar mechanic — the source had no product/jar tie-in of its own.",
+    "created_at": "2026-09-17T01:00:00",
     "ig_media_id": null
   }
 ]
