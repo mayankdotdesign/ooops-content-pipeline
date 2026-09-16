@@ -357,7 +357,7 @@
     ],
     "cta": "how much would you have made if you started charging your partner for this on day one?",
     "angle": "petty_grudge_arc",
-    "stage": "content_review",
+    "stage": "visual_review",
     "reviewer_comments": "",
     "source_note": "Generated directly from this session's ideation (2026-09-17) as the first carousel post since the 'no carousels for now' pause \u2014 deliberately testing the carousel render/review path, since every prior post in this batch is single-slide. Not adapted from a specific external post. Slide 3 and the CTA were revised after user feedback that the initial draft ('gets its own line item in the jar', 'what's living in your jar rent-free') read too technical/confusing.",
     "created_at": "2026-09-17T02:00:00",
