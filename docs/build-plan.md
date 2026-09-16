@@ -398,3 +398,35 @@ above (which doesn't change).
   when that happens, not treated as final. Phase 1 done; Phase 2 (design
   system) and Phase 3 (engagement tracking) can now start in parallel
   per the build order.
+
+- **2026-09-17 (product context)** — User added `docs/ooops-context.md`:
+  full product reference (what Ooops is, positioning language, audience,
+  features, the 12 default offense categories, brand voice principles,
+  hard content-safety boundaries, current pre-launch/waitlist status).
+  **Checked against everything established so far — no contradictions.**
+  It's purely additive: fills in real product detail and safety
+  boundaries that weren't documented anywhere the pipeline would read.
+  Specifically confirms/reinforces rather than conflicts with:
+  - Western/USD audience focus (Phase 5's existing instruction) — this
+    doc adds Canada explicitly and sharpens the reasoning (conversion
+    likelihood), doesn't change the rule.
+  - The `app_promo` CTA already shown in the Figma references
+    ("join the waitlist ooopsapp.com") — matches "point toward the
+    waitlist, never imply the app is downloadable," confirming the
+    reference designs were already right.
+  - The real ₹18,000 origin-story detail is explicitly endorsed as
+    strong content as-is (don't convert that specific real detail to
+    USD) — but *invented* jar/offense scenarios for the main IG lane
+    should default to USD per the Western-audience rule. Not a
+    conflict, just: real lived detail stays real, invented content
+    follows the audience default.
+
+  **New information Phase 5 (and any future copy-writing step) must
+  now incorporate, not present anywhere before this file existed**: the
+  hard content boundaries in `ooops-context.md` §6 (no fidelity/cheating/
+  jealousy, no abuse references, no mental-health-as-offense, no body/
+  weight/appearance, no protected characteristics, no implying real
+  money moves through the app, no implying the app is downloadable
+  today) and the "not a scorecard, a running joke" reframe for any post
+  that touches the jar mechanic directly. `docs/voice-guide.md` now
+  points to this file as a required companion read.

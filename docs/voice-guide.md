@@ -1,9 +1,14 @@
 # Ooops Voice Guide
 
 Living document. Every caption/text-generation step (Phase 5 and
-onward) must read this file first. Update it whenever new
-voice-reference material comes in — the user is adding more screenshots
-over time, not just the initial batch.
+onward) must read this file first — **and also [docs/ooops-context.md](ooops-context.md)**,
+which owns product facts, positioning language, audience, and the hard
+content-safety boundaries (fidelity/abuse/body-image/protected-characteristic
+topics are off-limits regardless of how well they'd fit the voice
+patterns below). This file is voice/tone only; that one is what's true
+about the product and where the lines are. Update this file whenever
+new voice-reference material comes in — the user is adding more
+screenshots over time, not just the initial batch.
 
 ## Source material (as of 2026-09-16)
 

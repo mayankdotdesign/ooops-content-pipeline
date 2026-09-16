@@ -11,6 +11,12 @@ non-obvious lessons from the original build: **[docs/build-plan.md](docs/build-p
 `scripts/post_to_instagram.py`, or the queue schema. Current phase
 status is tracked in that file's "Status log" section.
 
+Any caption or post-copy generation step must also read
+**[docs/ooops-context.md](docs/ooops-context.md)** (what Ooops is, audience,
+features, hard content-safety boundaries) and
+**[docs/voice-guide.md](docs/voice-guide.md)** (tone/voice patterns, cliché
+avoidance) before writing anything.
+
 Assets the engine depends on live under `assets/`:
 - `assets/logo/` — app logo, used only on `post_type: app_promo` posts
 - `assets/backgrounds/` — `bg-1.png` / `bg-2.png`, user-designed, used as-is
