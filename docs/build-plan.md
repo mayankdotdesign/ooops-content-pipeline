@@ -1060,3 +1060,17 @@ above (which doesn't change).
   — `send_content_review` creates it, `send_visual_review`/
   `resubmit_visual_review` write into that same tab. Nothing to migrate
   for future batches.
+
+- **2026-09-17 (migration completed)** — Ran `migrate-sheet.yml`
+  successfully: all 9 posts' image links now live on `content-2026-09-16`,
+  legacy `visual-2026-09-16` tab deleted. Updated `queue.json`: items
+  3-9's `review_tab` now points to `content-2026-09-16` (was
+  `visual-2026-09-16`). All 9 items are at `stage: "visual_review"` on
+  one tab. Deleted `scripts/migrate_legacy_visual_tab.py` and
+  `.github/workflows/migrate-sheet.yml` — one-time-use, served their
+  purpose, no reason to leave migration tooling in the repo. Confirmed
+  no remaining code references to the deleted tab name.
+
+  **The whole batch is now on exactly one sheet, one tab, as originally
+  requested** — content columns, image links, and (once filled in)
+  visual status all in the same 9 rows.
