@@ -350,15 +350,31 @@ above (which doesn't change).
   bitmap-size quirk and keeps the repo light. Add a Twemoji credit line
   to the README when this ships.
 
-  **Logo placement — resolved by user, but conflicts with the reference
-  files as uploaded**: user's explicit call is **no logo at all (small
-  watermark or big `logo_endcard`) on `relatable` posts** — any branding
-  only appears on `app_promo` posts. This is the strict reading of the
-  original cross-phase rule. However, the uploaded reference files
-  (`Reference_text_post_1/2.png`, `Reference_image_post_1/2.png`) *do*
-  show the small corner watermark + `ooopsapp.com` text on content that
-  reads as pure `relatable` (the "long distance" post has no app
-  mention at all). Flagged back to user — not yet reconciled. Until
-  clarified, Phase 2's renderer should follow the explicit rule (no logo
-  on `relatable`) and NOT copy the watermark treatment from those two
-  reference files for relatable-post renders.
+  **Logo placement — fully resolved by user (2026-09-16)**: `relatable`
+  posts get NO branding at all — no small watermark, no `ooopsapp.com`
+  text, no logo, ever, single or carousel. `Reference_text_post_1/2.png`
+  and `Reference_image_post_1/2.png` (the ones showing the watermark)
+  were uploaded specifically to demonstrate the **`app_promo` single-post**
+  watermark treatment, independent of the fact their sample caption text
+  reads as relatable-toned content — treat those 4 files as the
+  `app_promo`-single-post layout spec, not as relatable-post examples.
+  For carousels: only the **last slide** gets the (big) `logo_endcard`
+  treatment, exactly as shown in `IG carousel.png`'s final slide — every
+  other slide in an `app_promo` carousel is unbranded like a relatable
+  post would be.
+
+- **2026-09-16** — `assets/voice-reference/` populated (6 files). 5 are
+  genuine, useful source material: screenshots of other accounts'
+  relatable/humor text-posts (`mytherapistsays`, `duck.ingdone`,
+  `fallinginsociety`, `_thesweetoyin`, one unattributed) — imperfect
+  punctuation, texting abbreviations ("u", "ppl", "abt", "js"),
+  stream-of-consciousness tone. Note these are screenshots of *published
+  IG/TikTok posts in the target genre*, not literal private couple-chat
+  message threads — treat as genre/tone reference for Phase 1, which
+  fits what Phase 1 actually needs to produce (post captions, not raw
+  chat logs). One file, `IMG_1681.PNG`, is a LinkedIn screenshot of an
+  unrelated job posting (Abbott Diabetes Care design role) — flagged to
+  user as a likely accidental upload, unresolved as of this entry;
+  should be excluded from Phase 1 unless the user says otherwise.
+
+  Phase 0 is now functionally complete pending that one file's status.
