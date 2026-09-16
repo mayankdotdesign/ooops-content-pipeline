@@ -1074,3 +1074,26 @@ above (which doesn't change).
   **The whole batch is now on exactly one sheet, one tab, as originally
   requested** — content columns, image links, and (once filled in)
   visual status all in the same 9 rows.
+
+- **2026-09-17 (Phase 7: publishing cadence)** — `daily-post.yml`'s
+  `schedule` changed from a single `30 7 * * *` (07:30 UTC = 1pm IST,
+  an India-peak time with no relevance to the actual US audience) to
+  two entries, `0 23 * * *` and `0 1 * * *` (7pm/9pm ET), so the
+  existing "find the next queued item, post it, commit" logic just
+  runs twice a day and naturally posts 2 different items — no change
+  needed to the find/post/commit script itself, since it was already
+  written to post exactly one item per invocation. Fixed UTC times,
+  not US-local, so this will drift an hour off "true" evening across
+  DST changeovers; not worth solving until it's actually noticeable.
+
+  Also resolved, as part of the same real-world test that drove this
+  cadence change: GitHub's own `schedule` trigger for `review-cycle.yml`
+  proved unreliable in practice (one confirmed automatic fire, then
+  silence through 2+ expected slots — consistent with GitHub's
+  documented "best-effort, no SLA" behavior for scheduled workflows).
+  Replaced it as the primary trigger with an external cron
+  (cron-job.org, free tier, every 15 min) POSTing to the same
+  `workflow_dispatch` endpoint a manual "Run workflow" click uses —
+  confirmed working via two real dispatched runs. GitHub's own
+  `schedule:` entry is left in place too as a harmless redundant
+  trigger (`review_cycle.py` is idempotent/safe to run repeatedly).

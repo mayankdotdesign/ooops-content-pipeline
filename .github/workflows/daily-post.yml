@@ -2,7 +2,12 @@ name: Daily Ooops Post
 
 on:
   schedule:
-    - cron: "30 7 * * *"
+    # Phase 7 (2026-09-17): 2 posts/day, re-anchored to US evening hours
+    # (was 07:30 UTC = 1pm IST, an India-peak time with no US relevance).
+    # Fixed UTC times, not US-local — will drift an hour off "true" evening
+    # across DST changeovers (~Nov/Mar); revisit then if it matters.
+    - cron: "0 23 * * *"  # 7:00 PM ET / 4:00 PM PT
+    - cron: "0 1 * * *"   # 9:00 PM ET / 6:00 PM PT
   workflow_dispatch: {}
 
 jobs:
