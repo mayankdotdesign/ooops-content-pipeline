@@ -913,3 +913,38 @@ above (which doesn't change).
      already reached `visual_review` before this request — that would
      have thrown away real completed render work for no benefit: the
      gate only affects items still waiting to be sent.
+
+- **2026-09-17 (Phase 6 — visual review merged onto the content tab)**
+  — User request: visual review should live on the SAME tab as content
+  review (Image Link(s)/Visual Status/Visual Comments as extra columns
+  on the same rows), not a separate tab. Rebuilt `sheets_utils.py`
+  around one unified 11-column schema (`HEADERS`): Post ID, Content/
+  slide text, Caption, Hashtags, CTA, Post type, Content Status,
+  Content Comments, Image Link(s), Visual Status, Visual Comments.
+  `review_tab` is now set once (at content-review time) and never
+  reassigned — content and visual both live there for the item's whole
+  lifecycle. `send_visual_review`/`resubmit_visual_review` now fill in
+  columns I-K of the item's existing row instead of creating/writing a
+  separate `visual-{date}` tab.
+
+  **Compatibility shim for the one tab already in flight**: items 3-9
+  are already on the old separate 5-column `visual-2026-09-16` tab from
+  before this change. `read_tab_rows`/`write_visual_columns` fall back
+  to that tab's `Status`/`My Comments`/column-B layout when `Visual
+  Status` isn't present in the header row — verified this still works
+  for reading Approved/Rejected outcomes. Not exercised by any tab
+  created after this change; new batches only ever see the unified
+  11-column layout from the start.
+
+  Also revised post #1's actual hook copy (not just the CTA from the
+  earlier fix) per the user's original comment, which asked for the
+  copy itself to read like something you'd personally send your
+  partner — shifted from neutral "one of us" framing to direct
+  second-person address ("...until you finally crack and just tell
+  me what it was").
+
+  Verified the full lifecycle end to end with the fake-gspread harness:
+  one tab created with all 11 columns → content approved → same tab
+  gets Image Link(s) filled in, no new tab → visual approved → queued.
+  Also re-verified the batch-gating logic and the legacy-tab fallback
+  both still work under the new code.

@@ -1,7 +1,13 @@
 """
-Google Sheets integration for Phase 6 (2026-09-17 redesign: one
-persistent spreadsheet, a new tab per review cycle named by date,
-instead of emailing xlsx attachments back and forth).
+Google Sheets integration for Phase 6. One persistent spreadsheet, one
+tab per weekly batch (named by date) that carries a batch through its
+ENTIRE review lifecycle — content columns AND visual columns live side
+by side on the same rows (2026-09-17 redesign: originally visual review
+got its own separate tab, changed after the user asked for everything
+on one sheet). A tab is created once, when its batch starts content
+review, with all 11 columns from the start; the visual columns just sit
+blank until that batch's content is fully approved and rendering fills
+them in.
 
 Auth: a Google Cloud service account, JSON key pasted into the
 GOOGLE_SERVICE_ACCOUNT_JSON secret (the whole file content, not a
@@ -25,6 +31,14 @@ STATUS_OPTIONS = ["Approved", "Need Change", "Rejected"]
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
+HEADERS = [
+    "Post ID", "Content/slide text", "Caption", "Hashtags", "CTA", "Post type",  # A-F
+    "Content Status", "Content Comments",                                        # G-H
+    "Image Link(s)", "Visual Status", "Visual Comments",                         # I-K
+]
+CONTENT_STATUS_COL = 7   # 1-based, "Content Status"
+VISUAL_STATUS_COL = 10   # 1-based, "Visual Status"
+
 
 def get_client():
     creds_dict = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_JSON"])
@@ -36,26 +50,26 @@ def open_spreadsheet(client):
     return client.open_by_key(os.environ["GOOGLE_SHEET_ID"])
 
 
-def get_or_create_worksheet(spreadsheet, title, headers):
+def get_or_create_worksheet(spreadsheet, title):
     try:
         return spreadsheet.worksheet(title), False
     except gspread.WorksheetNotFound:
-        ws = spreadsheet.add_worksheet(title=title, rows=100, cols=len(headers) + 2)
-        ws.append_row(headers)
+        ws = spreadsheet.add_worksheet(title=title, rows=100, cols=len(HEADERS) + 2)
+        ws.append_row(HEADERS)
         return ws, True
 
 
-def _apply_status_dropdown(spreadsheet, worksheet, status_col_index, n_rows):
-    """status_col_index is 0-based."""
-    request = {
-        "requests": [{
+def _apply_dropdowns(spreadsheet, worksheet, n_rows):
+    requests = []
+    for col_index_1based in (CONTENT_STATUS_COL, VISUAL_STATUS_COL):
+        requests.append({
             "setDataValidation": {
                 "range": {
                     "sheetId": worksheet.id,
                     "startRowIndex": 1,
                     "endRowIndex": n_rows + 1,
-                    "startColumnIndex": status_col_index,
-                    "endColumnIndex": status_col_index + 1,
+                    "startColumnIndex": col_index_1based - 1,
+                    "endColumnIndex": col_index_1based,
                 },
                 "rule": {
                     "condition": {
@@ -66,9 +80,8 @@ def _apply_status_dropdown(spreadsheet, worksheet, status_col_index, n_rows):
                     "strict": True,
                 },
             }
-        }]
-    }
-    spreadsheet.batch_update(request)
+        })
+    spreadsheet.batch_update({"requests": requests})
 
 
 def _slide_summary(item):
@@ -93,48 +106,6 @@ def _existing_post_ids(worksheet):
     return {v for v in worksheet.col_values(1)[1:] if v}
 
 
-def write_content_review_tab(spreadsheet, tab_title, items):
-    """Appends any of `items` not already present in the tab (by Post
-    ID) — safe to call again for a tab that already exists and already
-    has some rows, which happens whenever an item reaches this stage
-    later than its batch-mates (e.g. after a revision round on a
-    different item finishes). Never touches rows that are already
-    there, so an in-progress review of other rows in the same tab is
-    left alone."""
-    headers = ["Post ID", "Content/slide text", "Caption", "Hashtags", "CTA", "Post type", "Status", "My Comments"]
-    ws, _ = get_or_create_worksheet(spreadsheet, tab_title, headers)
-    existing_ids = _existing_post_ids(ws)
-
-    new_items = [item for item in items if str(item["id"]) not in existing_ids]
-    rows = [[
-        item["id"], _slide_summary(item), item["caption"], " ".join(item["hashtags"]),
-        item["cta"], item["post_type"], "", "",
-    ] for item in new_items]
-    if rows:
-        ws.append_rows(rows)
-    total_rows = len(existing_ids) + len(rows)
-    if total_rows:
-        _apply_status_dropdown(spreadsheet, ws, status_col_index=6, n_rows=total_rows)
-    return ws
-
-
-def write_visual_review_tab(spreadsheet, tab_title, items, image_urls_by_id):
-    headers = ["Post ID", "Image link(s)", "Caption (context)", "Status", "My Comments"]
-    ws, _ = get_or_create_worksheet(spreadsheet, tab_title, headers)
-    existing_ids = _existing_post_ids(ws)
-
-    new_items = [item for item in items if str(item["id"]) not in existing_ids]
-    rows = [[
-        item["id"], "\n".join(image_urls_by_id[item["id"]]), item["caption"], "", "",
-    ] for item in new_items]
-    if rows:
-        ws.append_rows(rows)
-    total_rows = len(existing_ids) + len(rows)
-    if total_rows:
-        _apply_status_dropdown(spreadsheet, ws, status_col_index=3, n_rows=total_rows)
-    return ws
-
-
 def _find_row_index(worksheet, post_id):
     """1-based row index (including the header row) of the row whose
     Post ID matches, or None. Post ID is always column A."""
@@ -145,11 +116,32 @@ def _find_row_index(worksheet, post_id):
     return None
 
 
+def write_content_rows(spreadsheet, tab_title, items):
+    """Appends any of `items` not already present in the tab (by Post
+    ID), with the visual columns left blank. Safe to call again for a
+    tab that already has some rows — never touches rows already there,
+    so an in-progress review of other rows in the same tab is left
+    alone."""
+    ws, _ = get_or_create_worksheet(spreadsheet, tab_title)
+    existing_ids = _existing_post_ids(ws)
+
+    new_items = [item for item in items if str(item["id"]) not in existing_ids]
+    rows = [[
+        item["id"], _slide_summary(item), item["caption"], " ".join(item["hashtags"]),
+        item["cta"], item["post_type"], "", "", "", "", "",
+    ] for item in new_items]
+    if rows:
+        ws.append_rows(rows)
+    total_rows = len(existing_ids) + len(rows)
+    if total_rows:
+        _apply_dropdowns(spreadsheet, ws, n_rows=total_rows)
+    return ws
+
+
 def update_content_row(worksheet, item):
-    """Overwrites one row's content columns in place (used when
-    resubmitting a 'Need Change' revision) and clears Status/My Comments
-    so the row reads as pending again — same tab, no new tab created,
-    per the 2026-09-17 'reiterate on the same tab' redesign."""
+    """Overwrites one row's content columns (A-F) in place and clears
+    Content Status/Comments (G-H) — used when resubmitting a 'Need
+    Change' content revision. Leaves the visual columns (I-K) alone."""
     row_idx = _find_row_index(worksheet, item["id"])
     if row_idx is None:
         raise ValueError(f"Post ID {item['id']} not found in tab '{worksheet.title}'")
@@ -160,32 +152,64 @@ def update_content_row(worksheet, item):
     worksheet.update(f"A{row_idx}:H{row_idx}", [row])
 
 
-def update_visual_row(worksheet, item, image_urls):
+def write_visual_columns(worksheet, item, image_urls):
+    """Fills in the Image Link(s) column (I) for a row that's already
+    there from content review, leaving Visual Status/Comments (J-K)
+    blank for the reviewer. Does not touch columns A-H.
+
+    Back-compat (2026-09-17): the legacy 5-column visual tab (see
+    read_tab_rows) has Image Link(s) at B and Status/My Comments at
+    D-E instead — write there for that one tab so a revision round on
+    an item from the very first batch still lands in the right place."""
     row_idx = _find_row_index(worksheet, item["id"])
     if row_idx is None:
         raise ValueError(f"Post ID {item['id']} not found in tab '{worksheet.title}'")
-    row = [item["id"], "\n".join(image_urls), item["caption"], "", ""]
-    worksheet.update(f"A{row_idx}:E{row_idx}", [row])
+    headers = worksheet.row_values(1)
+    if "Visual Status" not in headers and "Status" in headers:
+        worksheet.update(f"B{row_idx}", [["\n".join(image_urls)]])
+        worksheet.update(f"D{row_idx}:E{row_idx}", [["", ""]])
+    else:
+        worksheet.update(f"I{row_idx}:K{row_idx}", [["\n".join(image_urls), "", ""]])
 
 
 def read_tab_rows(worksheet):
-    """Returns [{post_id, status, comments}, ...] for every row with a
-    Post ID, by header name so column order doesn't matter."""
+    """Returns [{post_id, content_status, content_comments, visual_status,
+    visual_comments}, ...] for every row with a Post ID, by header name
+    so column order doesn't matter.
+
+    Back-compat shim (2026-09-17): the very first batch's visual review
+    happened on a separate tab with the old 5-column layout (Post ID,
+    Image link(s), Caption (context), Status, My Comments) before this
+    got merged onto one tab. Falls back to "Status"/"My Comments" for
+    "Visual Status"/"Visual Comments" only when the new headers aren't
+    present, so that one legacy tab keeps working for Approved/Rejected
+    outcomes. Not exercised by any tab created after this change."""
     records = worksheet.get_all_records()
+    headers = worksheet.row_values(1)
+    legacy_visual_tab = "Visual Status" not in headers and "Status" in headers
+
     results = []
     for row in records:
         if not row.get("Post ID"):
             continue
+        if legacy_visual_tab:
+            visual_status = str(row.get("Status", "")).strip()
+            visual_comments = str(row.get("My Comments", "")).strip()
+        else:
+            visual_status = str(row.get("Visual Status", "")).strip()
+            visual_comments = str(row.get("Visual Comments", "")).strip()
         results.append({
             "post_id": int(row["Post ID"]),
-            "status": str(row.get("Status", "")).strip(),
-            "comments": str(row.get("My Comments", "")).strip(),
+            "content_status": str(row.get("Content Status", "")).strip(),
+            "content_comments": str(row.get("Content Comments", "")).strip(),
+            "visual_status": visual_status,
+            "visual_comments": visual_comments,
         })
     return results
 
 
-def is_tab_fully_reviewed(rows):
-    """True once every row has a non-blank Status — the signal that the
-    user is done with that tab, checked by re-reading the live sheet
-    rather than polling for an emailed reply."""
-    return bool(rows) and all(r["status"] in STATUS_OPTIONS for r in rows)
+def is_fully_reviewed(rows, field):
+    """`field` is 'content_status' or 'visual_status'. True once every
+    row has a non-blank value in that field — the signal that the user
+    is done, checked by re-reading the live sheet."""
+    return bool(rows) and all(r[field] in STATUS_OPTIONS for r in rows)
