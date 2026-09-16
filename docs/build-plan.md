@@ -378,3 +378,11 @@ above (which doesn't change).
   should be excluded from Phase 1 unless the user says otherwise.
 
   Phase 0 is now functionally complete pending that one file's status.
+
+- **2026-09-16 (later)** — `IMG_1681.PNG` confirmed as a mistaken
+  upload by the user, removed from the repo. **Phase 0 is complete.**
+  User will keep adding more voice-reference screenshots over time as a
+  living input (matches the plan's note that `docs/voice-guide.md`
+  itself is a living document) — not a one-time gate; Phase 1 starts
+  now with what's currently in `assets/voice-reference/` and should be
+  revisited if the user drops in more material later.
