@@ -667,3 +667,58 @@ above (which doesn't change).
   relatable only until the user explicitly says to resume app_promo
   and/or carousels** — don't revert to the original mix on your own
   judgment once "a few weeks" have passed; ask first.
+
+- **2026-09-17 (Phase 6)** — Two-cycle email approval built:
+  - `scripts/review_xlsx.py` — builds/reads the review spreadsheets
+    (openpyxl, with a Status dropdown data validation: Approved / Need
+    Change / Rejected). Content-review columns: Post ID, slide-text
+    summary, Caption, Hashtags, CTA, Post type, Status, My Comments.
+    Visual-review columns: Post ID, image link(s), caption, Status, My
+    Comments.
+  - `scripts/gmail_utils.py` — SMTP send (`smtp.gmail.com:465`) and IMAP
+    reply-polling (`imap.gmail.com:993`), using
+    `GMAIL_ADDRESS`/`GMAIL_APP_PASSWORD` secrets only, never a raw
+    password. Polling searches `UNSEEN` + subject match, downloads the
+    first `.xlsx` attachment found, marks the message `\Seen` so it
+    isn't reprocessed. A matching reply with no attachment yet is left
+    unseen-unprocessed on purpose, so it's picked up once the real
+    reply lands.
+  - `scripts/review_cycle.py` — orchestrates all 4 stage transitions
+    (`content_review` reply check → `content_approved` render+send →
+    `visual_review` reply check → `drafted` → send content-review),
+    run in that order so a same-run approval cascades straight into the
+    next email, matching "same day, cycle 2 right after cycle 1."
+    `Need Change` sets `reviewer_comments` and the `*_needs_change`
+    stage but does **not** auto-regenerate content or images — that
+    needs actual judgment (rewriting a caption, fixing a slide), which
+    is a Claude Code job. A human applies the comments and manually
+    resets the stage back to `content_review`/`rendered` to re-enter
+    the cycle. `Rejected` removes the item from `queue.json` entirely
+    (the schema has no "rejected" stage — confirmed against
+    `docs/queue-schema.md`'s enum).
+  - New cron: `.github/workflows/review-cycle.yml`, every 15 minutes.
+
+  **Tested thoroughly with mocks — no real credentials, SMTP, or IMAP
+  server touched during development**: xlsx build/read round-trip for
+  both sheet types; `send_review_email` against a mocked `SMTP_SSL`
+  (verified login, from/to, subject encoding including the em-dash,
+  attachment); `find_reply_with_attachment` against a mocked
+  `IMAP4_SSL` for both the match-found and no-match paths; the full
+  4-item `review_cycle.main()` flow end to end — content review sent →
+  reply processed (one Approved, one Need Change) → approved item
+  rendered and visual review sent **in the same run** → visual-review
+  reply processed with a Rejected item correctly dropped from the queue
+  → confirmed a clean no-op when nothing is outstanding.
+
+  **First real-world test authorized by user (2026-09-17)**: with 9
+  items sitting at `stage: "drafted"`, pushing this workflow means the
+  first live cron run (within ~15 min) sends a real content-review
+  email to the user's real Gmail. Confirmed with the user before
+  pushing, since this is the first time this pipeline sends a real
+  email rather than a mocked one. Once that lands, the user replies
+  with the filled-in xlsx to actually exercise the rest of the flow for
+  the first time end to end.
+
+  **Phase 6 is built.** Per the build order, Phase 7 (cadence update)
+  is last — but should wait until Phase 6 has been exercised for real
+  at least once, since Phase 7 assumes 4+6 work correctly already.

@@ -1,0 +1,36 @@
+name: Review Cycle
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install pillow requests openpyxl
+
+      - name: Advance the review cycle
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/review_cycle.py
+
+      - name: Commit queue/review changes
+        run: |
+          git config user.name "ooops-bot"
+          git config user.email "bot@ooopsapp.com"
+          git add content_queue/
+          git commit -m "Advance review cycle" || echo "nothing to commit"
+          git push
