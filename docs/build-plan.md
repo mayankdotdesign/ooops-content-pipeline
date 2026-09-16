@@ -430,3 +430,34 @@ above (which doesn't change).
   today) and the "not a scorecard, a running joke" reframe for any post
   that touches the jar mechanic directly. `docs/voice-guide.md` now
   points to this file as a required companion read.
+
+- **2026-09-16 (Phase 2)** — `scripts/design_system.py` written: the
+  slide-layout renderer. Not wired into `daily-post.yml`/`render_post.py`
+  yet — that happens once Phase 4's schema exists, per the build order.
+  Tested by rendering each layout type to real PNGs and comparing
+  against the Figma references visually; `hook`, `bullet_list`,
+  `stat_card`, and `logo_endcard` all match closely (colors pulled as
+  exact hex from the SVG exports, not eyeballed: `#EA4330` coral body
+  text on BG1, `#FFFAF8` cream body text on BG2, `#83261B` maroon for
+  the small watermark on BG1). Manual letter-spacing (-3%) and
+  100%-line-height text layout implemented from scratch since Pillow
+  has neither natively — don't simplify back to `draw.multiline_text`.
+  Emoji: fetched 18 Twemoji PNGs (the 12 offense-category emoji + a few
+  seen in references) as static assets in `assets/emoji/` per the
+  Phase 0 research, composited via `Image.paste`/`alpha_composite`, not
+  a font. Generated `assets/logo/Logo-white.png` (programmatic recolor
+  of the same logo mark, alpha-preserved) for use on BG2/coral
+  backgrounds, matching the white logo shown in `IG carousel.png`'s
+  endcard slide.
+
+  **Known gaps, not yet resolved:**
+  - `render_photo()` (the `photo` layout) is only geometry-tested with a
+    placeholder image (the logo, not a real photo) — no actual candid
+    photo asset exists in the repo to test with for real. Revisit once
+    Phase 5 content needs it.
+  - `stat_card` has no dedicated Figma reference in what was uploaded —
+    current implementation is a reasonable best-guess built on the same
+    typographic system, not a confirmed visual spec. Flagged in the
+    function's own docstring; revise if/when the user provides a sample.
+  - Emoji vertical alignment inside text lines is approximate
+    (centered on font ascent) — acceptable for v1, could be refined.

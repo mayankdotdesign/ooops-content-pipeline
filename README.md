@@ -23,6 +23,7 @@ Assets the engine depends on live under `assets/`:
 - `assets/design-reference/` — Figma sample exports, the visual spec for the renderer
 - `assets/voice-reference/` — screenshots used to derive `docs/voice-guide.md`
 - `assets/fonts/` — Nunito family (Regular through Black, + italics)
+- `assets/emoji/` — a small set of [Twemoji](https://github.com/jdecked/twemoji) PNGs (CC-BY 4.0) used by `scripts/design_system.py` for inline emoji compositing
 
 ## What this does
 1. `scripts/generate_ideas.py` — Claude (via Claude Code) writes new post
