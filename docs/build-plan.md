@@ -461,3 +461,35 @@ above (which doesn't change).
     function's own docstring; revise if/when the user provides a sample.
   - Emoji vertical alignment inside text lines is approximate
     (centered on font ascent) — acceptable for v1, could be refined.
+
+- **2026-09-16 (Phase 3)** — Engagement tracking built:
+  `scripts/track_engagement.py` pulls Instagram Insights per posted item
+  via `graph.instagram.com` (same host as posting, IGAA-token
+  requirement), stores results in `content_queue/performance.json`
+  keyed by post ID, and logs `bg_variant`/`angle`/`post_type` alongside
+  the raw metrics so Phase 5's research step can read `performance.json`
+  without joining back to `queue.json`. Uses API v22.0 — v21 deprecated
+  `impressions`/`video_views` in Jan 2025, replaced by `views` (which is
+  video/Reels-only anyway; this pipeline posts static images, so the
+  metric set is `reach, likes, comments, saved, shares`).
+
+  Required a small addition to `post_to_instagram.py`: it wasn't saving
+  the published media ID anywhere, and you can't pull per-post insights
+  without one. Now saves it as `item["ig_media_id"]` alongside
+  `status: "posted"`. This field name should carry forward into Phase
+  4's schema unchanged.
+
+  New workflow: `.github/workflows/track-engagement.yml`, daily cron at
+  noon UTC (a few hours after the existing 07:30 UTC post time, so
+  there's some real engagement to read — adjust if a different lag
+  makes more sense once Phase 7 changes posting to 2x/day US-evening).
+  Same `permissions: contents: write` pattern as `daily-post.yml`.
+
+  Tested structurally with a mocked API response (no real credentials
+  touched) — both the happy path (posted item -> performance.json
+  written with the right shape) and the current real state (empty
+  queue, nothing posted yet -> clean no-op, no file created) work
+  correctly.
+
+  **Phase 2 and Phase 3 are both done.** Per the build order, Phase 4
+  (queue schema) is next.

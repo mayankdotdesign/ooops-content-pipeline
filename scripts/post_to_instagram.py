@@ -85,5 +85,6 @@ if __name__ == "__main__":
     print("Posted:", result)
 
     item["status"] = "posted"
+    item["ig_media_id"] = result["id"]  # needed by scripts/track_engagement.py (Phase 3)
     with open(QUEUE_PATH, "w") as f:
         json.dump(queue, f, indent=2)
