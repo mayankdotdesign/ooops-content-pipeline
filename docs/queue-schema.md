@@ -19,7 +19,8 @@ Each item:
   "reviewer_comments": "",
   "source_note": "",
   "created_at": "...",
-  "ig_media_id": null
+  "ig_media_id": null,
+  "review_tab": null
 }
 ```
 
@@ -57,8 +58,12 @@ Each item:
   `visual_needs_change`, `queued`, `posted`. See Phase 6 for the
   transition logic — this file only defines the enum, not when each
   transition fires.
-- `reviewer_comments` — free text from the Excel review round, empty
-  string when unused.
+- `reviewer_comments` — free text from the review sheet's "My Comments"
+  column, empty string when unused. When an item is `*_needs_change`
+  and Claude Code has revised it, **clearing this back to `""` is the
+  signal** that `scripts/review_cycle.py`'s resubmit step picks up —
+  reviewer_comments non-empty on a `*_needs_change` item means "still
+  waiting on a fix," don't touch.
 - `source_note` — optional. Phase 5's per-post research citation
   (specific Reddit thread/comment or IG post that inspired the draft).
   Not shown to end users.
@@ -66,6 +71,12 @@ Each item:
 - `ig_media_id` — set by `post_to_instagram.py` after a successful
   publish; null/absent before that. Required by
   `scripts/track_engagement.py` (Phase 3) to pull insights.
+- `review_tab` — the Google Sheets tab name (e.g. `content-2026-09-17`)
+  this item is/was actively under review in. Set when an item enters
+  `content_review` or `visual_review`. Revisions (`resubmit_*_review`
+  in `review_cycle.py`) reuse this same tab rather than creating a new
+  one each round — a fresh tab only gets created for a genuinely new
+  weekly batch. null/absent before an item has ever entered review.
 
 ## Logo placement (derived, not a separate field)
 

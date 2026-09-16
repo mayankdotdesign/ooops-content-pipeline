@@ -834,3 +834,42 @@ above (which doesn't change).
   unchanged, and a simulated `send_notification_email` exception no
   longer crashes the run — the stage transition and tab write both
   persist correctly regardless.
+
+- **2026-09-17 (Phase 6 — reiterate on the same tab, per user request)**
+  — User feedback after actually using the sheet: revisions should
+  loop back into the SAME tab (row updated in place, Status/Comments
+  cleared for re-review), not spawn a new tab each round. A new tab
+  should only appear for a genuinely new weekly batch.
+
+  Implemented:
+  - Added `review_tab` to the schema (`docs/queue-schema.md`) — tracks
+    which sheet tab an item is actively under review in. Existing live
+    queue.json items migrated to `"content-2026-09-16"` (their actual
+    tab) so the redesigned lookup doesn't break on them.
+  - `check_content_review`/`check_visual_review` now group outstanding
+    items by `review_tab` and look up that specific tab, instead of
+    recomputing `f"content-{today}"` — fixes a real latent bug where a
+    multi-day revision cycle would've looked at the wrong (nonexistent)
+    tab once the date rolled over.
+  - New `resubmit_content_review`/`resubmit_visual_review` steps: once
+    Claude Code has revised an item's content and cleared
+    `reviewer_comments` back to `""` (the signal that the fix is
+    applied — non-empty still means "waiting on a fix, don't touch"),
+    these push the revision into the *same row* of the *same tab*
+    (`sheets_utils.update_content_row`/`update_visual_row`, found by
+    Post ID via `col_values`), clear that row's Status/Comments, and
+    put the item back in the review queue. No new tab.
+  - `sheets_utils.write_*_review_tab` fixed to append only the items
+    NOT already present in an existing tab (by Post ID), rather than
+    skipping the whole write whenever the tab already exists. Caught
+    this via testing: without it, an item that reaches `visual_review`
+    later than its batch-mates (e.g. after a revision round) would get
+    its stage flipped without its row ever actually being written to
+    the sheet.
+
+  All of the above verified against the fake-gspread test harness:
+  resubmitting an item updates its row in place with no new tab,
+  re-filling just that row's Status processes it correctly via the
+  stored `review_tab` (not recomputed from today's date), calling a
+  write function twice with the same items doesn't duplicate rows, and
+  a new item joining an already-populated tab gets appended correctly.

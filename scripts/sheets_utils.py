@@ -88,35 +88,84 @@ def _slide_summary(item):
     return "\n".join(parts)
 
 
-def write_content_review_tab(spreadsheet, tab_title, items):
-    headers = ["Post ID", "Content/slide text", "Caption", "Hashtags", "CTA", "Post type", "Status", "My Comments"]
-    ws, created = get_or_create_worksheet(spreadsheet, tab_title, headers)
-    if not created:
-        return ws  # already exists — don't overwrite an in-progress review
+def _existing_post_ids(worksheet):
+    """Post IDs (column A) already present, skipping the header row."""
+    return {v for v in worksheet.col_values(1)[1:] if v}
 
+
+def write_content_review_tab(spreadsheet, tab_title, items):
+    """Appends any of `items` not already present in the tab (by Post
+    ID) — safe to call again for a tab that already exists and already
+    has some rows, which happens whenever an item reaches this stage
+    later than its batch-mates (e.g. after a revision round on a
+    different item finishes). Never touches rows that are already
+    there, so an in-progress review of other rows in the same tab is
+    left alone."""
+    headers = ["Post ID", "Content/slide text", "Caption", "Hashtags", "CTA", "Post type", "Status", "My Comments"]
+    ws, _ = get_or_create_worksheet(spreadsheet, tab_title, headers)
+    existing_ids = _existing_post_ids(ws)
+
+    new_items = [item for item in items if str(item["id"]) not in existing_ids]
     rows = [[
         item["id"], _slide_summary(item), item["caption"], " ".join(item["hashtags"]),
         item["cta"], item["post_type"], "", "",
-    ] for item in items]
+    ] for item in new_items]
     if rows:
         ws.append_rows(rows)
-    _apply_status_dropdown(spreadsheet, ws, status_col_index=6, n_rows=len(rows))
+    total_rows = len(existing_ids) + len(rows)
+    if total_rows:
+        _apply_status_dropdown(spreadsheet, ws, status_col_index=6, n_rows=total_rows)
     return ws
 
 
 def write_visual_review_tab(spreadsheet, tab_title, items, image_urls_by_id):
     headers = ["Post ID", "Image link(s)", "Caption (context)", "Status", "My Comments"]
-    ws, created = get_or_create_worksheet(spreadsheet, tab_title, headers)
-    if not created:
-        return ws
+    ws, _ = get_or_create_worksheet(spreadsheet, tab_title, headers)
+    existing_ids = _existing_post_ids(ws)
 
+    new_items = [item for item in items if str(item["id"]) not in existing_ids]
     rows = [[
         item["id"], "\n".join(image_urls_by_id[item["id"]]), item["caption"], "", "",
-    ] for item in items]
+    ] for item in new_items]
     if rows:
         ws.append_rows(rows)
-    _apply_status_dropdown(spreadsheet, ws, status_col_index=3, n_rows=len(rows))
+    total_rows = len(existing_ids) + len(rows)
+    if total_rows:
+        _apply_status_dropdown(spreadsheet, ws, status_col_index=3, n_rows=total_rows)
     return ws
+
+
+def _find_row_index(worksheet, post_id):
+    """1-based row index (including the header row) of the row whose
+    Post ID matches, or None. Post ID is always column A."""
+    col_values = worksheet.col_values(1)
+    for i, val in enumerate(col_values, start=1):
+        if val == str(post_id):
+            return i
+    return None
+
+
+def update_content_row(worksheet, item):
+    """Overwrites one row's content columns in place (used when
+    resubmitting a 'Need Change' revision) and clears Status/My Comments
+    so the row reads as pending again — same tab, no new tab created,
+    per the 2026-09-17 'reiterate on the same tab' redesign."""
+    row_idx = _find_row_index(worksheet, item["id"])
+    if row_idx is None:
+        raise ValueError(f"Post ID {item['id']} not found in tab '{worksheet.title}'")
+    row = [
+        item["id"], _slide_summary(item), item["caption"], " ".join(item["hashtags"]),
+        item["cta"], item["post_type"], "", "",
+    ]
+    worksheet.update(f"A{row_idx}:H{row_idx}", [row])
+
+
+def update_visual_row(worksheet, item, image_urls):
+    row_idx = _find_row_index(worksheet, item["id"])
+    if row_idx is None:
+        raise ValueError(f"Post ID {item['id']} not found in tab '{worksheet.title}'")
+    row = [item["id"], "\n".join(image_urls), item["caption"], "", ""]
+    worksheet.update(f"A{row_idx}:E{row_idx}", [row])
 
 
 def read_tab_rows(worksheet):

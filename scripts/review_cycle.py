@@ -30,10 +30,19 @@ Status — checked by re-reading the live sheet, not by polling email.
 actual judgment (rewriting a caption, fixing a slide), which is a
 Claude Code job, not a deterministic script's. This script only sets
 stage back to content_needs_change/visual_needs_change with the
-reviewer's comments attached; a human (via Claude Code) applies them
-and manually advances the stage back to content_review/rendered to
-re-enter the cycle (which writes a NEW tab, since get_or_create_worksheet
-won't overwrite an existing one — the old tab stays as a record).
+reviewer's comments attached. Applying the fix and resubmitting for
+another look happens via resubmit_content_review()/resubmit_visual_review()
+below (called directly, not part of the automated cron loop) — these
+update the SAME row in the SAME tab the item was already being reviewed
+in, per the 2026-09-17 "reiterate on one tab per batch, not a new tab
+per revision round" redesign. A new tab only ever gets created for a
+genuinely new batch (send_content_review, when items are still at
+`drafted`).
+
+Each item remembers which tab it's actively under review in via
+`review_tab` — set whenever it enters content_review or visual_review —
+so a check step several days into a multi-round revision still finds
+the right tab regardless of what today's date happens to be by then.
 
 Usage:
   python review_cycle.py
@@ -87,39 +96,49 @@ def _notify(subject, body):
               "state is already saved.")
 
 
+def _group_by_tab(items):
+    groups = {}
+    for item in items:
+        groups.setdefault(item["review_tab"], []).append(item)
+    return groups
+
+
 def check_content_review(queue, spreadsheet):
     outstanding = [i for i in queue if i["stage"] == "content_review"]
     if not outstanding:
         return False
-    tab_title = f"content-{_today()}"
-    try:
-        ws = spreadsheet.worksheet(tab_title)
-    except sheets_utils.gspread.WorksheetNotFound:
-        return False  # tab not written yet this run (shouldn't normally happen)
 
-    rows = sheets_utils.read_tab_rows(ws)
-    if not sheets_utils.is_tab_fully_reviewed(rows):
-        return False
+    any_processed = False
+    for tab_title, items in _group_by_tab(outstanding).items():
+        try:
+            ws = spreadsheet.worksheet(tab_title)
+        except sheets_utils.gspread.WorksheetNotFound:
+            continue  # tab not written yet this run (shouldn't normally happen)
 
-    by_id = {i["id"]: i for i in outstanding}
-    dropped_ids = set()
-    for row in rows:
-        item = by_id.get(row["post_id"])
-        if item is None:
+        rows = sheets_utils.read_tab_rows(ws)
+        if not sheets_utils.is_tab_fully_reviewed(rows):
             continue
-        if row["status"] == "Approved":
-            item["stage"] = "content_approved"
-        elif row["status"] == "Need Change":
-            item["stage"] = "content_needs_change"
-            item["reviewer_comments"] = row["comments"]
-        elif row["status"] == "Rejected":
-            dropped_ids.add(item["id"])
 
-    if dropped_ids:
-        queue[:] = [i for i in queue if i["id"] not in dropped_ids]
-    print(f"Processed content-review tab '{tab_title}': "
-          f"{len(outstanding) - len(dropped_ids)} item(s) updated, {len(dropped_ids)} dropped.")
-    return True
+        by_id = {i["id"]: i for i in items}
+        dropped_ids = set()
+        for row in rows:
+            item = by_id.get(row["post_id"])
+            if item is None:
+                continue
+            if row["status"] == "Approved":
+                item["stage"] = "content_approved"
+            elif row["status"] == "Need Change":
+                item["stage"] = "content_needs_change"
+                item["reviewer_comments"] = row["comments"]
+            elif row["status"] == "Rejected":
+                dropped_ids.add(item["id"])
+
+        if dropped_ids:
+            queue[:] = [i for i in queue if i["id"] not in dropped_ids]
+        print(f"Processed content-review tab '{tab_title}': "
+              f"{len(items) - len(dropped_ids)} item(s) updated, {len(dropped_ids)} dropped.")
+        any_processed = True
+    return any_processed
 
 
 def send_visual_review(queue, spreadsheet, repo):
@@ -137,6 +156,7 @@ def send_visual_review(queue, spreadsheet, repo):
     sheets_utils.write_visual_review_tab(spreadsheet, tab_title, approved, image_urls_by_id)
     for item in approved:
         item["stage"] = "visual_review"
+        item["review_tab"] = tab_title
     print(f"Rendered and wrote visual review tab '{tab_title}' for {len(approved)} item(s).")
     _notify(
         subject=f"Ooops Visual Review — {_today()}",
@@ -153,34 +173,69 @@ def check_visual_review(queue, spreadsheet):
     outstanding = [i for i in queue if i["stage"] == "visual_review"]
     if not outstanding:
         return False
-    tab_title = f"visual-{_today()}"
-    try:
-        ws = spreadsheet.worksheet(tab_title)
-    except sheets_utils.gspread.WorksheetNotFound:
-        return False
 
-    rows = sheets_utils.read_tab_rows(ws)
-    if not sheets_utils.is_tab_fully_reviewed(rows):
-        return False
-
-    by_id = {i["id"]: i for i in outstanding}
-    dropped_ids = set()
-    for row in rows:
-        item = by_id.get(row["post_id"])
-        if item is None:
+    any_processed = False
+    for tab_title, items in _group_by_tab(outstanding).items():
+        try:
+            ws = spreadsheet.worksheet(tab_title)
+        except sheets_utils.gspread.WorksheetNotFound:
             continue
-        if row["status"] == "Approved":
-            item["stage"] = "queued"
-        elif row["status"] == "Need Change":
-            item["stage"] = "visual_needs_change"
-            item["reviewer_comments"] = row["comments"]
-        elif row["status"] == "Rejected":
-            dropped_ids.add(item["id"])
 
-    if dropped_ids:
-        queue[:] = [i for i in queue if i["id"] not in dropped_ids]
-    print(f"Processed visual-review tab '{tab_title}': "
-          f"{len(outstanding) - len(dropped_ids)} item(s) updated, {len(dropped_ids)} dropped.")
+        rows = sheets_utils.read_tab_rows(ws)
+        if not sheets_utils.is_tab_fully_reviewed(rows):
+            continue
+
+        by_id = {i["id"]: i for i in items}
+        dropped_ids = set()
+        for row in rows:
+            item = by_id.get(row["post_id"])
+            if item is None:
+                continue
+            if row["status"] == "Approved":
+                item["stage"] = "queued"
+            elif row["status"] == "Need Change":
+                item["stage"] = "visual_needs_change"
+                item["reviewer_comments"] = row["comments"]
+            elif row["status"] == "Rejected":
+                dropped_ids.add(item["id"])
+
+        if dropped_ids:
+            queue[:] = [i for i in queue if i["id"] not in dropped_ids]
+        print(f"Processed visual-review tab '{tab_title}': "
+              f"{len(items) - len(dropped_ids)} item(s) updated, {len(dropped_ids)} dropped.")
+        any_processed = True
+    return any_processed
+
+
+def resubmit_content_review(queue, spreadsheet):
+    """Items at content_needs_change that Claude has already revised —
+    signaled by reviewer_comments having been cleared back to "" once
+    the comment is addressed (still non-empty = still waiting on a fix,
+    leave alone). Pushes the revised content into the SAME row of the
+    SAME tab the item was already under review in, clears that row's
+    Status/Comments, and puts the item back in the review queue."""
+    ready = [i for i in queue if i["stage"] == "content_needs_change" and not i["reviewer_comments"]]
+    if not ready:
+        return False
+    for item in ready:
+        ws = spreadsheet.worksheet(item["review_tab"])
+        sheets_utils.update_content_row(ws, item)
+        item["stage"] = "content_review"
+    print(f"Resubmitted {len(ready)} revised item(s) for content review.")
+    return True
+
+
+def resubmit_visual_review(queue, spreadsheet, repo):
+    ready = [i for i in queue if i["stage"] == "visual_needs_change" and not i["reviewer_comments"]]
+    if not ready:
+        return False
+    for item in ready:
+        rp.render_item(item)  # re-render with whatever changed
+        urls = image_urls_for_item(item, repo)
+        ws = spreadsheet.worksheet(item["review_tab"])
+        sheets_utils.update_visual_row(ws, item, urls)
+        item["stage"] = "visual_review"
+    print(f"Re-rendered and resubmitted {len(ready)} revised item(s) for visual review.")
     return True
 
 
@@ -192,6 +247,7 @@ def send_content_review(queue, spreadsheet):
     sheets_utils.write_content_review_tab(spreadsheet, tab_title, drafted)
     for item in drafted:
         item["stage"] = "content_review"
+        item["review_tab"] = tab_title
     print(f"Wrote content review tab '{tab_title}' for {len(drafted)} item(s).")
     _notify(
         subject=f"Ooops Content Review — {_today()}",
@@ -218,8 +274,10 @@ def main():
     # fix for the 2026-09-17 incident where a step failure skipped the
     # single end-of-run save entirely and caused a later run to redo work.
     for step, args in [
+        (resubmit_content_review, (queue, spreadsheet)),
         (check_content_review, (queue, spreadsheet)),
         (send_visual_review, (queue, spreadsheet, repo)),
+        (resubmit_visual_review, (queue, spreadsheet, repo)),
         (check_visual_review, (queue, spreadsheet)),
         (send_content_review, (queue, spreadsheet)),
     ]:
