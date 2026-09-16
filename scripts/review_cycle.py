@@ -231,11 +231,17 @@ def resubmit_content_review(queue, spreadsheet):
     if not ready:
         return False
     tabs = set()
-    for item in ready:
-        ws = spreadsheet.worksheet(item["review_tab"])
-        sheets_utils.update_content_row(ws, item)
-        item["stage"] = "content_review"
-        tabs.add(item["review_tab"])
+    # Look up each tab's worksheet once, not once per item — a batch of
+    # revisions sharing one tab (the common case) was refetching the same
+    # worksheet repeatedly, needlessly burning through Sheets' per-minute
+    # API quota (see resubmit_visual_review's docstring for the actual
+    # failure this caused at batch size 13).
+    for tab_title, items in _group_by_tab(ready).items():
+        ws = spreadsheet.worksheet(tab_title)
+        for item in items:
+            sheets_utils.update_content_row(ws, item)
+            item["stage"] = "content_review"
+        tabs.add(tab_title)
     print(f"Resubmitted {len(ready)} revised item(s) for content review.")
     _notify(
         subject=f"Ooops Content Revision Resubmitted — {_today()}",
@@ -250,17 +256,27 @@ def resubmit_content_review(queue, spreadsheet):
 
 
 def resubmit_visual_review(queue, spreadsheet, repo):
+    """Caught 2026-09-17: resubmitting a whole 13-item batch at once (the
+    user's design-refresh re-render) crashed the run — each item did a
+    fresh `spreadsheet.worksheet(tab)` lookup even though most items in
+    a batch share one tab, and write_visual_columns() itself makes 3-4
+    API calls per item. 13 items x ~5 calls in a few seconds tripped
+    Google Sheets' per-minute quota. Now looks up each tab's worksheet
+    once (not once per item) and retries on quota/5xx errors instead of
+    letting one hiccup crash the whole run and lose every item still
+    queued behind it."""
     ready = [i for i in queue if i["stage"] == "visual_needs_change" and not i["reviewer_comments"]]
     if not ready:
         return False
     tabs = set()
-    for item in ready:
-        rp.render_item(item)  # re-render with whatever changed
-        urls = image_urls_for_item(item, repo)
-        ws = spreadsheet.worksheet(item["review_tab"])
-        sheets_utils.write_visual_columns(spreadsheet, ws, item, urls)
-        item["stage"] = "visual_review"
-        tabs.add(item["review_tab"])
+    for tab_title, items in _group_by_tab(ready).items():
+        ws = spreadsheet.worksheet(tab_title)
+        for item in items:
+            rp.render_item(item)  # re-render with whatever changed
+            urls = image_urls_for_item(item, repo)
+            sheets_utils.write_visual_columns(spreadsheet, ws, item, urls)
+            item["stage"] = "visual_review"
+        tabs.add(tab_title)
     print(f"Re-rendered and resubmitted {len(ready)} revised item(s) for visual review.")
     _notify(
         subject=f"Ooops Visual Revision Resubmitted — {_today()}",

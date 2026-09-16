@@ -23,11 +23,33 @@ Usage: imported by scripts/review_cycle.py, not run directly.
 
 import json
 import os
+import time
 
 import gspread
 from google.oauth2.service_account import Credentials
 
 STATUS_OPTIONS = ["Approved", "Need Change", "Rejected"]
+
+_RETRYABLE_STATUSES = {429, 500, 502, 503}
+
+
+def _with_retry(fn, *args, retries=5, base_delay=2, **kwargs):
+    """Google Sheets enforces a per-minute-per-user API quota. A single
+    item touches the sheet 3-5 times (find its row, read headers, write
+    values, plus the hyperlink formatting call); a run resubmitting a
+    whole batch at once (2026-09-17: 13 items in one run) can burn
+    through that quota in a few seconds and get a 429 partway through,
+    crashing the run and losing every item still queued behind the one
+    that failed. Retries with exponential backoff on quota/5xx errors
+    instead of letting one hiccup take down the whole batch."""
+    for attempt in range(retries):
+        try:
+            return fn(*args, **kwargs)
+        except gspread.exceptions.APIError as e:
+            status = e.response.status_code if e.response is not None else None
+            if status not in _RETRYABLE_STATUSES or attempt == retries - 1:
+                raise
+            time.sleep(base_delay * (2 ** attempt))
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
@@ -104,7 +126,7 @@ def _write_hyperlinked_urls(spreadsheet, worksheet, row_idx, col_idx, urls):
         offset += len(url)
         runs.append({"startIndex": offset, "format": {}})
         offset += 1  # the "\n" separator
-    spreadsheet.batch_update({
+    _with_retry(spreadsheet.batch_update, {
         "requests": [{
             "updateCells": {
                 "rows": [{"values": [{
@@ -147,7 +169,7 @@ def _existing_post_ids(worksheet):
 def _find_row_index(worksheet, post_id):
     """1-based row index (including the header row) of the row whose
     Post ID matches, or None. Post ID is always column A."""
-    col_values = worksheet.col_values(1)
+    col_values = _with_retry(worksheet.col_values, 1)
     for i, val in enumerate(col_values, start=1):
         if val == str(post_id):
             return i
@@ -187,7 +209,7 @@ def update_content_row(worksheet, item):
         item["id"], _slide_summary(item), item["caption"], " ".join(item["hashtags"]),
         item["cta"], item["post_type"], "", "",
     ]
-    worksheet.update(f"A{row_idx}:H{row_idx}", [row])
+    _with_retry(worksheet.update, f"A{row_idx}:H{row_idx}", [row])
 
 
 def _is_legacy_visual_only_tab(headers):
@@ -219,26 +241,26 @@ def write_visual_columns(spreadsheet, worksheet, item, image_urls):
     row_idx = _find_row_index(worksheet, item["id"])
     if row_idx is None:
         raise ValueError(f"Post ID {item['id']} not found in tab '{worksheet.title}'")
-    headers = worksheet.row_values(1)
+    headers = _with_retry(worksheet.row_values, 1)
 
     if _is_legacy_visual_only_tab(headers):
-        worksheet.update(f"B{row_idx}", [["\n".join(image_urls)]])
-        worksheet.update(f"D{row_idx}:E{row_idx}", [["", ""]])
+        _with_retry(worksheet.update, f"B{row_idx}", [["\n".join(image_urls)]])
+        _with_retry(worksheet.update, f"D{row_idx}:E{row_idx}", [["", ""]])
         return
 
     if "Image Link(s)" not in headers:
         image_col = len(headers) + 1
         start = gspread.utils.rowcol_to_a1(1, image_col)
         end = gspread.utils.rowcol_to_a1(1, image_col + 2)
-        worksheet.update(f"{start}:{end}", [["Image Link(s)", "Visual Status", "Visual Comments"]])
-        n_rows = len(worksheet.col_values(1)) - 1
-        spreadsheet.batch_update({"requests": [_dropdown_request(worksheet, image_col + 1, n_rows)]})
+        _with_retry(worksheet.update, f"{start}:{end}", [["Image Link(s)", "Visual Status", "Visual Comments"]])
+        n_rows = len(_with_retry(worksheet.col_values, 1)) - 1
+        _with_retry(spreadsheet.batch_update, {"requests": [_dropdown_request(worksheet, image_col + 1, n_rows)]})
     else:
         image_col = headers.index("Image Link(s)") + 1
 
     start = gspread.utils.rowcol_to_a1(row_idx, image_col)
     end = gspread.utils.rowcol_to_a1(row_idx, image_col + 2)
-    worksheet.update(f"{start}:{end}", [["\n".join(image_urls), "", ""]])
+    _with_retry(worksheet.update, f"{start}:{end}", [["\n".join(image_urls), "", ""]])
     _write_hyperlinked_urls(spreadsheet, worksheet, row_idx, image_col, image_urls)
 
 
