@@ -386,3 +386,15 @@ above (which doesn't change).
   itself is a living document) — not a one-time gate; Phase 1 starts
   now with what's currently in `assets/voice-reference/` and should be
   revisited if the user drops in more material later.
+
+- **2026-09-16 (Phase 1)** — `docs/voice-guide.md` written: voice
+  principles derived from the 5 reference screenshots (fragments over
+  full sentences, rhetorical-opener-then-twist structure, texting-
+  register spelling used naturally, imperfection as an authenticity
+  signal, escalation/repetition as structure), a cliché/AI-tell
+  avoidance list, and Ooops-specific angle notes (jar mechanic, LDR
+  specifics, origin story). Marked as a living document — user said
+  they'll keep adding voice-reference material, guide should be revised
+  when that happens, not treated as final. Phase 1 done; Phase 2 (design
+  system) and Phase 3 (engagement tracking) can now start in parallel
+  per the build order.
