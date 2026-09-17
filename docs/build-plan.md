@@ -1226,3 +1226,42 @@ above (which doesn't change).
   post recency distortion, mean-vs-median engagement) worth applying
   to any future Instagram-scraping work in this project, not just
   creator outreach.
+
+- **2026-09-17 (Scrape Creators verified, first real-research batch
+  shipped)** — Approved and connected the Scrape Creators MCP server
+  (7,100 free credits claimed) and verified it properly before trusting
+  it: cross-checked a live `v1_instagram_profile` follower count
+  against an independent `WebFetch` check (matched exactly, 42,420),
+  confirmed real engagement fields populate (not null), and ran Reddit
+  search for the first time all project — real posts, permalinks,
+  upvotes, all verifiable. ~13 credits spent on verification, ~7,087
+  left over.
+
+  Used it for real research (r/LongDistance, r/AskReddit,
+  r/CasualConversation) to draft posts 15-28 — a 7-day/14-post batch.
+  Learned mid-draft that r/relationships is the wrong subreddit
+  entirely for this project (pure crisis/advice content, not relatable
+  humor) and that cross-Reddit `reddit_search` (vs. subreddit-scoped
+  search) returns poorly-targeted results.
+
+  The first full draft of that batch had three real problems the user
+  caught, all now codified in docs/voice-guide.md and
+  docs/ooops-context.md: (1) posts referencing "the jar" without any
+  in-post context, unreadable to anyone who doesn't already know
+  Ooops — jar was already used 3x in the prior batch, so this batch
+  drops it entirely; (2) heavy repetition, several posts pulled from
+  near-identical AskReddit prompts and one bullet-list nearly
+  duplicated post 7's format; (3) one post named a third-party drawing
+  app by implication ("found an app that lets us..."), which is Ooops
+  promoting an unrelated product on its own account. A second-round
+  fix also missed real LDR community jargon ("never mets") and let a
+  "petty jealousy" bit read as an actual controlling dynamic — both
+  fixed, both now generalized into the "no unexplained jargon from any
+  source" and "check wording against the boundary test, not just
+  premise" rules.
+
+  Final batch: no jar, checked against the existing queue for repeats,
+  every external citation is a real checked permalink, incorporates a
+  third-person "when u..." format validated by two real high-engagement
+  IG reference images the user shared directly. Shipped at
+  `stage: "drafted"` for the review cycle to pick up.

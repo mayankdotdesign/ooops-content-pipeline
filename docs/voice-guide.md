@@ -90,6 +90,44 @@ queue.json`) — a new batch repeating a format or angle already used
 shipped) reads as reruns to anyone following the account, even if the
 specific wording is new.
 
+**The "no unexplained jargon" rule isn't just about the jar** (extended
+2026-09-17): a draft that used "never mets" — real r/LongDistance
+community shorthand for a couple who hasn't met in person yet — hit
+the exact same failure as an unexplained jar reference, just sourced
+from Reddit slang instead of the app. Any term that requires having
+read the source community to parse gets rewritten in plain language,
+whether it comes from Ooops' own features or from wherever the
+research came from.
+
+**Also watch for content that's accidentally serious, not petty**
+(2026-09-17): a "when u make plans without him" draft originally read
+"...now you have to manage his feelings about your own social life" —
+technically still a joke, but the phrasing described a real controlling
+dynamic, not a bit. Apply the §6 boundary test in
+[docs/ooops-context.md](ooops-context.md) literally, not just to the
+premise of a post but to its specific wording — a petty premise can
+still land as something genuinely uncomfortable if the phrasing tips
+too far toward real.
+
+**New validated structural option, added 2026-09-17:** third-person
+"when u..." self-aware setups (inspired by real high-engagement IG
+reference posts the user shared directly) work alongside the
+first-person "we/I" register already documented above — same fragment/
+texting-register rules apply, just addressed at "u" instead of "I."
+Good for a punchier, more ironic register; mix both across a batch
+rather than defaulting to one.
+
+**Research standard, added 2026-09-17:** every `source_note` claiming
+external inspiration must cite a real, checkable permalink, confirmed
+live in that session — not a plausible-sounding account name, follower
+count, or quote assumed from general knowledge. An audit this session
+found every follower-count citation in an earlier batch fabricated
+4x-1,000x too high, with zero of them actually verified when drafted.
+Real research now goes through the Scrape Creators MCP connector (see
+[docs/pipeline-walkthrough.md](pipeline-walkthrough.md)); if a claim in
+a `source_note` can't be traced to an actual tool call from that
+session, it doesn't belong in the queue.
+
 ## CTA — always direct-engagement, always shareable
 
 `cta` is a separate schema field from `caption` — it gets appended

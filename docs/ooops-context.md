@@ -122,6 +122,7 @@ Ooops is: **Warm · Playful · Intimate · Satisfying.** It should feel like a w
 
 These are product-level content safety rules (from the offense category guidelines) and apply equally to any social content, not just in-app categories:
 
+- **Never name or imply a third-party app, tool, or service** in `relatable` content, even in passing (added 2026-09-17: an early draft said "found an app that lets us draw on the same screen..." — Ooops' own account accidentally promoting an unrelated product is a real mistake, not a style nitpick). Describe the activity/gesture itself, never the tool used to do it.
 - **Never** reference financial control or coercion (withholding money, controlling a partner's spending)
 - **Never** reference or joke about physical or emotional abuse
 - **Never** treat mental health (anxiety, depression, etc.) as a punishable "offense"
