@@ -1,9 +1,22 @@
 # How the pipeline actually works — a plain-language walkthrough
 
-Four automated jobs run in the background (GitHub Actions, on
-schedules), plus Claude doing the actual thinking/writing work when
-something needs judgment. Nothing posts to Instagram without you
-approving it twice — once on the words, once on the actual image.
+Three automated jobs run in the background (GitHub Actions), plus
+Claude doing the actual thinking/writing work when something needs
+judgment. Nothing posts to Instagram without you approving it twice —
+once on the words, once on the actual image.
+
+**Updated 2026-09-17**: the three jobs no longer run on GitHub's own
+`schedule:` trigger — it repeatedly proved unreliable (silently dropped
+firings, sometimes for an hour+) across this build. All three are now
+triggered by external cron jobs on cron-job.org hitting each
+workflow's `workflow_dispatch` API endpoint instead — same effect as
+someone clicking "Run workflow," just automated and actually reliable:
+
+| Job (cron-job.org) | Fires | Hits workflow |
+|---|---|---|
+| "ooops IG posting - review cycle" | every 15 min, all day | `review-cycle.yml` |
+| "ooops IG posting - daily post" | 4:30 AM & 6:30 AM IST | `daily-post.yml` |
+| "ooops IG posting - track engagement" | 5:30 PM IST | `track-engagement.yml` |
 
 ## A realistic week, step by step
 
@@ -17,9 +30,10 @@ app exists yet, etc). Every post gets a note on exactly which real post
 inspired it (`source_note`). Committed to `content_queue/queue.json` as
 `"drafted"`.
 
-**Within ~20 minutes — content review sheet appears.** The automation
-(`scripts/review_cycle.py`, on a cron) notices drafted posts sitting
-there, writes one row per post into a fresh tab in the Google Sheet
+**Within ~15 minutes — content review sheet appears.** The next
+"review cycle" cron-job.org tick runs `scripts/review_cycle.py`, which
+notices drafted posts sitting there, writes one row per post into a
+fresh tab in the Google Sheet
 (`content-2026-09-22`, say), and emails a notification with a link.
 Each row has the text, caption, hashtags, CTA — no images yet, nothing's
 rendered.
@@ -32,9 +46,10 @@ in **Content Comments** wherever something needs to change.
 don't have to finish every row before any of them move:
 - **Rejected** rows are dropped from the queue entirely.
 - **Need Change** rows pause — Claude reads your comment, fixes the
-  actual post, and clears the comment to signal it's done. The
-  automation pushes the fix back into that *same row* and clears its
-  status so you can look again. Can loop a few times.
+  actual post, and clears the comment to signal it's done. The next
+  cron tick pushes the fix back into that *same row*, clears its
+  status so you can look again, and emails you that a revision is
+  ready — same as the first-time review email. Can loop a few times.
 - **Approved** rows move to "content approved" — but don't render yet.
 
 **Rendering only starts once the WHOLE batch's content is approved** —
@@ -42,8 +57,12 @@ this is deliberate (per your request): no image gets generated until
 every post in the batch is either approved or dropped, so no render
 effort is wasted on copy that might still change. Once that's true, the
 automation renders every approved post's actual Instagram-ready image
-and fills in an **Image Link(s)** column on the *same rows, same tab* —
-no new tab, just new columns appear. Another email tells you it's ready.
+(1080x1080, "ooops" logo top-right, "ooopsapp.com" bottom-center,
+text always vertically centered — locked in 2026-09-17) and fills in
+an **Image Link(s)** column on the *same rows, same tab* — each URL is
+a real clickable hyperlink, not just plain text, even for a carousel's
+multiple images in one cell. No new tab, just new columns appear.
+Another email tells you it's ready.
 
 **You review the visuals.** Click the image links, mark **Visual
 Status** / **Visual Comments** the same way, on the same rows. Same
@@ -52,14 +71,17 @@ Rejected → dropped; Approved → that post is now `"queued"`, fully done,
 waiting to post.
 
 **Posting happens on its own schedule.** `.github/workflows/daily-post.yml`
-looks for `"queued"` posts daily and publishes to Instagram — currently
-1/day, no app-promo posts, no carousels, per what you asked for a few
-weeks ago (docs/build-plan.md, 2026-09-17). It pulls the caption and the
-already-approved image; nothing new gets generated at post time.
+looks for the oldest `"queued"` post and publishes it to Instagram —
+2x/day (4:30 AM & 6:30 AM IST), no app-promo posts per what you asked
+for a few weeks starting 2026-09-17 (docs/build-plan.md). Carousels
+work fine (tested end-to-end with a real 3-slide post the same day).
+It pulls the caption and the already-approved image(s); nothing new
+gets generated at post time.
 
 **After it's live, a third job tracks performance.**
 `.github/workflows/track-engagement.yml` pulls real Instagram Insights
-(reach, likes, saves) daily into `content_queue/performance.json`,
+(reach, likes, saves) daily at 5:30 PM IST into
+`content_queue/performance.json`,
 which Claude reads the next time it drafts a batch — so research and
 writing get better informed by what's actually working over time.
 
