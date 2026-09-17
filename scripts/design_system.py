@@ -88,16 +88,24 @@ def _load_emoji_manifest():
 
 
 def _split_emoji_runs(text):
-    """Yield (is_emoji, chunk) runs. Only splits on emoji we actually have assets for."""
+    """Yield (is_emoji, chunk) runs. Only splits on emoji we actually have assets for.
+
+    Matches the LONGEST manifest key at each position, not just the first
+    one found in dict order (2026-09-17 fix): the manifest has both a bare
+    codepoint and a +FE0F variant for most single-codepoint emoji (e.g.
+    "✈" and "✈️", both -> the same file), and a naive
+    first-match could grab the shorter bare form, leaving a lone FE0F
+    variation-selector character to fall through as plain "text" -- which
+    this font renders as a visible tofu box, not nothing, since FE0F isn't
+    actually invisible in every font."""
     manifest = _load_emoji_manifest()
     i = 0
     buf = ""
     while i < len(text):
         matched = None
         for emoji in manifest:
-            if text.startswith(emoji, i):
+            if text.startswith(emoji, i) and (matched is None or len(emoji) > len(matched)):
                 matched = emoji
-                break
         if matched:
             if buf:
                 yield False, buf
