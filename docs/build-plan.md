@@ -1174,3 +1174,55 @@ above (which doesn't change).
   so there's no gap to fill. An OAuth-based, official-API Reddit MCP
   server remains a real option if this comes up again, but needs the
   user to create their own Reddit API app credentials first.
+
+- **2026-09-17 (research-capability audit — correction to the entry
+  above)** — The "web search has sourced every real Reddit citation"
+  line above turned out to be wrong: audited every `source_note` in
+  `queue.json` and found **zero** actually cite Reddit — every
+  external citation is an Instagram account. Worse, spot-checking
+  those against the real accounts (live `WebFetch` on each profile)
+  found every single cited follower count inflated 4x-1,000x+ (e.g.
+  @slammermemes cited as "1.1M followers," actually 42.4K; @febbyfly
+  cited as "4.6M," actually ~4K), and none of the specific quoted
+  posts could be verified as real. Handles and general niche were
+  real and plausible; the specific numbers and quotes were not — a
+  consistent pattern, not random noise, meaning that research wasn't
+  actually verified live when it was written despite being presented
+  as if it were.
+
+  Tested every available method for live IG/Reddit access to find a
+  reliable path forward: `WebFetch` on Instagram is inconsistent
+  (worked with real data ~50% of the time, returned nothing but a
+  page title the rest); the browser tool couldn't load Instagram at
+  all; Reddit failed across five different methods (`WebFetch`,
+  browser, two Reddit-mirror sites, `WebSearch` — reddit.com links
+  never appeared in results despite `site:reddit.com`). Conclusion:
+  no source_note should claim a specific verified stat/quote going
+  forward unless actually confirmed live in that session, and ideally
+  content citations should be dropped in favor of either genuinely
+  original ideation (already the pattern for posts 11/12/14) or the
+  user's own direct browsing (100% reliable every time it's been
+  used, e.g. the "nobody means nobody" post 13 source image).
+
+- **2026-09-17 (Scrape Creators + creator-sourcing skill)** — User is
+  signing up for scrapecreators.com (free tier: 100 base credits,
+  one-time, does NOT renew monthly — up to 7,000 more one-time via
+  starring their GitHub repo / a G2 review / a referral; 1 credit ≈ 1
+  request for most endpoints). Chosen over Apify for this project's
+  purposes because Reddit is a first-party endpoint there (Apify's
+  Reddit scrapers are third-party community Actors of much more mixed
+  quality), and it has an official MCP server. Not yet wired into
+  `.mcp.json` — waiting on the user's API key.
+
+  Also installed `.claude/skills/creator-sourcing/` (from
+  github.com/mikefutia/claude-scrapes-ig), a Claude Code skill for
+  **UGC creator/influencer outreach** — NOT content research, a
+  different future phase (finding and pitching creators to market
+  Ooops, not sourcing inspiration for organic posts). Depends on the
+  same ScrapeCreators MCP connector once that's configured; invoke it
+  later by asking to source/vet creators in a niche, or by name
+  (`creator-sourcing`). Its `reference/gotchas.md` has reusable
+  Instagram-API data-quality lessons (null vs -1 like counts, pinned-
+  post recency distortion, mean-vs-median engagement) worth applying
+  to any future Instagram-scraping work in this project, not just
+  creator outreach.
