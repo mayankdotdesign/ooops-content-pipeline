@@ -1097,3 +1097,65 @@ above (which doesn't change).
   confirmed working via two real dispatched runs. GitHub's own
   `schedule:` entry is left in place too as a harmless redundant
   trigger (`review_cycle.py` is idempotent/safe to run repeatedly).
+
+  **Update, later the same day**: GitHub's schedule turned out to be
+  unreliable a second time (daily-post.yml silently dropped its 7pm ET
+  slot the first time it ran on the new 2x/day cadence — confirmed via
+  the Actions API, no run exists for that slot at all). Rather than
+  patch workflow-by-workflow, removed `schedule:` from all three
+  workflows entirely and put an external cron-job.org job in front of
+  each one instead — GitHub's scheduler is no longer trusted anywhere
+  in this pipeline. Also added a `concurrency:` group to each workflow:
+  for `daily-post.yml` specifically, an overlapping run isn't just
+  wasteful like it would be for the others — two concurrent runs could
+  each read the same "next queued item" before either commits its
+  "posted" state, posting it to Instagram twice. The concurrency group
+  serializes any overlap regardless of what triggered it.
+
+- **2026-09-17 (design refresh)** — User uploaded new 1:1 background
+  art (`BG1.png`/`BG2.png`, now 1620x1620) and new design references
+  (`Reference_text_post_1/2.png`) showing the logo moved bottom-right →
+  top-right and "ooopsapp.com" moved top-center → bottom-center.
+  Canvas moved from 1080x1350 to 1080x1080 to match; every layout's
+  vertical anchor was rescaled by 0.8 (1080/1350) rather than
+  eyeballed. Text is now vertically centered on the canvas in every
+  layout (`draw_paragraph` gained a `measure_only` mode so the
+  centering math can't drift from what's actually drawn) — was a fixed
+  top offset before, which left inconsistent margins depending on text
+  length. `load_background()` now center-crops instead of stretching
+  when the source PNG's aspect ratio doesn't match the canvas, so an
+  eventual non-square asset can't silently distort.
+
+  All 13 already-approved posts were re-rendered and re-approved
+  against the new design (reusing the existing `resubmit_visual_review`
+  path). This surfaced two real bugs, both specific to doing 13 at
+  once instead of 1: `resubmit_content_review`/`resubmit_visual_review`
+  were looking up the same tab's worksheet once per item instead of
+  once per tab, and a carousel/multi-URL cell's hyperlink formatting
+  request placed its last "reset formatting" run exactly at the
+  string's end, which Sheets' API rejects outright. Both fixed; see
+  `scripts/sheets_utils.py` and `scripts/review_cycle.py` for detail.
+
+  Also added a real clickable hyperlink for every URL in a multi-image
+  `Image Link(s)` cell — Sheets only auto-links a cell when its ENTIRE
+  content is one URL, so a carousel's 3 stacked URLs never got linked
+  before this.
+
+- **2026-09-17 (Reddit research tool)** — Added
+  `eliasbiondo/reddit-mcp-server` (PyPI: `reddit-no-auth-mcp-server`)
+  as a project-scoped MCP server (`.mcp.json`) so Claude can search
+  Reddit/pull full comment threads directly during content research,
+  instead of relying on generic web search. No Reddit API key needed
+  (it scrapes rather than using the official API — convenient, but
+  means it's more likely to break if Reddit changes something, and
+  isn't officially sanctioned access).
+
+  The published package is broken on a clean install: it depends on
+  `redd`, which needs `httpx`, but `httpx` isn't declared as a
+  dependency anywhere in the package, so `uvx reddit-no-auth-mcp-server`
+  alone fails with `ModuleNotFoundError: No module named 'httpx'`.
+  Worked around it with `uvx --with httpx reddit-no-auth-mcp-server`
+  (injects the missing dependency without needing to fork/patch the
+  package) — that's what's actually configured in `.mcp.json`. Needs
+  approval on next session start (Claude Code prompts once for any new
+  project-scoped MCP server) before its tools are usable.

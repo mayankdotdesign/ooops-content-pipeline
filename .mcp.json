@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "reddit-research": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--with",
+        "httpx",
+        "reddit-no-auth-mcp-server"
+      ],
+      "env": {}
+    }
+  }
+}
