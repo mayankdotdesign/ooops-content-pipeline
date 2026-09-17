@@ -1,0 +1,24 @@
+{
+  "2": {
+    "reach": 1,
+    "likes": 1,
+    "comments": 0,
+    "saved": 0,
+    "shares": 0,
+    "bg_variant": 2,
+    "angle": "relatable_text",
+    "post_type": "relatable",
+    "ig_media_id": "18127805140745841"
+  },
+  "3": {
+    "reach": 0,
+    "likes": 0,
+    "comments": 0,
+    "saved": 0,
+    "shares": 0,
+    "bg_variant": 1,
+    "angle": "ldr_pain",
+    "post_type": "relatable",
+    "ig_media_id": "18102267200578521"
+  }
+}
