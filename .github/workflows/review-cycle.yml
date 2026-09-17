@@ -1,15 +1,19 @@
 name: Review Cycle
 
 on:
-  # Offset from the hour/quarter-hour (:00/:15/:30/:45) on purpose --
-  # GitHub explicitly documents that's peak load for Actions scheduling
-  # and scheduled runs there are the most likely to be delayed or
-  # dropped. Every 20 min at :07/:27/:47 avoids that contention.
-  # (2026-09-17: the exact-quarter-hour version never fired once on its
-  # own across 5 real runs, all manual -- see docs/build-plan.md.)
-  schedule:
-    - cron: "7,27,47 * * * *"
+  # No `schedule:` trigger here on purpose (2026-09-17). GitHub's own
+  # cron proved unreliable across this whole build -- see
+  # docs/build-plan.md's status log for the repeated real incidents
+  # (dropped firings, hours of silence, one confirmed skipped slot on
+  # daily-post.yml). An external cron (cron-job.org, every 15 min)
+  # POSTs to this workflow's dispatch endpoint instead -- same effect
+  # as a person clicking "Run workflow", just automated and actually
+  # reliable. workflow_dispatch is also still there for manual testing.
   workflow_dispatch: {}
+
+concurrency:
+  group: review-cycle
+  cancel-in-progress: false
 
 jobs:
   review:

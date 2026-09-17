@@ -1,14 +1,24 @@
 name: Daily Ooops Post
 
 on:
-  schedule:
-    # Phase 7 (2026-09-17): 2 posts/day, re-anchored to US evening hours
-    # (was 07:30 UTC = 1pm IST, an India-peak time with no US relevance).
-    # Fixed UTC times, not US-local — will drift an hour off "true" evening
-    # across DST changeovers (~Nov/Mar); revisit then if it matters.
-    - cron: "0 23 * * *"  # 7:00 PM ET / 4:00 PM PT
-    - cron: "0 1 * * *"   # 9:00 PM ET / 6:00 PM PT
+  # No `schedule:` trigger here (2026-09-17) -- GitHub's own cron
+  # silently dropped one of the two daily slots the one time this ran
+  # with it (see docs/build-plan.md), and for THIS workflow specifically
+  # a dropped-then-doubled-up firing is worse than just "late": if
+  # GitHub's schedule and an external trigger both fired near the same
+  # time, two concurrent runs could each independently pick the SAME
+  # "next queued item" and post it to Instagram twice -- a real
+  # duplicate live post, not just a wasted run. An external cron
+  # (cron-job.org, "0 23,1 * * *" UTC = 7pm/9pm ET) POSTs to this
+  # workflow's dispatch endpoint instead. workflow_dispatch stays for
+  # manual testing. The concurrency group below is a second, independent
+  # safety net against that same double-post scenario regardless of
+  # what triggered the extra run.
   workflow_dispatch: {}
+
+concurrency:
+  group: daily-post
+  cancel-in-progress: false
 
 jobs:
   post:

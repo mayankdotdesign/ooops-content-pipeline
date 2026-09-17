@@ -1,9 +1,19 @@
 name: Track Engagement
 
 on:
-  schedule:
-    - cron: "0 12 * * *"
+  # No `schedule:` trigger (2026-09-17) -- see daily-post.yml/
+  # review-cycle.yml for why: GitHub's own cron has repeatedly dropped
+  # or delayed firings across this build. An external cron
+  # (cron-job.org, "0 12 * * *" UTC) POSTs to this workflow's dispatch
+  # endpoint instead. Lower stakes here than daily-post.yml (re-reading
+  # engagement stats twice is harmless, not a duplicate live action),
+  # but no reason to trust the flaky trigger anywhere once we don't
+  # have to.
   workflow_dispatch: {}
+
+concurrency:
+  group: track-engagement
+  cancel-in-progress: false
 
 jobs:
   track:
