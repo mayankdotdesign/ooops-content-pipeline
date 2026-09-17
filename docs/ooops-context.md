@@ -31,6 +31,20 @@ Mayank (the founder) kept a physical notepad with his girlfriend during a long-d
 - Secondary audience (not the IG content priority): Indian couples, LDR and co-located, 22–35.
 - **Not the audience:** couples who share finances, or anyone who'd treat the jar as punitive/real financial tracking rather than a bit.
 
+**Growth goal (added 2026-09-17):** @ooops.app is a brand-new account
+with no existing audience or track record — every post is competing
+with established relatable-couple/meme accounts, not just other Ooops
+content. The explicit success metric for this content isn't "did we
+post something on-brand," it's "would a stranger scrolling past
+actually stop, laugh, tag their partner, and maybe check the bio link"
+— i.e. real follows, shares, comments, and waitlist signups, not just
+inoffensive brand-safe copy. When in doubt between the "safer" version
+of a joke and the funnier/sharper one, and both pass the content
+boundaries in §6, favor the funnier one. Grounding content in real,
+currently-resonating posts (via the Scrape Creators research step,
+checked against actual engagement numbers, not assumed) is how this
+gets judged before it ships, not guessed at.
+
 ---
 
 ## 3. Core features (for accurate content — don't invent features)

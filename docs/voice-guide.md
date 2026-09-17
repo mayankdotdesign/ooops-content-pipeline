@@ -68,6 +68,28 @@ Example phrasings in-voice (illustrative, not to reuse verbatim):
 - "she was hungry." (a one-line non-answer as the punchline — commit to
   the bit, don't explain the joke)
 
+**Hard rule, added 2026-09-17 after a batch failed this test:** every
+post must land as a joke to someone who has never heard of Ooops and
+never will click through — the app connection is a bonus for people
+who *do* investigate, never a requirement to get the punchline. "jar"
+can appear as a light, self-explanatory image (a jar = a mental tally
+of pettiness — intuitive on its own, no app knowledge needed), but
+never as a capital-J branded feature name the reader is assumed to
+already recognize ("jar-worthy," "the Jar," "add it to the jar" as if
+it's established shorthand). Test before shipping: read the post with
+zero context — if the punchline only parses because you already know
+Ooops has a jar feature, cut it or rewrite it as an implicit metaphor.
+Use a jar reference **at most once per batch**, not as a recurring
+tic — reaching for it repeatedly is what tips a post from "relatable
+joke" into "thinly-veiled ad," which is the exact thing `app_promo`
+gating exists to keep out of the relatable lane.
+
+**Also check the existing queue before drafting** (`content_queue/
+queue.json`) — a new batch repeating a format or angle already used
+(e.g. another bullet-list "list of petty offenses" when one already
+shipped) reads as reruns to anyone following the account, even if the
+specific wording is new.
+
 ## CTA — always direct-engagement, always shareable
 
 `cta` is a separate schema field from `caption` — it gets appended
