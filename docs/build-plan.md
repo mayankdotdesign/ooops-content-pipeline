@@ -1159,3 +1159,18 @@ above (which doesn't change).
   package) — that's what's actually configured in `.mcp.json`. Needs
   approval on next session start (Claude Code prompts once for any new
   project-scoped MCP server) before its tools are usable.
+
+  **Removed same day, after testing.** Approved and connected fine,
+  but every actual search call failed with a connection error. Root
+  cause confirmed directly (not guessed): Reddit's own `.json` search
+  endpoint returns `403` even with a real browser User-Agent, while
+  the main site loads fine — Reddit is blocking unauthenticated
+  scraping of that endpoint outright, not rate-limiting it. This is
+  the exact risk flagged when the tool was first suggested (no-API-key
+  scrapers got much less reliable after Reddit locked down `.json`
+  access in 2023). Removed `reddit-research` from `.mcp.json` entirely
+  rather than chase a workaround — general web search has sourced
+  every real Reddit citation in this project so far with no issues,
+  so there's no gap to fill. An OAuth-based, official-API Reddit MCP
+  server remains a real option if this comes up again, but needs the
+  user to create their own Reddit API app credentials first.
