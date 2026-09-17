@@ -18,16 +18,37 @@ someone clicking "Run workflow," just automated and actually reliable:
 | "ooops IG posting - daily post" | 4:30 AM & 6:30 AM IST | `daily-post.yml` |
 | "ooops IG posting - track engagement" | 5:30 PM IST | `track-engagement.yml` |
 
+**Updated 2026-09-17 (research)**: "Claude goes and reads Reddit/
+Instagram" below used to mean generic web search, which turned out to
+be unable to reliably verify anything on either platform (an audit
+found every IG follower-count citation from an earlier batch was
+fabricated 4x-1,000x too high, and zero real Reddit citations existed
+despite the intent). Research now goes through the **Scrape Creators
+MCP connector** — a real, paid-API-backed scraper (not a hobby
+project) that returns genuine posts, comments, and engagement numbers
+(likes/comments/upvotes/views) for both Instagram and Reddit, verified
+against independent checks before being trusted. Every `source_note`
+citation going forward must be a real, checkable permalink/URL — not a
+plausible-sounding but unverified claim. Uses Scrape Creators credits
+(track via `v1_account_credit_balance`); budget deliberately, don't
+burn the free allowance on exploratory searches that don't ship.
+
+The user can also supply real meme/reference images directly (e.g. a
+screenshot of a quote graphic) — those go in `assets/meme-references/`
+and get adapted via the `photo` slide layout, no research tool needed.
+
 ## A realistic week, step by step
 
-**Monday — Claude drafts a new batch.** Phase 5 kicks off: Claude goes
-and reads Reddit/Instagram for real, relevant posts, checks what's
-already worked (`content_queue/performance.json`), and writes ~14 new
-posts — hook text, caption, hashtags, CTA — following
-`docs/voice-guide.md` and the hard content rules in
-`docs/ooops-context.md` (no fidelity/abuse topics, no overclaiming the
-app exists yet, etc). Every post gets a note on exactly which real post
-inspired it (`source_note`). Committed to `content_queue/queue.json` as
+**Monday — Claude drafts a new batch.** Phase 5 kicks off: Claude
+searches Reddit/Instagram via the Scrape Creators connector for real,
+relevant, currently-resonating posts, checks what's already worked
+(`content_queue/performance.json`), and writes ~14 new posts — hook
+text, caption, hashtags, CTA — following `docs/voice-guide.md` and the
+hard content rules in `docs/ooops-context.md` (no fidelity/abuse
+topics, no overclaiming the app exists yet, etc). Every post gets a
+note on exactly which real, verified post inspired it (`source_note`
+— a real permalink, checked, not assumed). Committed to
+`content_queue/queue.json` as
 `"drafted"`.
 
 **Within ~15 minutes — content review sheet appears.** The next
