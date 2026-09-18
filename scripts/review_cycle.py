@@ -111,7 +111,7 @@ def check_content_review(queue, spreadsheet):
     any_processed = False
     for tab_title, items in _group_by_tab(outstanding).items():
         try:
-            ws = spreadsheet.worksheet(tab_title)
+            ws = sheets_utils.get_worksheet(spreadsheet, tab_title)
         except sheets_utils.gspread.WorksheetNotFound:
             continue  # tab not written yet this run (shouldn't normally happen)
 
@@ -163,7 +163,7 @@ def send_visual_review(queue, spreadsheet, repo):
 
     by_tab = _group_by_tab(ready)
     for tab_title, items in by_tab.items():
-        ws = spreadsheet.worksheet(tab_title)
+        ws = sheets_utils.get_worksheet(spreadsheet, tab_title)
         for item in items:
             rp.render_item(item)
             item["stage"] = "rendered"
@@ -191,7 +191,7 @@ def check_visual_review(queue, spreadsheet):
     any_processed = False
     for tab_title, items in _group_by_tab(outstanding).items():
         try:
-            ws = spreadsheet.worksheet(tab_title)
+            ws = sheets_utils.get_worksheet(spreadsheet, tab_title)
         except sheets_utils.gspread.WorksheetNotFound:
             continue
 
@@ -237,7 +237,7 @@ def resubmit_content_review(queue, spreadsheet):
     # API quota (see resubmit_visual_review's docstring for the actual
     # failure this caused at batch size 13).
     for tab_title, items in _group_by_tab(ready).items():
-        ws = spreadsheet.worksheet(tab_title)
+        ws = sheets_utils.get_worksheet(spreadsheet, tab_title)
         for item in items:
             sheets_utils.update_content_row(ws, item)
             item["stage"] = "content_review"
@@ -270,7 +270,7 @@ def resubmit_visual_review(queue, spreadsheet, repo):
         return False
     tabs = set()
     for tab_title, items in _group_by_tab(ready).items():
-        ws = spreadsheet.worksheet(tab_title)
+        ws = sheets_utils.get_worksheet(spreadsheet, tab_title)
         for item in items:
             rp.render_item(item)  # re-render with whatever changed
             urls = image_urls_for_item(item, repo)
@@ -323,15 +323,37 @@ def main():
     # Save after each step rather than once at the end — a crash partway
     # through then never loses an earlier step's already-completed work
     # on the next run.
-    for step, args in [
+    steps = [
         (resubmit_content_review, (queue, spreadsheet)),
         (check_content_review, (queue, spreadsheet)),
         (send_visual_review, (queue, spreadsheet, repo)),
         (resubmit_visual_review, (queue, spreadsheet, repo)),
         (check_visual_review, (queue, spreadsheet)),
         (send_content_review, (queue, spreadsheet)),
-    ]:
-        if step(*args):
+    ]
+    for step, args in steps:
+        try:
+            ran = step(*args)
+        except Exception:
+            # 2026-09-17: two runs failed outright with only "Process
+            # completed with exit code 1" in the run summary -- the real
+            # traceback was stuck behind GitHub's sign-in wall for
+            # anyone who isn't a repo collaborator. Email it instead of
+            # (or as well as) leaving it there, then re-raise so the
+            # workflow still shows red and CI/dispatch tooling still
+            # sees a real failure.
+            import traceback
+            _notify(
+                subject=f"Ooops Review Cycle FAILED — {_today()}",
+                body=(
+                    f"Step '{step.__name__}' raised an exception:\n\n"
+                    f"{traceback.format_exc()}\n\n"
+                    "State already saved by earlier steps in this run is safe "
+                    "(saved after each step, not just at the end)."
+                ),
+            )
+            raise
+        if ran:
             any_step_ran = True
             _save(queue)
 

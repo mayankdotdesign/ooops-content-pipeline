@@ -51,6 +51,16 @@ def _with_retry(fn, *args, retries=5, base_delay=2, **kwargs):
                 raise
             time.sleep(base_delay * (2 ** attempt))
 
+def get_worksheet(spreadsheet, tab_title):
+    """spreadsheet.worksheet() is itself an API call and was hitting the
+    same un-retried quota/5xx gap as read_tab_rows (2026-09-17) -- every
+    call site in review_cycle.py went through this directly. Raises
+    gspread.exceptions.WorksheetNotFound unchanged (that's a real
+    "tab doesn't exist" result, not a transient error, and callers
+    already catch it specifically)."""
+    return _with_retry(spreadsheet.worksheet, tab_title)
+
+
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 HEADERS = [
@@ -282,9 +292,16 @@ def read_tab_rows(worksheet):
     got merged onto one tab. Falls back to "Status"/"My Comments" for
     "Visual Status"/"Visual Comments" only when the new headers aren't
     present, so that one legacy tab keeps working for Approved/Rejected
-    outcomes. Not exercised by any tab created after this change."""
-    records = worksheet.get_all_records()
-    headers = worksheet.row_values(1)
+    outcomes. Not exercised by any tab created after this change.
+
+    Both calls go through _with_retry (2026-09-17, after two
+    review-cycle runs failed outright with no diagnosable error in the
+    logs): every WRITE path here already retried on quota/5xx, but this
+    read path didn't, even though check_content_review/check_visual_review
+    call it right after a run that just did a burst of writes -- exactly
+    the situation that trips Sheets' per-minute quota."""
+    records = _with_retry(worksheet.get_all_records)
+    headers = _with_retry(worksheet.row_values, 1)
     # The live content-2026-09-16 tab predates the "Content Status"/
     # "Content Comments" rename (it was created when those columns were
     # just called "Status"/"My Comments") -- fall back to the old names
