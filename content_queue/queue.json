@@ -160,11 +160,11 @@
     ],
     "cta": "which one's you? tag your co-defendant.",
     "angle": "jar_entry",
-    "stage": "queued",
+    "stage": "posted",
     "reviewer_comments": "",
     "source_note": "Drawn directly from Ooops' own default offense category list (docs/ooops-context.md \u00a74) \u2014 first-party product content, not externally sourced. Categories rewritten as specific one-line scenarios rather than the flat category names used in-app.",
     "created_at": "2026-09-17T00:30:00",
-    "ig_media_id": null,
+    "ig_media_id": "18635332183059329",
     "review_tab": "content-2026-09-16"
   },
   {
