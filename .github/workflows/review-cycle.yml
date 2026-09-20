@@ -41,8 +41,27 @@ jobs:
 
       - name: Commit queue/rendered changes
         run: |
+          # 2026-09-20: this job's own concurrency group only stops it from
+          # racing ITSELF -- daily-post.yml and track-engagement.yml also
+          # commit+push to content_queue/ on their own schedules, with no
+          # coordination between the three. `git push` validates against
+          # the LIVE remote tip regardless of what this checkout believed,
+          # so a run with zero local changes can still get rejected as
+          # non-fast-forward if either of the other two pushed in the
+          # meantime (confirmed: run #321 failed this way with "nothing to
+          # commit" in its own diff). Fetch+rebase+retry instead of a bare
+          # push.
           git config user.name "ooops-bot"
           git config user.email "bot@ooopsapp.com"
           git add content_queue/
           git commit -m "Advance review cycle" || echo "nothing to commit"
-          git push
+          for i in 1 2 3 4 5; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected (attempt $i) -- another workflow pushed first. Rebasing onto origin/main and retrying."
+            git fetch origin main
+            git rebase origin/main
+          done
+          echo "Push still failing after 5 attempts -- giving up."
+          exit 1

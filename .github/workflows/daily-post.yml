@@ -68,8 +68,22 @@ jobs:
       - name: Commit updated queue.json
         if: steps.find.outputs.queue_id != ''
         run: |
+          # 2026-09-20: review-cycle.yml and track-engagement.yml also
+          # commit+push to content_queue/ independently -- see
+          # review-cycle.yml's commit step for the full explanation of why
+          # a bare `git push` here can get rejected by a concurrent run of
+          # one of those, even though this job made a real local commit.
           git config user.name "ooops-bot"
           git config user.email "bot@ooopsapp.com"
           git add content_queue/queue.json
           git commit -m "Mark post ${{ steps.find.outputs.queue_id }} as posted" || echo "nothing to commit"
-          git push
+          for i in 1 2 3 4 5; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected (attempt $i) -- another workflow pushed first. Rebasing onto origin/main and retrying."
+            git fetch origin main
+            git rebase origin/main
+          done
+          echo "Push still failing after 5 attempts -- giving up."
+          exit 1
