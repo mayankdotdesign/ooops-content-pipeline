@@ -61,6 +61,20 @@ const POST_17_TEXT =
 
 const JAR_TEXT = "you owe the jar. settle at month end. 🫙";
 
+// Third pass on the grain gradient (2026-09-22): scale=8 (the second-pass
+// value) turned out to blow full coral coverage across the WHOLE
+// duration with no cream visible at any point -- higher scale zooms the
+// blob shape itself up, covering more of the frame, the opposite of what
+// "increase the spread" (meaning: soften the edge) needed. Dialed back to
+// a scale that keeps the blob's edge soft (still high softness) while
+// guaranteeing cream shows through at every point in the animation, not
+// just some frames -- verified with `npx remotion still` at several
+// frames across the duration, not just one, since the requirement is
+// "at least 25% visible at any moment," not "looks fine at frame 0."
+const GRAIN_SCALE = 1.3;
+const GRAIN_INTENSITY = 0.15;
+const GRAIN_SOFTNESS = 0.9;
+
 // A generous hold after the scripted exchange settles, so the last
 // bubble/reaction doesn't cut off the instant it lands.
 const JAR_BANTER_HOLD_FRAMES = 45;
@@ -77,23 +91,10 @@ type RealPost = {
   slides: string[];
 };
 
+// ids 12/13 deliberately excluded (2026-09-22): posting today via the
+// normal static-image pipeline before any reel work would matter, per
+// user instruction to "forget that" and focus fixes on 14-18.
 const REAL_POSTS: RealPost[] = [
-  {
-    id: 12,
-    template: "paper-light",
-    music: "audio/owies-ukulele.mp3",
-    slides: [
-      "he never says sorry.\n\nhe just shows up with my favorite snack and we both pretend that's the apology.",
-    ],
-  },
-  {
-    id: 13,
-    template: "grain",
-    music: "audio/smile.mp3",
-    slides: [
-      "nobody should know when you and your partner are on bad terms except you and your partner.\n\nand nobody means nobody. (except the jar)",
-    ],
-  },
   {
     id: 14,
     template: "paper-coral",
@@ -163,7 +164,7 @@ export const RemotionRoot: React.FC = () => {
         height={1920}
         schema={paperReelSchema}
         calculateMetadata={({ props }) => ({
-          durationInFrames: paperSlidesDuration(props.slides.length),
+          durationInFrames: paperSlidesDuration(props.slides),
         })}
         defaultProps={{
           slides: [POST_17_TEXT],
@@ -183,7 +184,7 @@ export const RemotionRoot: React.FC = () => {
         height={1920}
         schema={paperReelSchema}
         calculateMetadata={({ props }) => ({
-          durationInFrames: paperSlidesDuration(props.slides.length),
+          durationInFrames: paperSlidesDuration(props.slides),
         })}
         defaultProps={{
           slides: [POST_17_TEXT],
@@ -203,13 +204,13 @@ export const RemotionRoot: React.FC = () => {
         height={1920}
         schema={grainGradientReelSchema}
         calculateMetadata={({ props }) => ({
-          durationInFrames: paperSlidesDuration(props.slides.length),
+          durationInFrames: paperSlidesDuration(props.slides),
         })}
         defaultProps={{
           slides: [JAR_TEXT],
-          scale: 8,
-          intensity: 0,
-          softness: 0.7,
+          scale: GRAIN_SCALE,
+          intensity: GRAIN_INTENSITY,
+          softness: GRAIN_SOFTNESS,
           colorBack: "#FDDED5",
           musicSrc: staticFile("audio/owies-ukulele.mp3"),
         }}
@@ -226,13 +227,13 @@ export const RemotionRoot: React.FC = () => {
               width={1080}
               height={1920}
               calculateMetadata={({ props }) => ({
-                durationInFrames: paperSlidesDuration(props.slides.length),
+                durationInFrames: paperSlidesDuration(props.slides),
               })}
               defaultProps={{
                 slides: post.slides,
-                scale: 8,
-                intensity: 0,
-                softness: 0.7,
+                scale: GRAIN_SCALE,
+                intensity: GRAIN_INTENSITY,
+                softness: GRAIN_SOFTNESS,
                 colorBack: "#FDDED5",
                 musicSrc: staticFile(post.music),
               }}
@@ -248,7 +249,7 @@ export const RemotionRoot: React.FC = () => {
             width={1080}
             height={1920}
             calculateMetadata={({ props }) => ({
-              durationInFrames: paperSlidesDuration(props.slides.length),
+              durationInFrames: paperSlidesDuration(props.slides),
             })}
             defaultProps={{
               slides: post.slides,

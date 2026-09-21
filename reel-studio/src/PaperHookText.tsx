@@ -25,9 +25,27 @@ const FONT_SIZE = 64;
 const TRACKING_EM = -0.03;
 const LINE_HEIGHT = 1;
 const STEP = 3; // ~10 poses/sec @ 30fps -- remocn's stop-motion default
-const STAGGER_FRAMES = 6; // between WORDS (2 poses)
+// Exported (2026-09-22, per feedback: reels were cutting off mid-reveal)
+// so PaperSlides can compute exactly how many frames a given text needs
+// to finish revealing, instead of guessing a fixed slide length that
+// happened to be too short for longer posts.
+export const STAGGER_FRAMES = 6; // between WORDS (2 poses)
 const WORD_RISE_PX = 16;
-const WORD_ANIM_FRAMES = 18;
+export const WORD_ANIM_FRAMES = 18;
+
+// Total word count across all paragraphs, in the exact same split order
+// PaperHookText itself walks (paragraph.split("\n\n"), then
+// paragraph.split(" ")) -- must stay in lockstep with the render loop
+// below or the computed duration silently drifts from what actually
+// plays.
+export const countWords = (text: string): number =>
+  text.split("\n\n").reduce((sum, paragraph) => sum + paragraph.split(" ").length, 0);
+
+// The frame at which the LAST word finishes its reveal animation for a
+// given text -- the floor for how long a slide showing this text must
+// run before it's safe to hold or cut.
+export const revealCompleteFrame = (text: string): number =>
+  (countWords(text) - 1) * STAGGER_FRAMES + WORD_ANIM_FRAMES;
 
 const letterRuns = (word: string, manifest: EmojiManifest): TextRun[] => {
   // Like splitEmojiRuns but each plain-text run is further split down to

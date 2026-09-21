@@ -1307,3 +1307,26 @@ above (which doesn't change).
   paper/grain-gradient, music picked per post by mood rather than one
   track on repeat. Rendered and sent for visual review; nothing posted
   or merged to main yet.
+
+- **2026-09-22 (same day, follow-up) — Reels batch fixes: timing and
+  grain-gradient coverage.** Two real bugs surfaced from the first
+  rendered batch (posts 12-18): (1) several reels' videos ended before
+  the caption finished revealing (fixed 5s/slide wasn't enough for
+  longer posts) and gave no hold time once fully revealed; (2) the
+  grain-gradient's `scale: 8` (set live in Studio, looked fine in one
+  preview frame) turned out to blow full coral coverage across the
+  whole clip with the light background never showing through at all,
+  checked properly this time with `npx remotion still` across several
+  frames of the actual duration instead of eyeballing one frame.
+
+  Fixed: `PaperHookText` now exports `revealCompleteFrame(text)`
+  (computed from real word count, not guessed), and `PaperSlides` sizes
+  each slide's duration as reveal-completion + a 3s hold, summed via
+  `calculateMetadata` — no more flat per-slide duration. Grain gradient
+  dialed back to `scale: 1.3 / intensity: 0.15 / softness: 0.9`,
+  verified to keep the light background visibly present at multiple
+  points across the animation, not just frame 0.
+
+  ids 12 and 13 dropped from this batch — posting today via the normal
+  static-image pipeline before reel work would matter for them.
+  Re-rendered 14-18 with both fixes.
