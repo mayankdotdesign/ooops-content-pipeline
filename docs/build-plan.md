@@ -1265,3 +1265,45 @@ above (which doesn't change).
   third-person "when u..." format validated by two real high-engagement
   IG reference images the user shared directly. Shipped at
   `stage: "drafted"` for the review cycle to pick up.
+
+- **2026-09-22 — Reels experiment started, `reels-pipeline` branch.**
+  User wants existing static posts also publishable as Instagram Reels
+  (video), not just static images — Reels get far more algorithmic
+  reach for a 0-follower account than static posts do, which is the
+  root problem the engagement-data review that day surfaced (real
+  audit: @ooops.app has 0 followers; every "like" on the 10 posted
+  items so far was flat at exactly 2, i.e. the founder + one other
+  person, not organic signal — see that session's analysis).
+
+  Built via Remotion (`reel-studio/`, a separate Node project, not
+  wired into the Python pipeline yet) plus `remocn`, a free MIT-licensed
+  Remotion component registry, installed globally as a Claude Code
+  skill for future sessions. Iterated through several real UI/design
+  rounds with the user (documented in docs/pipeline-walkthrough.md's
+  new Reels section): text as a separate animated layer instead of a
+  flattened image, per-letter stop-motion wobble instead of per-word,
+  paper-grain opacity/blend-mode tuned live in Remotion Studio via
+  zod-schema props (default guesses were badly wrong both times —
+  8% opacity read as invisible, and the coral variant's paper blend
+  mode blew out solid red at the same settings that worked on the
+  light variant), and the grain-gradient shader's default shape
+  read as a robotic one-directional wash until switched to `blob`
+  with the scale pushed up.
+
+  Real IG Reels safe zones were measured, not guessed — downloaded
+  Remotion's own calibrated reference overlay
+  (elements/overlays/social-safe-zones) and read the actual pixel
+  boundaries off it.
+
+  Audio: rejected Pixabay (needs a login to download despite being
+  attribution-free) and moved off the very first prototype's
+  incompetech.com track (CC-BY, needs a credit line) once free
+  no-attribution alternatives were confirmed — Mixkit and Chosic,
+  both checked directly against their own license pages, not assumed.
+
+  First real batch: queue ids 12-18 (7 posts, including the id-14
+  carousel — templates needed a `slides: string[]` rework mid-session
+  to handle that, previously only took one string), alternating
+  paper/grain-gradient, music picked per post by mood rather than one
+  track on repeat. Rendered and sent for visual review; nothing posted
+  or merged to main yet.

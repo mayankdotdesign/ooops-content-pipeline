@@ -130,3 +130,66 @@ Link(s) gets filled in automatically once the whole batch's content is
 approved. Visual Status/Comments are yours to fill in during visual
 review. A new tab only ever appears for a genuinely new weekly batch —
 revision rounds reuse the same tab, same rows.
+
+## Reels (experimental, `reels-pipeline` branch, not live yet)
+
+Static image posts can also render as vertical video Reels instead of
+(or alongside) the flat PNG — same approved caption text, animated.
+Lives entirely in `reel-studio/` (a Remotion project, gitignored
+`node_modules`), separate from the Python pipeline above until it's
+proven out. Not wired into `review_cycle.py` or `daily-post.yml` yet —
+building/reviewing reels today is a manual step, done from this branch.
+
+**Two templates**, both built from [remocn](https://remocn.dev) (a
+free, MIT-licensed shadcn-style component registry for Remotion,
+installed as a Claude Code skill — `npx skills add
+https://github.com/Remocn/remocn/tree/main/skills/remocn -g`) plus
+`@remotion/effects`:
+
+- **Paper** (`PaperReel` light / `PaperReelCoral` coral) — the brand
+  gradient background with a subtle animated paper-grain texture
+  (`@remotion/effects`'s `paper()`, opacity 1 / blend mode
+  `color-burn` on light, `screen` on coral — coral needed its own
+  tuning, the light-variant values blew it out) and text that reveals
+  word-by-word with every individual letter carrying its own tiny
+  stop-motion wobble (`@remocn/paper-wobble`).
+- **Grain gradient** (`GrainGradientReel`) — a live WebGL shader
+  background (`@remocn/shader-grain-gradient`, the `blob` shape) drifting
+  slowly in Ooops' coral, `scale: 8 / intensity: 0 / softness: 0.7` so
+  the blob's own edge stays off-canvas and it reads as ambient wash, not
+  a sticker. Same letter-wobble text as Paper.
+
+Both templates take a `slides: string[]` prop (not just one string) —
+a multi-slide carousel post (e.g. id 14's 3-slide arc) sequences each
+slide through the same video, ~5s per slide, with a short fade at each
+cut (`PaperSlides.tsx`). Duration is computed from `slides.length` via
+Remotion's `calculateMetadata`, not hardcoded.
+
+**Safe zones are real, not eyeballed** — text sits inside
+`x: 80-900, y: 260-1740` on the 1080x1920 canvas (`safeZone.ts`),
+measured directly off Remotion's own IG Reels reference overlay
+(`elements/overlays/social-safe-zones`), so nothing lands under the
+right-side like/comment/share rail or the caption/nav chrome.
+
+**Audio: Mixkit and Chosic only** — both confirmed genuinely
+attribution-free for commercial use (unlike Pixabay, whose free tier
+needs a login to download, or the initial prototype's incompetech.com
+track, which is CC-BY and would have needed a credit line in every
+caption). Tracks live in `reel-studio/public/audio/`, picked per post
+by mood rather than one track on repeat:
+- `owies-ukulele.mp3` (Mixkit) — warm/playful, for lighter bickering angles
+- `smile.mp3` (Mixkit) — light happy pop, general relatable
+- `well-be-okay.mp3` (Mixkit) — warm/romantic, for LDR/sentimental angles
+
+**Rendering needs `--gl=angle`** — both templates use WebGL
+(`paper()`'s canvas effect, the shader gradient), which
+`npx remotion render` can't access without that flag (or
+`chromiumOptions: { gl: "angle" }` via the Node API). Whoever/whatever
+renders these — a person locally or, later, a GitHub Actions step —
+needs to pass it explicitly or the render fails outright.
+
+To open the live editor and adjust a template's colors/opacity/shader
+params by eye instead of guessing in code: `cd reel-studio && npm
+install && npx remotion studio` — every tunable is a zod-schema prop,
+so Studio's Props panel renders real sliders/dropdowns, not just a raw
+JSON blob.
