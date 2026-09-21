@@ -1,1 +1,6 @@
 .DS_Store
+
+# reel-studio (Remotion project, docs/pipeline-walkthrough.md's Reels section)
+reel-studio/node_modules/
+reel-studio/out/
+
