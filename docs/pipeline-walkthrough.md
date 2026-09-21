@@ -155,15 +155,32 @@ https://github.com/Remocn/remocn/tree/main/skills/remocn -g`) plus
   stop-motion wobble (`@remocn/paper-wobble`).
 - **Grain gradient** (`GrainGradientReel`) — a live WebGL shader
   background (`@remocn/shader-grain-gradient`, the `blob` shape) drifting
-  slowly in Ooops' coral, `scale: 8 / intensity: 0 / softness: 0.7` so
-  the blob's own edge stays off-canvas and it reads as ambient wash, not
-  a sticker. Same letter-wobble text as Paper.
+  slowly in Ooops' coral. `scale: 1.3 / intensity: 0.15 / softness: 0.9`
+  (2026-09-22, third pass) — an earlier `scale: 8` looked fine in a
+  single Studio preview frame but, checked across the whole animation
+  with `npx remotion still` at several frames instead of just one, it
+  turned out to blow full coral coverage with zero light background
+  visible at some points. Requirement going forward: at least ~25% of
+  the light background must stay visible at every frame, not just the
+  one you happen to look at.
 
 Both templates take a `slides: string[]` prop (not just one string) —
 a multi-slide carousel post (e.g. id 14's 3-slide arc) sequences each
-slide through the same video, ~5s per slide, with a short fade at each
-cut (`PaperSlides.tsx`). Duration is computed from `slides.length` via
-Remotion's `calculateMetadata`, not hardcoded.
+slide through the same video, with a short fade at each cut
+(`PaperSlides.tsx`).
+
+**Per-slide duration is computed from the actual text, not a flat
+guess** (2026-09-22, second fix after the first real-post batch cut
+several reels off mid-reveal — the fixed 5s/slide was long enough for
+short posts and too short for longer ones). `PaperHookText` exports
+`revealCompleteFrame(text)` — the exact frame its own word-by-word
+reveal finishes, given real word count and its stagger/animation
+constants — and `PaperSlides` runs each slide for
+`revealCompleteFrame + a small buffer + a 90-frame (3s) hold` before
+cutting or fading. Composition duration is the sum of that across all
+slides, via `calculateMetadata`, never hardcoded. This guarantees the
+full caption always finishes appearing AND sits fully visible for 3s
+before the video ends or cuts to the next slide.
 
 **Safe zones are real, not eyeballed** — text sits inside
 `x: 80-900, y: 260-1740` on the 1080x1920 canvas (`safeZone.ts`),
