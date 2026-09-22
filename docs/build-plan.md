@@ -1330,3 +1330,21 @@ above (which doesn't change).
   ids 12 and 13 dropped from this batch — posting today via the normal
   static-image pipeline before reel work would matter for them.
   Re-rendered 14-18 with both fixes.
+
+- **2026-09-22 (same day, second follow-up) — Reels: variety + music +
+  a missed detail.** Three more fixes on top of the timing/coverage
+  pass: (1) grain-gradient posts all used one hardcoded look — added
+  `GRAIN_PRESETS` (3 distinct scale/speed/softness/color combos) in
+  Root.tsx, rotated across a batch's grain-template posts so
+  consecutive ones read as different clips, each preset checked with
+  the same multi-frame `remotion still` pass as before it was added;
+  (2) `colors`/`speed` promoted from hardcoded constants inside
+  `GrainGradientReel.tsx` to real props so presets can actually vary
+  them; (3) post 14's last slide ("you get billed for the towel.")
+  got a 🧾 emoji, matching the other posts' one-emoji-per-punchline
+  pattern it had been missing; (4) both first-batch music tracks
+  (`owies-ukulele.mp3`, `smile.mp3`) dropped for sounding like literal
+  kids'-content library tracks -- replaced with two more mellow adult
+  Mixkit acoustic tracks (`just-keep-walking.mp3`, `the-long-road.mp3`).
+  Re-rendered 14-18 with all four fixes, sent for review. Nothing
+  merged to main.
