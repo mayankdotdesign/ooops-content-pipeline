@@ -106,3 +106,18 @@ not render anything itself. This is why the old "render, commit, sleep
 - Single-slide item: `content_queue/rendered/<id>.png`
 - Carousel item: `content_queue/rendered/<id>/1.png`, `.../2.png`, ...
   (1-indexed, matches `slides` order)
+
+## Reels (added 2026-09-22)
+
+A queue item can *also* carry `content_queue/rendered/<id>.mp4` —
+rendered the same way, ahead of time, from `reel-studio/` (see
+docs/pipeline-walkthrough.md's Reels section; that project isn't wired
+into the automated review cycle yet, so today this file only exists
+for an item if someone rendered and committed it by hand). When it
+exists, `post_to_instagram.py` posts that item as a Reel
+(`media_type=REELS`, `share_to_feed=true` so it also lands on the
+grid) instead of the static image(s) — `reel_url_for_item()` checks
+for the `.mp4` first and falls back to the image/carousel path when
+there isn't one. The static image still gets rendered and committed
+as normal either way; the `.mp4`, when present, simply takes priority
+at post time.

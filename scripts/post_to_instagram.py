@@ -59,6 +59,21 @@ def image_urls_for_item(item, repo, branch="main"):
     return [f"{raw_base}/content_queue/rendered/{item['id']}.png"]
 
 
+def reel_url_for_item(item, repo, branch="main"):
+    """A Reel (content_queue/rendered/<id>.mp4, from reel-studio/ -- see
+    docs/pipeline-walkthrough.md's Reels section) is rendered and
+    committed the same way an image is: ahead of time, during review,
+    never at post time. Returns None when no video exists for this item,
+    so callers can fall back to the static image/carousel path -- most
+    items won't have one until reel rendering is wired into the review
+    cycle itself, not just posted ad hoc like this first batch."""
+    video_path = os.path.join(RENDERED_DIR, f"{item['id']}.mp4")
+    if os.path.isfile(video_path):
+        raw_base = f"https://raw.githubusercontent.com/{repo}/{branch}"
+        return f"{raw_base}/content_queue/rendered/{item['id']}.mp4"
+    return None
+
+
 def _create_container(account_id, token, **fields):
     resp = requests.post(f"{BASE_URL}/{account_id}/media", data={**fields, "access_token": token})
     if not resp.ok:
@@ -71,6 +86,52 @@ def _create_container(account_id, token, **fields):
 def post_image(image_url, caption, account_id, token):
     creation_id = _create_container(account_id, token, image_url=image_url, caption=caption)
     time.sleep(2)
+    publish_resp = requests.post(
+        f"{BASE_URL}/{account_id}/media_publish",
+        data={"creation_id": creation_id, "access_token": token},
+    )
+    if not publish_resp.ok:
+        print("Publish failed. Response body:")
+        print(publish_resp.text)
+    publish_resp.raise_for_status()
+    return publish_resp.json()
+
+
+def post_reel(video_url, caption, account_id, token, max_wait_seconds=180, poll_interval=5):
+    """Reels are NOT like images -- Instagram processes the video
+    asynchronously after container creation, and publishing before
+    that finishes fails outright. share_to_feed=true so it also lands
+    on the profile grid, not just the Reels tab (confirmed via the
+    Graph API docs during the Reels design discussion, not assumed).
+    Polls status_code until FINISHED (or raises on ERROR/timeout) before
+    calling media_publish, unlike post_image's fixed 2s sleep."""
+    creation_id = _create_container(
+        account_id, token,
+        media_type="REELS",
+        video_url=video_url,
+        caption=caption,
+        share_to_feed="true",
+    )
+
+    waited = 0
+    while waited < max_wait_seconds:
+        status_resp = requests.get(
+            f"{BASE_URL}/{creation_id}",
+            params={"fields": "status_code", "access_token": token},
+        )
+        status_resp.raise_for_status()
+        status = status_resp.json().get("status_code")
+        if status == "FINISHED":
+            break
+        if status == "ERROR":
+            raise RuntimeError(f"Reel container {creation_id} failed processing: {status_resp.text}")
+        time.sleep(poll_interval)
+        waited += poll_interval
+    else:
+        raise TimeoutError(
+            f"Reel container {creation_id} did not finish processing within {max_wait_seconds}s"
+        )
+
     publish_resp = requests.post(
         f"{BASE_URL}/{account_id}/media_publish",
         data={"creation_id": creation_id, "access_token": token},
@@ -125,11 +186,16 @@ if __name__ == "__main__":
         sys.exit(1)
 
     caption = build_caption(item)
-    image_urls = image_urls_for_item(item, repo)
-    if len(image_urls) == 1:
-        result = post_image(image_urls[0], caption, account_id, token)
+    reel_url = reel_url_for_item(item, repo)
+    if reel_url:
+        print(f"Posting as a Reel: {reel_url}")
+        result = post_reel(reel_url, caption, account_id, token)
     else:
-        result = post_carousel(image_urls, caption, account_id, token)
+        image_urls = image_urls_for_item(item, repo)
+        if len(image_urls) == 1:
+            result = post_image(image_urls[0], caption, account_id, token)
+        else:
+            result = post_carousel(image_urls, caption, account_id, token)
     print("Posted:", result)
 
     item["stage"] = "posted"

@@ -8,8 +8,17 @@ host. See docs/build-plan.md for why.
 
 Uses v22.0+: Meta deprecated 'impressions'/'video_views' in v22.0
 (replaced by 'views', which is video/Reels-only anyway). For static
-IMAGE/CAROUSEL_ALBUM posts — everything this pipeline posts so far —
-the valid metric set is reach/likes/comments/saved/shares.
+IMAGE/CAROUSEL_ALBUM posts — everything this pipeline posted before
+2026-09-22 — the valid metric set is reach/likes/comments/saved/shares.
+
+REELS (posts 14-18 on, once post_to_instagram.py posts a rendered
+content_queue/rendered/<id>.mp4 as a Reel instead of an image): not yet
+verified whether this same METRICS list is fully valid against a real
+posted Reel, or whether it needs 'views'/'ig_reels_avg_watch_time'
+added. fetch_insights() already fails per-item (prints and skips,
+doesn't crash the job) if a metric name is rejected, so this is safe
+either way -- but if Reels start showing up with no performance.json
+data, check this list first before assuming something else broke.
 
 Run daily via .github/workflows/track-engagement.yml. Safe to run
 before any posts exist yet (queue.json is empty until Phase 5) — it
