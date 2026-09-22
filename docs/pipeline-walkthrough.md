@@ -155,14 +155,18 @@ https://github.com/Remocn/remocn/tree/main/skills/remocn -g`) plus
   stop-motion wobble (`@remocn/paper-wobble`).
 - **Grain gradient** (`GrainGradientReel`) — a live WebGL shader
   background (`@remocn/shader-grain-gradient`, the `blob` shape) drifting
-  slowly in Ooops' coral. `scale: 1.3 / intensity: 0.15 / softness: 0.9`
-  (2026-09-22, third pass) — an earlier `scale: 8` looked fine in a
-  single Studio preview frame but, checked across the whole animation
-  with `npx remotion still` at several frames instead of just one, it
-  turned out to blow full coral coverage with zero light background
-  visible at some points. Requirement going forward: at least ~25% of
-  the light background must stay visible at every frame, not just the
-  one you happen to look at.
+  slowly in Ooops' coral. An earlier `scale: 8` looked fine in a single
+  Studio preview frame but, checked across the whole animation with
+  `npx remotion still` at several frames instead of just one, it turned
+  out to blow full coral coverage with zero light background visible at
+  some points. Requirement: at least ~25% of the light background must
+  stay visible at every frame, not just the one you happen to look at.
+  **Rotates through `GRAIN_PRESETS`** (Root.tsx) — 3 distinct
+  scale/speed/softness/intensity/color combinations, assigned in order
+  across a batch's grain-template posts — so consecutive grain-gradient
+  posts don't look like the same clip reused (2026-09-22, per
+  feedback). Any new preset must pass the same multi-frame "still"
+  check before being added.
 
 Both templates take a `slides: string[]` prop (not just one string) —
 a multi-slide carousel post (e.g. id 14's 3-slide arc) sequences each
@@ -194,9 +198,15 @@ needs a login to download, or the initial prototype's incompetech.com
 track, which is CC-BY and would have needed a credit line in every
 caption). Tracks live in `reel-studio/public/audio/`, picked per post
 by mood rather than one track on repeat:
-- `owies-ukulele.mp3` (Mixkit) — warm/playful, for lighter bickering angles
-- `smile.mp3` (Mixkit) — light happy pop, general relatable
+- `just-keep-walking.mp3` (Mixkit) — mellow acoustic, lighter/bickering angles
+- `the-long-road.mp3` (Mixkit) — mellow acoustic, general relatable
 - `well-be-okay.mp3` (Mixkit) — warm/romantic, for LDR/sentimental angles
+
+`owies-ukulele.mp3` and `smile.mp3` (the first batch's picks) were
+dropped 2026-09-22 — both read as literal kids'-content library tracks
+despite being filed under Mixkit's "happy" tag. Lesson: a track's tag
+isn't enough signal for tone fit: listen for whether it'd sit under a
+children's video before picking one from a mood tag.
 
 **Rendering needs `--gl=angle`** — both templates use WebGL
 (`paper()`'s canvas effect, the shader gradient), which

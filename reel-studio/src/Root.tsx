@@ -52,6 +52,8 @@ const grainGradientReelSchema = z.object({
   scale: z.number().min(0.5).max(8).step(0.05),
   intensity: z.number().min(0).max(1).step(0.01),
   softness: z.number().min(0).max(1).step(0.01),
+  speed: z.number().min(0.1).max(3).step(0.05),
+  colors: z.array(z.string()),
   colorBack: z.string(),
   musicSrc: z.string(),
 });
@@ -71,9 +73,45 @@ const JAR_TEXT = "you owe the jar. settle at month end. 🫙";
 // just some frames -- verified with `npx remotion still` at several
 // frames across the duration, not just one, since the requirement is
 // "at least 25% visible at any moment," not "looks fine at frame 0."
-const GRAIN_SCALE = 1.3;
-const GRAIN_INTENSITY = 0.15;
-const GRAIN_SOFTNESS = 0.9;
+//
+// Fourth pass (2026-09-22, per feedback: every grain-gradient post
+// looked identical): rotated into a small set of distinct presets --
+// different scale/speed/softness/intensity AND a different color mix
+// per preset, not just the same look copy-pasted. Each was individually
+// eyeballed the same way (multiple `remotion still` frames) to keep the
+// "light background visible at every moment" guarantee before being
+// added here -- don't add a new preset without doing that check.
+type GrainPreset = {
+  scale: number;
+  intensity: number;
+  softness: number;
+  speed: number;
+  colors: string[];
+};
+
+const GRAIN_PRESETS: GrainPreset[] = [
+  {
+    scale: 1.3,
+    intensity: 0.15,
+    softness: 0.9,
+    speed: 1.3,
+    colors: ["#EA4330", "#F2765F", "#FFD9CC"],
+  },
+  {
+    scale: 1.6,
+    intensity: 0.12,
+    softness: 0.85,
+    speed: 0.85,
+    colors: ["#F2765F", "#EA4330"],
+  },
+  {
+    scale: 1.0,
+    intensity: 0.2,
+    softness: 0.95,
+    speed: 1.7,
+    colors: ["#EA4330", "#FFD9CC", "#F2765F"],
+  },
+];
 
 // A generous hold after the scripted exchange settles, so the last
 // bubble/reaction doesn't cut off the instant it lands.
@@ -94,15 +132,22 @@ type RealPost = {
 // ids 12/13 deliberately excluded (2026-09-22): posting today via the
 // normal static-image pipeline before any reel work would matter, per
 // user instruction to "forget that" and focus fixes on 14-18.
+// Music (2026-09-22, per feedback the first batch's tracks "sound
+// childish"): owies-ukulele.mp3 and smile.mp3 dropped -- both read as
+// literal kids'-content library tracks (Mixkit files several "happy"
+// tag tracks under family/kids use even though the tag doesn't say so).
+// Replaced with two more adult, mellow acoustic Mixkit tracks
+// (just-keep-walking.mp3, the-long-road.mp3). well-be-okay.mp3 wasn't
+// flagged, kept for the LDR-mood posts.
 const REAL_POSTS: RealPost[] = [
   {
     id: 14,
     template: "paper-coral",
-    music: "audio/owies-ukulele.mp3",
+    music: "audio/just-keep-walking.mp3",
     slides: [
       "day one: you leave the wet towel on the bed. no big deal.",
       "day forty-seven: you're still leaving the wet towel on the bed.",
-      "day forty-eight: you get billed for the towel.",
+      "day forty-eight: you get billed for the towel. 🧾",
     ],
   },
   {
@@ -116,7 +161,7 @@ const REAL_POSTS: RealPost[] = [
   {
     id: 16,
     template: "paper-light",
-    music: "audio/smile.mp3",
+    music: "audio/the-long-road.mp3",
     slides: [
       "when u trying to stay mad at him but he brings you a snack mid-argument and now you have to eat it AND stay mad 😤, which is a skill issue on your part.",
     ],
@@ -132,7 +177,7 @@ const REAL_POSTS: RealPost[] = [
   {
     id: 18,
     template: "paper-coral",
-    music: "audio/owies-ukulele.mp3",
+    music: "audio/the-long-road.mp3",
     slides: [
       "nothing says \"I love you\" like someone silently refilling your water bottle without being asked.\n\nforget the flowers. I want a man who tracks my hydration. 💧",
     ],
@@ -172,7 +217,7 @@ export const RemotionRoot: React.FC = () => {
           bgSrc: staticFile("bg.png"),
           paperOpacity: 1,
           paperBlendMode: "color-burn" as const,
-          musicSrc: staticFile("audio/owies-ukulele.mp3"),
+          musicSrc: staticFile("audio/just-keep-walking.mp3"),
         }}
       />
 
@@ -192,7 +237,7 @@ export const RemotionRoot: React.FC = () => {
           bgSrc: staticFile("bg2.png"),
           paperOpacity: 1,
           paperBlendMode: "screen" as const,
-          musicSrc: staticFile("audio/owies-ukulele.mp3"),
+          musicSrc: staticFile("audio/just-keep-walking.mp3"),
         }}
       />
 
@@ -208,21 +253,43 @@ export const RemotionRoot: React.FC = () => {
         })}
         defaultProps={{
           slides: [JAR_TEXT],
-          scale: GRAIN_SCALE,
-          intensity: GRAIN_INTENSITY,
-          softness: GRAIN_SOFTNESS,
+          ...GRAIN_PRESETS[0],
           colorBack: "#FDDED5",
-          musicSrc: staticFile("audio/owies-ukulele.mp3"),
+          musicSrc: staticFile("audio/just-keep-walking.mp3"),
         }}
       />
 
-      {REAL_POSTS.map((post) => {
-        if (post.template === "grain") {
+      {(() => {
+        let grainCount = 0;
+        return REAL_POSTS.map((post) => {
+          if (post.template === "grain") {
+            const preset = GRAIN_PRESETS[grainCount % GRAIN_PRESETS.length];
+            grainCount += 1;
+            return (
+              <Composition
+                key={post.id}
+                id={`Post${post.id}`}
+                component={GrainGradientReel}
+                fps={FPS}
+                width={1080}
+                height={1920}
+                calculateMetadata={({ props }) => ({
+                  durationInFrames: paperSlidesDuration(props.slides),
+                })}
+                defaultProps={{
+                  slides: post.slides,
+                  ...preset,
+                  colorBack: "#FDDED5",
+                  musicSrc: staticFile(post.music),
+                }}
+              />
+            );
+          }
           return (
             <Composition
               key={post.id}
               id={`Post${post.id}`}
-              component={GrainGradientReel}
+              component={PaperReel}
               fps={FPS}
               width={1080}
               height={1920}
@@ -231,38 +298,17 @@ export const RemotionRoot: React.FC = () => {
               })}
               defaultProps={{
                 slides: post.slides,
-                scale: GRAIN_SCALE,
-                intensity: GRAIN_INTENSITY,
-                softness: GRAIN_SOFTNESS,
-                colorBack: "#FDDED5",
+                bgVariant: post.template === "paper-coral" ? (2 as const) : (1 as const),
+                bgSrc: staticFile(post.template === "paper-coral" ? "bg2.png" : "bg.png"),
+                paperOpacity: 1,
+                paperBlendMode:
+                  post.template === "paper-coral" ? ("screen" as const) : ("color-burn" as const),
                 musicSrc: staticFile(post.music),
               }}
             />
           );
-        }
-        return (
-          <Composition
-            key={post.id}
-            id={`Post${post.id}`}
-            component={PaperReel}
-            fps={FPS}
-            width={1080}
-            height={1920}
-            calculateMetadata={({ props }) => ({
-              durationInFrames: paperSlidesDuration(props.slides),
-            })}
-            defaultProps={{
-              slides: post.slides,
-              bgVariant: post.template === "paper-coral" ? (2 as const) : (1 as const),
-              bgSrc: staticFile(post.template === "paper-coral" ? "bg2.png" : "bg.png"),
-              paperOpacity: 1,
-              paperBlendMode:
-                post.template === "paper-coral" ? ("screen" as const) : ("color-burn" as const),
-              musicSrc: staticFile(post.music),
-            }}
-          />
-        );
-      })}
+        });
+      })()}
 
       <Composition
         id="JarBanter"

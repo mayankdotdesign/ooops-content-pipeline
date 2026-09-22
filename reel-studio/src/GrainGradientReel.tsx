@@ -35,14 +35,22 @@ import { ensureFontsLoaded } from "./fonts";
 // drops intensity (softer band transitions), and maxes softness.
 // colorBack switched from near-white to Ooops' actual light-background
 // tone (sampled from assets/backgrounds/BG1.png's average, not a guess).
+//
+// Third pass (2026-09-22): `colors` and `speed` promoted from hardcoded
+// constants to props -- per feedback that every grain-gradient post
+// looked identical, Root.tsx now rotates through a few distinct presets
+// (different scale/speed/color mix) instead of every post sharing one
+// hardcoded look.
 export const GrainGradientReel: React.FC<{
   slides: string[];
   scale: number;
   intensity: number;
   softness: number;
+  speed: number;
+  colors: string[];
   colorBack: string;
   musicSrc: string;
-}> = ({ slides, scale, intensity, softness, colorBack, musicSrc }) => {
+}> = ({ slides, scale, intensity, softness, speed, colors, colorBack, musicSrc }) => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
   const [fontsReady, setFontsReady] = useState(false);
@@ -69,9 +77,9 @@ export const GrainGradientReel: React.FC<{
       <Sequence name="1. Grain gradient shader (scale/intensity/softness/colorBack below)" layout="none">
         <ShaderGrainGradient
           shape="blob"
-          speed={1.3}
+          speed={speed}
           scale={scale}
-          colors={["#EA4330", "#F2765F", "#FFD9CC"]}
+          colors={colors}
           colorBack={colorBack}
           softness={softness}
           intensity={intensity}
