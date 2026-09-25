@@ -131,14 +131,38 @@ approved. Visual Status/Comments are yours to fill in during visual
 review. A new tab only ever appears for a genuinely new weekly batch —
 revision rounds reuse the same tab, same rows.
 
-## Reels (experimental, `reels-pipeline` branch, not live yet)
+## Reels (live since 2026-09-22; the ONLY format posted from 2026-09-25)
 
-Static image posts can also render as vertical video Reels instead of
-(or alongside) the flat PNG — same approved caption text, animated.
-Lives entirely in `reel-studio/` (a Remotion project, gitignored
-`node_modules`), separate from the Python pipeline above until it's
-proven out. Not wired into `review_cycle.py` or `daily-post.yml` yet —
-building/reviewing reels today is a manual step, done from this branch.
+Every post goes out as a vertical Reel — same approved caption, animated.
+Static image posting is retired: `daily-post.yml` skips any queued item
+without a rendered `content_queue/rendered/<id>.mp4`, and
+`post_to_instagram.py` refuses to post one (nothing can slip out as a
+static image by accident). Rendering still happens ahead of posting, by
+hand for now: `reel-studio/` (Remotion) renders the mp4 from each
+item's `reel` block in `queue.json` (template, music, stagger, slot);
+`reel-studio/src/reelPosts.json` is generated from that, never
+hand-edited. Not yet wired into `review_cycle.py` — the review sheet
+still reviews the static PNG copy; the reel is approved over chat.
+**Queue order in `queue.json` is the posting order.**
+
+**Current rules (2026-09-25)**
+- **Paper only** (light + coral), except ONE deliberate grain test: post
+  28, a general-angle "when u" reel in the 23:00 UTC slot. Grain reels
+  15 and 17 underperformed (19 / 27 views vs 36 / 73 / 113 for paper),
+  but they were also the only LDR posts *and* the only 01:01-slot posts,
+  so template, angle and slot were perfectly confounded. 28 vs 16 (same
+  format, same slot, paper) separates them.
+- **Slots: 23:00 and 03:00 UTC** (7pm / 11pm ET during daylight time;
+  6pm / 10pm ET after Nov 1) — a 4h gap, was 2h. No proof the 2h gap
+  hurt (SEO blogs claim it; Mosseri says each post is ranked on its
+  own); this only removes the possibility. Set in cron-job.org, not in
+  this repo.
+- **Send-this-to test:** posts 20 and 25 (both "when u", both
+  paper-light, both in the 23:00 slot) carry a "send this to..." caption
+  CTA and a reveal tuned to ~9-10s; every other post keeps its normal
+  CTA and length. Compare against 16 (same format/slot: 73 views).
+- **Hook first.** Viewers rarely reach an end-of-video CTA, so the first
+  words carry the hook; CTAs live in the caption.
 
 **Two templates**, both built from [remocn](https://remocn.dev) (a
 free, MIT-licensed shadcn-style component registry for Remotion,

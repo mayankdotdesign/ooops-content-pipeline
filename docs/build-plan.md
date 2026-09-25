@@ -1348,3 +1348,31 @@ above (which doesn't change).
   Mixkit acoustic tracks (`just-keep-walking.mp3`, `the-long-road.mp3`).
   Re-rendered 14-18 with all four fixes, sent for review. Nothing
   merged to main.
+
+- **2026-09-25 — Reels-only, analysis corrections, tracking upgrade.**
+  Reels (14-18) got ~10x the reach of static posts (2-5 vs 19-113
+  views; account still 0 followers, 235 viewers -> 13 profile visits ->
+  0 follows). Corrections to the first analysis, found by checking the
+  Instagram dashboard: post 18 (paper coral, 113 views, 9s) is the best
+  reel and was missing from `performance.json`; the two likes on older
+  posts are the owner's own account, not strangers; template, angle,
+  slot and 2h gap were perfectly confounded (all three paper reels in
+  the 23:01 slot, both grain reels LDR in the 01:01 slot), so "grain
+  is worse" is unproven -> post 28 is the controlled test. Rule
+  adopted: before reporting results, pull every available source
+  (IG Insights, Scrape Creators play counts, dashboard screenshots)
+  and check for confounds first.
+
+  Changes: static posting disabled (skip + refuse without an mp4);
+  queue reordered (28 first); id 19 (carousel, deleted on IG) reset and
+  reeled; reels rendered for 19-28 (19 stays 3 slides, ~20s, on
+  request); posts 20/25 test "send this to" CTAs + ~9-10s; posting
+  slots move to 23:00 + 03:00 UTC; `track_engagement.py` now also pulls
+  views, average/total watch time, replays, follows, profile visits,
+  account snapshot (followers, reach, views split, demographics once
+  >100 followers) and daily history — extras are requested one at a
+  time and Instagram-rejected metrics land in
+  `content_queue/tracking_meta.json` (untested against the live API —
+  check that file after the first run). Merged `reels-pipeline` into
+  main since posting now depends on it. Security note: a GitHub token
+  was visible in a cron-job.org screenshot shared in chat; rotate it.
