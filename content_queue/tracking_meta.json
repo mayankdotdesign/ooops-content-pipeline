@@ -1,0 +1,11 @@
+{
+  "checked": "2026-09-25",
+  "metrics_rejected_by_instagram": {
+    "follows": "{\"error\":{\"message\":\"The Media Insights API does not support the follows metric for this media product type.\",\"type\":\"IGApiException\",\"code\":100,\"fbtrace_id\":\"AUBNtH5zbqQ0nhqLX0AF_tC\"}}",
+    "profile_visits": "{\"error\":{\"message\":\"The Media Insights API does not support the profile_visits metric for this media product type.\",\"type\":\"IGApiException\",\"code\":100,\"fbtrace_id\":\"A6xeNUSFTE1ExgM-E-GKPbo\"}}",
+    "ig_reels_aggregated_all_plays_count": "{\"error\":{\"message\":\"metric[0] must be one of the following values: impressions, shares, comments, likes, saved, replies, total_interactions, navigation, follows, profile_visits, profile_activity, rea",
+    "clips_replays_count": "{\"error\":{\"message\":\"metric[0] must be one of the following values: impressions, shares, comments, likes, saved, replies, total_interactions, navigation, follows, profile_visits, profile_activity, rea",
+    "account:views_by_follower_type": "{\"error\":{\"message\":\"breakdown[0] must be one of the following values: country, city, age, gender, follow_type, media_product_type, contact_button_type\",\"type\":\"IGApiException\",\"code\":100,\"fbtrace_id\"",
+    "account:reach_by_follower_type": "{\"error\":{\"message\":\"breakdown[0] must be one of the following values: country, city, age, gender, follow_type, media_product_type, contact_button_type\",\"type\":\"IGApiException\",\"code\":100,\"fbtrace_id\""
+  }
+}

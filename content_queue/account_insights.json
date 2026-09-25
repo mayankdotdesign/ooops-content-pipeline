@@ -1,0 +1,60 @@
+{
+  "2026-09-25": {
+    "followers_count": 0,
+    "follows_count": 0,
+    "media_count": 20,
+    "id": "28157390877252984",
+    "reach": 222,
+    "views": 260,
+    "profile_views": 1,
+    "accounts_engaged": 2,
+    "total_interactions": 2,
+    "likes": 2,
+    "comments": 0,
+    "shares": 0,
+    "saves": 0,
+    "website_clicks": 0,
+    "views_by_media_product_type": [
+      {
+        "name": "views",
+        "period": "day",
+        "title": "Views",
+        "description": "The number of times your content was played or displayed. Content includes reels, posts, stories.",
+        "total_value": {
+          "value": 260,
+          "breakdowns": [
+            {
+              "dimension_keys": [
+                "media_product_type"
+              ],
+              "results": [
+                {
+                  "dimension_values": [
+                    "POST"
+                  ],
+                  "value": 3
+                },
+                {
+                  "dimension_values": [
+                    "REEL"
+                  ],
+                  "value": 257
+                }
+              ]
+            }
+          ]
+        },
+        "id": "17841442686565936/insights/views/day"
+      }
+    ],
+    "follower_demographics_country": [],
+    "follower_demographics_age": [],
+    "follower_demographics_gender": [],
+    "reached_audience_demographics_country": [],
+    "reached_audience_demographics_age": [],
+    "reached_audience_demographics_gender": [],
+    "engaged_audience_demographics_country": [],
+    "engaged_audience_demographics_age": [],
+    "engaged_audience_demographics_gender": []
+  }
+}
