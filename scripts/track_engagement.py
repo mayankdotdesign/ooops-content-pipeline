@@ -47,13 +47,15 @@ METRICS = ["reach", "likes", "comments", "saved", "shares"]  # proven-valid base
 # was written from Meta's docs and could not be tested locally (the token
 # is a CI secret), so read that file after the first run before trusting
 # any missing field to mean "no data" rather than "rejected".
-EXTRA_METRICS_ALL = ["views", "total_interactions", "follows", "profile_visits"]
+# follows / profile_visits: rejected for REELS and FEED media by the Media
+# Insights API (confirmed on the first live run, 2026-09-25) -- those
+# numbers only exist at account level (profile_views, follows_and_unfollows).
+EXTRA_METRICS_ALL = ["views", "total_interactions"]
 EXTRA_METRICS_REEL = [
     "ig_reels_avg_watch_time",          # ms, average watch time -- the retention number
     "ig_reels_video_view_total_time",   # ms, total watch time across all plays
-    "ig_reels_aggregated_all_plays_count",  # plays incl. replays
-    "clips_replays_count",
-]
+]  # ig_reels_aggregated_all_plays_count / clips_replays_count: rejected on the
+   # first live run (not valid metric names on this API host), removed.
 META_PATH = os.path.join(os.path.dirname(__file__), "..", "content_queue", "tracking_meta.json")
 ACCOUNT_PATH = os.path.join(os.path.dirname(__file__), "..", "content_queue", "account_insights.json")
 HISTORY_CAP = 60
@@ -138,8 +140,8 @@ def fetch_account_snapshot(token, unavailable):
             snap.update(_values(r.json()))
         else:
             unavailable.setdefault(f"account:{metric}", r.text[:200])
-    for breakdown_metric, breakdown in [("views", "follower_type"), ("views", "media_product_type"),
-                                        ("reach", "follower_type")]:
+    for breakdown_metric, breakdown in [("views", "follow_type"), ("views", "media_product_type"),
+                                        ("reach", "follow_type")]:
         r = requests.get(f"{BASE_URL}/me/insights", params={**day, "metric": breakdown_metric, "breakdown": breakdown})
         key = f"{breakdown_metric}_by_{breakdown}"
         if r.ok:
