@@ -48,7 +48,8 @@ export const PaperReel: React.FC<{
     | "difference"
     | "exclusion";
   musicSrc: string;
-}> = ({ slides, bgVariant, bgSrc, paperOpacity, paperBlendMode, musicSrc }) => {
+  stagger?: number;
+}> = ({ slides, bgVariant, bgSrc, paperOpacity, paperBlendMode, musicSrc, stagger }) => {
   const frame = useCurrentFrame();
   const { durationInFrames, width, height } = useVideoConfig();
   const [fontsReady, setFontsReady] = useState(false);
@@ -117,7 +118,7 @@ export const PaperReel: React.FC<{
 
       <Sequence name="3. Text (letter-wobble)" layout="none">
         {fontsReady && (
-          <PaperSlides slides={slides} bgVariant={bgVariant} manifest={manifest} />
+          <PaperSlides slides={slides} bgVariant={bgVariant} manifest={manifest} stagger={stagger} />
         )}
       </Sequence>
 

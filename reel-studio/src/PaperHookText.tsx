@@ -44,8 +44,8 @@ export const countWords = (text: string): number =>
 // The frame at which the LAST word finishes its reveal animation for a
 // given text -- the floor for how long a slide showing this text must
 // run before it's safe to hold or cut.
-export const revealCompleteFrame = (text: string): number =>
-  (countWords(text) - 1) * STAGGER_FRAMES + WORD_ANIM_FRAMES;
+export const revealCompleteFrame = (text: string, stagger: number = STAGGER_FRAMES): number =>
+  Math.ceil((countWords(text) - 1) * stagger + WORD_ANIM_FRAMES);
 
 const letterRuns = (word: string, manifest: EmojiManifest): TextRun[] => {
   // Like splitEmojiRuns but each plain-text run is further split down to
@@ -69,7 +69,8 @@ export const PaperHookText: React.FC<{
   bgVariant: 1 | 2;
   manifest: EmojiManifest;
   colorOverride?: string;
-}> = ({ text, bgVariant, manifest, colorOverride }) => {
+  stagger?: number;
+}> = ({ text, bgVariant, manifest, colorOverride, stagger = STAGGER_FRAMES }) => {
   const frame = useCurrentFrame();
   const color = colorOverride ?? (bgVariant === 1 ? "#EA4330" : "#FFFAF8");
   const paragraphs = text.split("\n\n");
@@ -98,7 +99,7 @@ export const PaperHookText: React.FC<{
           {paragraph.split(" ").map((word, wIdx) => {
             const thisWord = wordIndex;
             wordIndex += 1;
-            const localFrame = frame - thisWord * STAGGER_FRAMES;
+            const localFrame = frame - thisWord * stagger;
             const progress = steppedRamp(localFrame, 0, WORD_ANIM_FRAMES, {
               step: STEP,
             });

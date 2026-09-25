@@ -6,6 +6,7 @@ import { PaperReel } from "./PaperReel";
 import { GrainGradientReel } from "./GrainGradientReel";
 import { JarBanter, JAR_BANTER_MESSAGES } from "./JarBanter";
 import { paperSlidesDuration } from "./PaperSlides";
+import reelPosts from "./reelPosts.json";
 import { imessageChatFlowDuration } from "@/components/remocn/imessage-chat-flow";
 
 const FPS = 30;
@@ -126,63 +127,17 @@ type RealPost = {
   id: number;
   template: "paper-light" | "paper-coral" | "grain";
   music: string;
+  stagger: number;
   slides: string[];
 };
 
-// ids 12/13 deliberately excluded (2026-09-22): posting today via the
-// normal static-image pipeline before any reel work would matter, per
-// user instruction to "forget that" and focus fixes on 14-18.
-// Music (2026-09-22, per feedback the first batch's tracks "sound
-// childish"): owies-ukulele.mp3 and smile.mp3 dropped -- both read as
-// literal kids'-content library tracks (Mixkit files several "happy"
-// tag tracks under family/kids use even though the tag doesn't say so).
-// Replaced with two more adult, mellow acoustic Mixkit tracks
-// (just-keep-walking.mp3, the-long-road.mp3). well-be-okay.mp3 wasn't
-// flagged, kept for the LDR-mood posts.
-const REAL_POSTS: RealPost[] = [
-  {
-    id: 14,
-    template: "paper-coral",
-    music: "audio/just-keep-walking.mp3",
-    slides: [
-      "day one: you leave the wet towel on the bed. no big deal.",
-      "day forty-seven: you're still leaving the wet towel on the bed.",
-      "day forty-eight: you get billed for the towel. 🧾",
-    ],
-  },
-  {
-    id: 15,
-    template: "grain",
-    music: "audio/well-be-okay.mp3",
-    slides: [
-      "we watch the same show, same time, every week, from two different countries. 📺\n\nit takes us three times as long to get through an episode because neither of us will stop narrating it to the other.",
-    ],
-  },
-  {
-    id: 16,
-    template: "paper-light",
-    music: "audio/the-long-road.mp3",
-    slides: [
-      "when u trying to stay mad at him but he brings you a snack mid-argument and now you have to eat it AND stay mad 😤, which is a skill issue on your part.",
-    ],
-  },
-  {
-    id: 17,
-    template: "grain",
-    music: "audio/well-be-okay.mp3",
-    slides: [
-      "said bye at the airport. found three notes in my bag before I even got through security. ✈️\n\ncrying in the TSA line is a whole LDR thingy nobody warns you about. 😭",
-    ],
-  },
-  {
-    id: 18,
-    template: "paper-coral",
-    music: "audio/the-long-road.mp3",
-    slides: [
-      "nothing says \"I love you\" like someone silently refilling your water bottle without being asked.\n\nforget the flowers. I want a man who tracks my hydration. 💧",
-    ],
-  },
-];
+// Generated from content_queue/queue.json (each item's `reel` block + its
+// slide text) instead of retyped here -- 2026-09-25, after hand-copying
+// 5 posts' text into this file in the first batch. Regenerate it whenever
+// queue.json's reel plan or copy changes; never edit reelPosts.json by
+// hand. Music history: owies-ukulele/smile were dropped for sounding
+// childish (docs/pipeline-walkthrough.md).
+const REAL_POSTS: RealPost[] = reelPosts as RealPost[];
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -274,10 +229,11 @@ export const RemotionRoot: React.FC = () => {
                 width={1080}
                 height={1920}
                 calculateMetadata={({ props }) => ({
-                  durationInFrames: paperSlidesDuration(props.slides),
+                  durationInFrames: paperSlidesDuration(props.slides, props.stagger),
                 })}
                 defaultProps={{
                   slides: post.slides,
+                  stagger: post.stagger,
                   ...preset,
                   colorBack: "#FDDED5",
                   musicSrc: staticFile(post.music),
@@ -294,10 +250,11 @@ export const RemotionRoot: React.FC = () => {
               width={1080}
               height={1920}
               calculateMetadata={({ props }) => ({
-                durationInFrames: paperSlidesDuration(props.slides),
+                durationInFrames: paperSlidesDuration(props.slides, props.stagger),
               })}
               defaultProps={{
                 slides: post.slides,
+                stagger: post.stagger,
                 bgVariant: post.template === "paper-coral" ? (2 as const) : (1 as const),
                 bgSrc: staticFile(post.template === "paper-coral" ? "bg2.png" : "bg.png"),
                 paperOpacity: 1,

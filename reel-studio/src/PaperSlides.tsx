@@ -15,23 +15,24 @@ const HOLD_FRAMES = 90; // 3s @ 30fps, after the text finishes revealing
 const REVEAL_BUFFER_FRAMES = 6; // steppedRamp can land a step or two late
 const FADE_OUT_FRAMES = 10;
 
-export const slideDurationFrames = (text: string): number =>
-  revealCompleteFrame(text) + REVEAL_BUFFER_FRAMES + HOLD_FRAMES;
+export const slideDurationFrames = (text: string, stagger?: number): number =>
+  revealCompleteFrame(text, stagger) + REVEAL_BUFFER_FRAMES + HOLD_FRAMES;
 
-export const paperSlidesDuration = (slides: string[]): number =>
-  slides.reduce((sum, slide) => sum + slideDurationFrames(slide), 0);
+export const paperSlidesDuration = (slides: string[], stagger?: number): number =>
+  slides.reduce((sum, slide) => sum + slideDurationFrames(slide, stagger), 0);
 
 export const PaperSlides: React.FC<{
   slides: string[];
   bgVariant: 1 | 2;
   manifest: EmojiManifest;
   colorOverride?: string;
-}> = ({ slides, bgVariant, manifest, colorOverride }) => {
+  stagger?: number;
+}> = ({ slides, bgVariant, manifest, colorOverride, stagger }) => {
   let cursor = 0;
   return (
     <>
       {slides.map((slide, i) => {
-        const duration = slideDurationFrames(slide);
+        const duration = slideDurationFrames(slide, stagger);
         const from = cursor;
         cursor += duration;
         return (
@@ -48,6 +49,7 @@ export const PaperSlides: React.FC<{
                 bgVariant={bgVariant}
                 manifest={manifest}
                 colorOverride={colorOverride}
+                stagger={stagger}
               />
             </SlideFadeOut>
           </Sequence>
