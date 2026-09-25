@@ -50,7 +50,8 @@ export const GrainGradientReel: React.FC<{
   colors: string[];
   colorBack: string;
   musicSrc: string;
-}> = ({ slides, scale, intensity, softness, speed, colors, colorBack, musicSrc }) => {
+  stagger?: number;
+}> = ({ slides, scale, intensity, softness, speed, colors, colorBack, musicSrc, stagger }) => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
   const [fontsReady, setFontsReady] = useState(false);
@@ -97,6 +98,7 @@ export const GrainGradientReel: React.FC<{
             bgVariant={1}
             manifest={manifest}
             colorOverride="#83261B"
+            stagger={stagger}
           />
         )}
       </Sequence>
