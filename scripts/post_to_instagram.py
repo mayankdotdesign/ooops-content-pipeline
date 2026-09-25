@@ -97,7 +97,31 @@ def post_image(image_url, caption, account_id, token):
     return publish_resp.json()
 
 
-def post_reel(video_url, caption, account_id, token, max_wait_seconds=180, poll_interval=5):
+# Mirrors reel-studio's timing (PaperHookText.tsx / PaperSlides.tsx):
+# a word's reveal starts at index * stagger and lasts WORD_ANIM_FRAMES;
+# PaperSlides adds a small buffer before the hold. Keep in sync.
+REEL_FPS = 30
+REEL_WORD_ANIM_FRAMES = 18
+REEL_REVEAL_BUFFER_FRAMES = 6
+REEL_DEFAULT_STAGGER = 6
+COVER_MARGIN_MS = 500
+
+
+def reel_cover_offset_ms(item):
+    """Cover frame = the moment the FIRST slide's text is fully on screen
+    (+ a small margin), computed per reel -- short reels land ~3s, longer
+    ones later. Instagram otherwise uses frame 0, which is blank because
+    the text hasn't started revealing (2026-09-25, empty grid tiles).
+    Word count matches PaperHookText's countWords split order exactly."""
+    slide = item["slides"][0]
+    text = slide.get("text") or "\n\n".join(slide.get("items", []))
+    words = sum(len(p.split(" ")) for p in text.split("\n\n"))
+    stagger = (item.get("reel") or {}).get("stagger", REEL_DEFAULT_STAGGER)
+    frame = (words - 1) * stagger + REEL_WORD_ANIM_FRAMES + REEL_REVEAL_BUFFER_FRAMES
+    return int(frame / REEL_FPS * 1000) + COVER_MARGIN_MS
+
+
+def post_reel(video_url, caption, account_id, token, max_wait_seconds=180, poll_interval=5, thumb_offset_ms=None):
     """Reels are NOT like images -- Instagram processes the video
     asynchronously after container creation, and publishing before
     that finishes fails outright. share_to_feed=true so it also lands
@@ -111,6 +135,7 @@ def post_reel(video_url, caption, account_id, token, max_wait_seconds=180, poll_
         video_url=video_url,
         caption=caption,
         share_to_feed="true",
+        **({"thumb_offset": str(thumb_offset_ms)} if thumb_offset_ms is not None else {}),
     )
 
     waited = 0
@@ -189,7 +214,9 @@ if __name__ == "__main__":
     reel_url = reel_url_for_item(item, repo)
     if reel_url:
         print(f"Posting as a Reel: {reel_url}")
-        result = post_reel(reel_url, caption, account_id, token)
+        thumb = reel_cover_offset_ms(item)
+        print(f"Cover frame at {thumb} ms")
+        result = post_reel(reel_url, caption, account_id, token, thumb_offset_ms=thumb)
     else:
         # 2026-09-25: static posts are retired -- every post goes out as a
         # Reel. Refuse loudly rather than silently falling back to an

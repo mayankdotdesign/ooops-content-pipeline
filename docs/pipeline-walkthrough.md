@@ -143,7 +143,14 @@ item's `reel` block in `queue.json` (template, music, stagger, slot);
 `reel-studio/src/reelPosts.json` is generated from that, never
 hand-edited. Not yet wired into `review_cycle.py` — the review sheet
 still reviews the static PNG copy; the reel is approved over chat.
-**Queue order in `queue.json` is the posting order.**
+**Queue order in `queue.json` is the posting order.** Regenerate the
+renderer's input with `python scripts/export_reel_posts.py`. Posting only
+happens within 15 min of 23:00 / 03:00 UTC: a cron-job.org "Test Run" or
+manual dispatch posts nothing unless run from GitHub with `force` checked
+(post 28 went out at 09:02 UTC via a test run before this guard existed).
+Covers: `post_to_instagram.py` passes `thumb_offset` = the moment the
+first slide's text is fully on screen (+0.5s), computed per reel, since
+frame 0 is blank. See CLAUDE.md for the review-before-queue rule.
 
 **Current rules (2026-09-25)**
 - **Paper only** (light + coral), except ONE deliberate grain test: post

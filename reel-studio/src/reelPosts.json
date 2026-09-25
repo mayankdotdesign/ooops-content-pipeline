@@ -65,15 +65,6 @@
     ]
   },
   {
-    "id": 20,
-    "template": "paper-light",
-    "music": "audio/the-long-road.mp3",
-    "stagger": 5,
-    "slides": [
-      "when u mention you have plans without him and he goes quiet for exactly four seconds before asking \"with who\" in the calmest voice possible.\n\n(the calm voice is how you know it's serious 👀)"
-    ]
-  },
-  {
     "id": 22,
     "template": "paper-coral",
     "music": "audio/just-keep-walking.mp3",
@@ -83,27 +74,38 @@
     ]
   },
   {
-    "id": 25,
+    "id": 20,
     "template": "paper-light",
-    "music": "audio/the-long-road.mp3",
-    "stagger": 6.5,
+    "music": "audio/slow-pop.mp3",
+    "stagger": 5,
     "slides": [
-      "when u can tell something's wrong the second he walks in 🔍 but he insists he's \"fine\" and now you're just doing detective work at dinner."
-    ]
+      "when u mention you have plans without him and he goes quiet for exactly four seconds before asking \"with who\" in the calmest voice possible.\n\n(the calm voice is how you know it's serious 👀)"
+    ],
+    "ctaLine": "send this to someone who's asked \"with who\" in that voice."
   },
   {
     "id": 23,
     "template": "paper-light",
-    "music": "audio/well-be-okay.mp3",
+    "music": "audio/thinking-about-you.mp3",
     "stagger": 6,
     "slides": [
       "reunion day. after four months apart, we didn't say anything for the first ten minutes. 🥹\n\njust stood in arrivals like two people who forgot how words work."
     ]
   },
   {
+    "id": 25,
+    "template": "paper-light",
+    "music": "audio/chillax.mp3",
+    "stagger": 6.5,
+    "slides": [
+      "when u can tell something's wrong the second he walks in 🔍 but he insists he's \"fine\" and now you're just doing detective work at dinner."
+    ],
+    "ctaLine": "send this to someone who swears they're \"fine.\""
+  },
+  {
     "id": 19,
     "template": "paper-coral",
-    "music": "audio/well-be-okay.mp3",
+    "music": "audio/sweet-september.mp3",
     "stagger": 6,
     "slides": [
       "two years of a relationship that only existed on a screen. today we met in person for the first time. ✈️",
@@ -114,7 +116,7 @@
   {
     "id": 24,
     "template": "paper-light",
-    "music": "audio/just-keep-walking.mp3",
+    "music": "audio/dreamy-jazz.mp3",
     "stagger": 4,
     "slides": [
       "🚨 you've started saying \"we\" for things you haven't asked them about yet\n\n🚨 you know their coffee order better than your own\n\n🚨 you've picked a fight just to see them apologize in that one specific way\n\n🚨 you check the weather in their city before your own\n\n🚨 you've started liking a food you used to hate because they made it once"
@@ -123,7 +125,7 @@
   {
     "id": 26,
     "template": "paper-coral",
-    "music": "audio/just-keep-walking.mp3",
+    "music": "audio/down-the-river.mp3",
     "stagger": 6,
     "slides": [
       "two months left on the countdown. did the math 🧮 on how many \"good morning\" texts that actually is.\n\nthe math didn't make it feel shorter. I did it anyway."
@@ -132,7 +134,7 @@
   {
     "id": 27,
     "template": "paper-light",
-    "music": "audio/the-long-road.mp3",
+    "music": "audio/dim-the-lights.mp3",
     "stagger": 6,
     "slides": [
       "got genuinely reminded this week that just saying the actual thing works better than hoping they notice.\n\nrevolutionary concept. shocking nobody but us."

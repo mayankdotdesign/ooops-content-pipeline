@@ -14,7 +14,12 @@ on:
   # manual testing. The concurrency group below is a second, independent
   # safety net against that same double-post scenario regardless of
   # what triggered the extra run.
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Post now even outside the scheduled 23:00/03:00 UTC windows"
+        type: boolean
+        default: false
 
 concurrency:
   group: daily-post
@@ -38,6 +43,24 @@ jobs:
       - name: Find next queued post
         id: find
         run: |
+          # 2026-09-25 guard: a cron-job.org "Test Run" (or a manual
+          # dispatch) posts for real -- post 28 went out at 09:02 UTC that
+          # way, breaking its slot-controlled test. Only post within 15
+          # min of a scheduled slot (23:00 / 03:00 UTC) unless run from
+          # GitHub with force=true. cron-job.org sends no inputs, so
+          # force is false for it.
+          FORCE="${{ inputs.force }}"
+          IN_WINDOW=$(python -c "
+          import datetime
+          n = datetime.datetime.now(datetime.timezone.utc)
+          m = n.hour * 60 + n.minute
+          print('yes' if any(abs(m - s) <= 15 for s in (23 * 60, 3 * 60)) else 'no')
+          ")
+          if [ "$FORCE" != "true" ] && [ "$IN_WINDOW" != "yes" ]; then
+            echo "Outside the 23:00/03:00 UTC posting windows and force is not set -- not posting."
+            echo "queue_id=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           NEXT_ID=$(python -c "
           import json
           with open('content_queue/queue.json') as f:

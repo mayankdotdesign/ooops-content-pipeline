@@ -573,43 +573,8 @@
       "music": "well-be-okay",
       "stagger": 6,
       "est_seconds": 10.4,
-      "slot": "S2",
-      "experiment": null
-    }
-  },
-  {
-    "id": 20,
-    "post_type": "relatable",
-    "slides": [
-      {
-        "layout": "hook",
-        "text": "when u mention you have plans without him and he goes quiet for exactly four seconds before asking \"with who\" in the calmest voice possible.\n\n(the calm voice is how you know it's serious \ud83d\udc40)"
-      }
-    ],
-    "bg_variant": 2,
-    "caption": "who gets weirdly casual-interrogator when you make plans without them?",
-    "hashtags": [
-      "#relatablecouple",
-      "#relationshipmemes",
-      "#funnycouple",
-      "#datingadvice",
-      "#relatable"
-    ],
-    "cta": "send this to someone who's asked \"with who\" in that voice.",
-    "angle": "when_u_format",
-    "stage": "queued",
-    "reviewer_comments": "",
-    "source_note": "Format inspired by a real IG meme the user shared directly in chat (an angry-toddler photo captioned 'when you tell her you have plans that do not include her'), adapted into an adult couple scenario with original wording. An earlier draft of this same post ('manage his feelings about your own social life') read like an actual controlling dynamic rather than a light bit -- flagged by the user and rewritten to stay clearly petty/comedic, per docs/ooops-context.md \u00a76's boundary test.",
-    "created_at": "2026-09-17T15:25:00",
-    "ig_media_id": null,
-    "review_tab": "content-2026-09-17",
-    "reel": {
-      "template": "paper-light",
-      "music": "the-long-road",
-      "stagger": 5,
-      "est_seconds": 9.5,
       "slot": "S1",
-      "experiment": "send_cta_9-10s"
+      "experiment": null
     }
   },
   {
@@ -648,16 +613,16 @@
     }
   },
   {
-    "id": 25,
+    "id": 20,
     "post_type": "relatable",
     "slides": [
       {
         "layout": "hook",
-        "text": "when u can tell something's wrong the second he walks in \ud83d\udd0d but he insists he's \"fine\" and now you're just doing detective work at dinner."
+        "text": "when u mention you have plans without him and he goes quiet for exactly four seconds before asking \"with who\" in the calmest voice possible.\n\n(the calm voice is how you know it's serious \ud83d\udc40)"
       }
     ],
-    "bg_variant": 1,
-    "caption": "he'll tell me by dessert. he always does.",
+    "bg_variant": 2,
+    "caption": "who gets weirdly casual-interrogator when you make plans without them?",
     "hashtags": [
       "#relatablecouple",
       "#relationshipmemes",
@@ -665,19 +630,19 @@
       "#datingadvice",
       "#relatable"
     ],
-    "cta": "send this to someone who swears they're \"fine.\"",
+    "cta": "send this to someone who's asked \"with who\" in that voice.",
     "angle": "when_u_format",
     "stage": "queued",
     "reviewer_comments": "",
-    "source_note": "Format inspired by the same 'when u...' reference image style the user shared in chat -- original scenario and wording.",
-    "created_at": "2026-09-17T15:50:00",
+    "source_note": "Format inspired by a real IG meme the user shared directly in chat (an angry-toddler photo captioned 'when you tell her you have plans that do not include her'), adapted into an adult couple scenario with original wording. An earlier draft of this same post ('manage his feelings about your own social life') read like an actual controlling dynamic rather than a light bit -- flagged by the user and rewritten to stay clearly petty/comedic, per docs/ooops-context.md \u00a76's boundary test.",
+    "created_at": "2026-09-17T15:25:00",
     "ig_media_id": null,
     "review_tab": "content-2026-09-17",
     "reel": {
       "template": "paper-light",
-      "music": "the-long-road",
-      "stagger": 6.5,
-      "est_seconds": 9.2,
+      "music": "slow-pop",
+      "stagger": 5,
+      "est_seconds": 9.5,
       "slot": "S1",
       "experiment": "send_cta_9-10s"
     }
@@ -710,11 +675,46 @@
     "review_tab": "content-2026-09-17",
     "reel": {
       "template": "paper-light",
-      "music": "well-be-okay",
+      "music": "thinking-about-you",
       "stagger": 6,
       "est_seconds": 9.2,
       "slot": "S2",
       "experiment": null
+    }
+  },
+  {
+    "id": 25,
+    "post_type": "relatable",
+    "slides": [
+      {
+        "layout": "hook",
+        "text": "when u can tell something's wrong the second he walks in \ud83d\udd0d but he insists he's \"fine\" and now you're just doing detective work at dinner."
+      }
+    ],
+    "bg_variant": 1,
+    "caption": "he'll tell me by dessert. he always does.",
+    "hashtags": [
+      "#relatablecouple",
+      "#relationshipmemes",
+      "#funnycouple",
+      "#datingadvice",
+      "#relatable"
+    ],
+    "cta": "send this to someone who swears they're \"fine.\"",
+    "angle": "when_u_format",
+    "stage": "queued",
+    "reviewer_comments": "",
+    "source_note": "Format inspired by the same 'when u...' reference image style the user shared in chat -- original scenario and wording.",
+    "created_at": "2026-09-17T15:50:00",
+    "ig_media_id": null,
+    "review_tab": "content-2026-09-17",
+    "reel": {
+      "template": "paper-light",
+      "music": "chillax",
+      "stagger": 6.5,
+      "est_seconds": 9.2,
+      "slot": "S1",
+      "experiment": "send_cta_9-10s"
     }
   },
   {
@@ -753,10 +753,10 @@
     "review_tab": "content-2026-09-17",
     "reel": {
       "template": "paper-coral",
-      "music": "well-be-okay",
+      "music": "sweet-september",
       "stagger": 6,
       "est_seconds": 20.2,
-      "slot": "S1",
+      "slot": "S2",
       "experiment": null
     }
   },
@@ -794,10 +794,10 @@
     "review_tab": "content-2026-09-17",
     "reel": {
       "template": "paper-light",
-      "music": "just-keep-walking",
+      "music": "dreamy-jazz",
       "stagger": 4,
       "est_seconds": 12.2,
-      "slot": "S2",
+      "slot": "S1",
       "experiment": null
     }
   },
@@ -829,10 +829,10 @@
     "review_tab": "content-2026-09-17",
     "reel": {
       "template": "paper-coral",
-      "music": "just-keep-walking",
+      "music": "down-the-river",
       "stagger": 6,
       "est_seconds": 9.6,
-      "slot": "S1",
+      "slot": "S2",
       "experiment": null
     }
   },
@@ -864,10 +864,10 @@
     "review_tab": "content-2026-09-17",
     "reel": {
       "template": "paper-light",
-      "music": "the-long-road",
+      "music": "dim-the-lights",
       "stagger": 6,
       "est_seconds": 8.2,
-      "slot": "S2",
+      "slot": "S1",
       "experiment": null
     }
   }

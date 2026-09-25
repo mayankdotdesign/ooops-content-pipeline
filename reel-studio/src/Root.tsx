@@ -129,6 +129,7 @@ type RealPost = {
   music: string;
   stagger: number;
   slides: string[];
+  ctaLine?: string;
 };
 
 // Generated from content_queue/queue.json (each item's `reel` block + its
@@ -255,6 +256,7 @@ export const RemotionRoot: React.FC = () => {
               defaultProps={{
                 slides: post.slides,
                 stagger: post.stagger,
+                ctaLine: post.ctaLine,
                 bgVariant: post.template === "paper-coral" ? (2 as const) : (1 as const),
                 bgSrc: staticFile(post.template === "paper-coral" ? "bg2.png" : "bg.png"),
                 paperOpacity: 1,

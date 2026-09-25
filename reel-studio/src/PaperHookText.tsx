@@ -70,7 +70,8 @@ export const PaperHookText: React.FC<{
   manifest: EmojiManifest;
   colorOverride?: string;
   stagger?: number;
-}> = ({ text, bgVariant, manifest, colorOverride, stagger = STAGGER_FRAMES }) => {
+  ctaLine?: string;
+}> = ({ text, bgVariant, manifest, colorOverride, stagger = STAGGER_FRAMES, ctaLine }) => {
   const frame = useCurrentFrame();
   const color = colorOverride ?? (bgVariant === 1 ? "#EA4330" : "#FFFAF8");
   const paragraphs = text.split("\n\n");
@@ -145,6 +146,24 @@ export const PaperHookText: React.FC<{
           })}
         </div>
       ))}
+      {ctaLine && (
+        // "send this to..." test line (2026-09-25, posts 20/25): space is
+        // reserved from frame 0 so the main text doesn't jump when it
+        // appears; it fades in on the stop-motion cadence only once the
+        // main text has fully revealed, i.e. during the 3s hold.
+        <div
+          style={{
+            marginTop: FONT_SIZE * 0.7,
+            fontSize: 40,
+            fontWeight: 700,
+            letterSpacing: `${TRACKING_EM}em`,
+            lineHeight: 1.15,
+            opacity: steppedRamp(frame - revealCompleteFrame(text, stagger), 0, 12, { step: STEP }),
+          }}
+        >
+          {ctaLine}
+        </div>
+      )}
     </div>
   );
 };

@@ -1376,3 +1376,16 @@ above (which doesn't change).
   check that file after the first run). Merged `reels-pipeline` into
   main since posting now depends on it. Security note: a GitHub token
   was visible in a cron-job.org screenshot shared in chat; rotate it.
+
+- **2026-09-25 (later)** — Post 28 (grain test) was posted at 09:02 UTC by
+  an off-schedule dispatch (most likely a cron-job.org Test Run), so it
+  missed its controlled 23:00 slot; kept live, test result treated as
+  weak. Added: a posting-window guard in `daily-post.yml` (±15 min of
+  23:00/03:00 UTC unless `force`), per-reel cover frames
+  (`thumb_offset`), on-screen "send this to..." line for 20/25 during the
+  hold, one music track per reel within a batch (7 new Mixkit tracks),
+  `scripts/export_reel_posts.py`, and `CLAUDE.md` with the user's
+  review-before-queue rule (I had queued reels 19-28 before the user saw
+  them). Re-rendered 20/23/25/19/24/26/27 for review; their old mp4s were
+  removed from the queue so nothing outdated posts. New order: 21, 22,
+  then 20, 23, 25, 19, 24, 26, 27 (20 and 25 land in 23:00 slots).

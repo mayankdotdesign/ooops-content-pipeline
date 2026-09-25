@@ -27,7 +27,8 @@ export const PaperSlides: React.FC<{
   manifest: EmojiManifest;
   colorOverride?: string;
   stagger?: number;
-}> = ({ slides, bgVariant, manifest, colorOverride, stagger }) => {
+  ctaLine?: string;
+}> = ({ slides, bgVariant, manifest, colorOverride, stagger, ctaLine }) => {
   let cursor = 0;
   return (
     <>
@@ -50,6 +51,7 @@ export const PaperSlides: React.FC<{
                 manifest={manifest}
                 colorOverride={colorOverride}
                 stagger={stagger}
+                ctaLine={i === slides.length - 1 ? ctaLine : undefined}
               />
             </SlideFadeOut>
           </Sequence>
