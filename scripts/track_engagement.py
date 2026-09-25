@@ -28,6 +28,7 @@ Usage:
   python track_engagement.py
 """
 
+import datetime
 import json
 import os
 
@@ -37,7 +38,26 @@ QUEUE_PATH = os.path.join(os.path.dirname(__file__), "..", "content_queue", "que
 PERF_PATH = os.path.join(os.path.dirname(__file__), "..", "content_queue", "performance.json")
 GRAPH_VERSION = "v22.0"
 BASE_URL = f"https://graph.instagram.com/{GRAPH_VERSION}"
-METRICS = ["reach", "likes", "comments", "saved", "shares"]
+METRICS = ["reach", "likes", "comments", "saved", "shares"]  # proven-valid base set, one call
+
+# 2026-09-25 (per request: "fetch all data points the API allows"): extras
+# are requested ONE AT A TIME so a metric Instagram rejects for a media
+# type can't take the base set down with it. Which ones actually work is
+# recorded in content_queue/tracking_meta.json on every run -- this list
+# was written from Meta's docs and could not be tested locally (the token
+# is a CI secret), so read that file after the first run before trusting
+# any missing field to mean "no data" rather than "rejected".
+EXTRA_METRICS_ALL = ["views", "total_interactions", "follows", "profile_visits"]
+EXTRA_METRICS_REEL = [
+    "ig_reels_avg_watch_time",          # ms, average watch time -- the retention number
+    "ig_reels_video_view_total_time",   # ms, total watch time across all plays
+    "ig_reels_aggregated_all_plays_count",  # plays incl. replays
+    "clips_replays_count",
+]
+META_PATH = os.path.join(os.path.dirname(__file__), "..", "content_queue", "tracking_meta.json")
+ACCOUNT_PATH = os.path.join(os.path.dirname(__file__), "..", "content_queue", "account_insights.json")
+HISTORY_CAP = 60
+
 
 
 def load_queue():
@@ -54,6 +74,18 @@ def load_performance():
         return json.load(f)
 
 
+def _values(resp_json):
+    """Insights come back either as values[0].value (older shape) or
+    total_value.value (metric_type=total_value shape)."""
+    out = {}
+    for entry in resp_json.get("data", []):
+        if entry.get("values"):
+            out[entry["name"]] = entry["values"][0].get("value")
+        elif entry.get("total_value") is not None:
+            out[entry["name"]] = entry["total_value"].get("value")
+    return out
+
+
 def fetch_insights(media_id, token):
     resp = requests.get(
         f"{BASE_URL}/{media_id}/insights",
@@ -62,8 +94,76 @@ def fetch_insights(media_id, token):
     if not resp.ok:
         print(f"Insights fetch failed for media {media_id}: {resp.text}")
         return None
-    data = resp.json().get("data", [])
-    return {entry["name"]: entry["values"][0]["value"] for entry in data if entry.get("values")}
+    return _values(resp.json())
+
+
+def fetch_extra_metric(media_id, metric, token, unavailable):
+    resp = requests.get(
+        f"{BASE_URL}/{media_id}/insights",
+        params={"metric": metric, "access_token": token},
+    )
+    if not resp.ok:
+        unavailable.setdefault(metric, resp.text[:200])
+        return {}
+    return _values(resp.json())
+
+
+def fetch_media_fields(media_id, token):
+    resp = requests.get(
+        f"{BASE_URL}/{media_id}",
+        params={
+            "fields": "media_type,media_product_type,timestamp,permalink,like_count,comments_count",
+            "access_token": token,
+        },
+    )
+    return resp.json() if resp.ok else {}
+
+
+def fetch_account_snapshot(token, unavailable):
+    """Account-level numbers (followers, reach, views, profile views,
+    accounts engaged, follower/non-follower split, demographics). Each
+    call is independent and failure-tolerant. Demographic breakdowns
+    need roughly 100+ followers and are expected to be rejected until
+    then -- that's recorded, not an error."""
+    snap = {}
+    me = requests.get(f"{BASE_URL}/me", params={
+        "fields": "followers_count,follows_count,media_count", "access_token": token})
+    if me.ok:
+        snap.update(me.json())
+    day = {"period": "day", "metric_type": "total_value", "access_token": token}
+    for metric in ["reach", "views", "profile_views", "accounts_engaged", "total_interactions",
+                   "likes", "comments", "shares", "saves", "follows_and_unfollows", "website_clicks"]:
+        r = requests.get(f"{BASE_URL}/me/insights", params={**day, "metric": metric})
+        if r.ok:
+            snap.update(_values(r.json()))
+        else:
+            unavailable.setdefault(f"account:{metric}", r.text[:200])
+    for breakdown_metric, breakdown in [("views", "follower_type"), ("views", "media_product_type"),
+                                        ("reach", "follower_type")]:
+        r = requests.get(f"{BASE_URL}/me/insights", params={**day, "metric": breakdown_metric, "breakdown": breakdown})
+        key = f"{breakdown_metric}_by_{breakdown}"
+        if r.ok:
+            snap[key] = r.json().get("data", [])
+        else:
+            unavailable.setdefault(f"account:{key}", r.text[:200])
+    for metric in ["follower_demographics", "reached_audience_demographics", "engaged_audience_demographics"]:
+        for breakdown in ["country", "age", "gender"]:
+            r = requests.get(f"{BASE_URL}/me/insights", params={
+                "metric": metric, "period": "lifetime", "metric_type": "total_value",
+                "breakdown": breakdown, "access_token": token})
+            if r.ok:
+                snap[f"{metric}_{breakdown}"] = r.json().get("data", [])
+            else:
+                unavailable.setdefault(f"account:{metric}_{breakdown}", r.text[:200])
+    return snap
+
+
+def _word_count(item):
+    words = 0
+    for slide in item.get("slides", []):
+        text = slide.get("text") or "\n\n".join(slide.get("items", []))
+        words += len(text.split())
+    return words
 
 
 def main():
@@ -74,29 +174,68 @@ def main():
 
     queue = load_queue()
     posted = [item for item in queue if item.get("stage") == "posted" and item.get("ig_media_id")]
-    if not posted:
-        print("No posted items with an ig_media_id yet — nothing to track.")
-        return 0
-
     performance = load_performance()
+    today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    unavailable = {}
+
+    # A post deleted on Instagram (e.g. id 19, 2026-09-25) has no live
+    # media to fetch -- drop stale performance rows for anything no longer
+    # marked posted so old numbers don't masquerade as current.
+    posted_ids = {str(i["id"]) for i in posted}
+    for stale in [k for k in performance if k not in posted_ids]:
+        print(f"Dropping stale performance row for post {stale} (no longer posted).")
+        del performance[stale]
+
     for item in posted:
         post_id = str(item["id"])
-        insights = fetch_insights(item["ig_media_id"], token)
+        media_id = item["ig_media_id"]
+        insights = fetch_insights(media_id, token)
         if insights is None:
             continue
+        fields = fetch_media_fields(media_id, token)
+        is_reel = fields.get("media_product_type") == "REELS"
+        for metric in EXTRA_METRICS_ALL + (EXTRA_METRICS_REEL if is_reel else []):
+            insights.update(fetch_extra_metric(media_id, metric, token, unavailable))
+
         record = performance.get(post_id, {})
         record.update(insights)
-        # Context fields Phase 3 asks for, so performance.json is useful for
-        # Phase 5's "read performance.json" research step without a queue.json join.
         record["bg_variant"] = item.get("bg_variant")
         record["angle"] = item.get("angle")
         record["post_type"] = item.get("post_type")
-        record["ig_media_id"] = item["ig_media_id"]
+        record["ig_media_id"] = media_id
+        # Context so analysis never needs a queue.json join or a guess:
+        record["format"] = fields.get("media_product_type")
+        record["media_type"] = fields.get("media_type")
+        record["posted_at"] = fields.get("timestamp")
+        record["permalink"] = fields.get("permalink")
+        record["like_count"] = fields.get("like_count")
+        record["comments_count"] = fields.get("comments_count")
+        record["words"] = _word_count(item)
+        record["cta"] = item.get("cta")
+        record["reel"] = item.get("reel")
+        snapshot = {"date": today, **{k: v for k, v in insights.items()}}
+        history = [h for h in record.get("history", []) if h.get("date") != today]
+        record["history"] = (history + [snapshot])[-HISTORY_CAP:]
         performance[post_id] = record
         print(f"Post {post_id}: {insights}")
 
     with open(PERF_PATH, "w") as f:
         json.dump(performance, f, indent=2)
+
+    account = {}
+    if os.path.exists(ACCOUNT_PATH):
+        with open(ACCOUNT_PATH) as f:
+            account = json.load(f)
+    account[today] = fetch_account_snapshot(token, unavailable)
+    with open(ACCOUNT_PATH, "w") as f:
+        json.dump(account, f, indent=2)
+
+    with open(META_PATH, "w") as f:
+        json.dump({"checked": today, "metrics_rejected_by_instagram": unavailable}, f, indent=2)
+    if unavailable:
+        print("Metrics Instagram rejected (see content_queue/tracking_meta.json):")
+        for k, v in unavailable.items():
+            print(f"  {k}: {v[:120]}")
     return 0
 
 

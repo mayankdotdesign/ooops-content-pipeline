@@ -42,7 +42,13 @@ jobs:
           import json
           with open('content_queue/queue.json') as f:
               q = json.load(f)
-          nxt = next((i for i in q if i['stage'] == 'queued'), None)
+          # 2026-09-25: Reels only -- a queued item with no rendered
+          # content_queue/rendered/<id>.mp4 is skipped (held), never
+          # posted as a static image. Order in queue.json is the posting
+          # order, so a held item doesn't block the ones behind it.
+          import os
+          nxt = next((i for i in q if i['stage'] == 'queued'
+                      and os.path.isfile(f\"content_queue/rendered/{i['id']}.mp4\")), None)
           print(nxt['id'] if nxt else '')
           ")
           echo "queue_id=$NEXT_ID" >> "$GITHUB_OUTPUT"

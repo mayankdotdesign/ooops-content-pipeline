@@ -191,11 +191,12 @@ if __name__ == "__main__":
         print(f"Posting as a Reel: {reel_url}")
         result = post_reel(reel_url, caption, account_id, token)
     else:
-        image_urls = image_urls_for_item(item, repo)
-        if len(image_urls) == 1:
-            result = post_image(image_urls[0], caption, account_id, token)
-        else:
-            result = post_carousel(image_urls, caption, account_id, token)
+        # 2026-09-25: static posts are retired -- every post goes out as a
+        # Reel. Refuse loudly rather than silently falling back to an
+        # image if a queued item somehow reaches here without a video.
+        print(f"Queue id {queue_id} has no content_queue/rendered/{queue_id}.mp4 -- "
+              "static posting is disabled, refusing to post.")
+        sys.exit(1)
     print("Posted:", result)
 
     item["stage"] = "posted"
