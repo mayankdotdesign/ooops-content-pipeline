@@ -632,11 +632,11 @@
     ],
     "cta": "send this to someone who's asked \"with who\" in that voice.",
     "angle": "when_u_format",
-    "stage": "queued",
+    "stage": "posted",
     "reviewer_comments": "",
     "source_note": "Format inspired by a real IG meme the user shared directly in chat (an angry-toddler photo captioned 'when you tell her you have plans that do not include her'), adapted into an adult couple scenario with original wording. An earlier draft of this same post ('manage his feelings about your own social life') read like an actual controlling dynamic rather than a light bit -- flagged by the user and rewritten to stay clearly petty/comedic, per docs/ooops-context.md \u00a76's boundary test.",
     "created_at": "2026-09-17T15:25:00",
-    "ig_media_id": null,
+    "ig_media_id": "18007600457986203",
     "review_tab": "content-2026-09-17",
     "reel": {
       "template": "paper-light",
