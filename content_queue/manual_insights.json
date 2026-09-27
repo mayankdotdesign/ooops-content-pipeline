@@ -1,0 +1,56 @@
+{
+  "20": {
+    "source": "IG app Reel insights screenshots, 2026-09-27 ~13:36 UTC (~14.5h after posting)",
+    "views": 189,
+    "viewers": 166,
+    "avg_watch_s": 3,
+    "follows": 0,
+    "likes": 0,
+    "comments": 0,
+    "reposts": 0,
+    "shares": 0,
+    "saves": 0,
+    "skip_rate_pct": 69.3,
+    "skip_rate_vs_typical": "lower (better)",
+    "retention_pct_by_second": {
+      "0": 100,
+      "1": 57,
+      "2": 35,
+      "3": 33,
+      "4": 29,
+      "5": 27,
+      "8": 17,
+      "9": 11
+    },
+    "retention_note": "read off the chart by eye, +/- ~3 points",
+    "views_vs_typical_reel": "~189 at 12h vs typical ~45 at 24h; plateaued after ~12h",
+    "view_sources_pct": {
+      "reels_tab": 83.5,
+      "explore": 13.8
+    },
+    "followers_vs_non_pct": {
+      "followers": 0,
+      "non_followers": 100
+    },
+    "gender_pct": {
+      "women": 76.4,
+      "men": 23.6
+    },
+    "age_pct": {
+      "13-17": 7.5,
+      "18-24": 43,
+      "25-34": 33.3,
+      "35-44": 11.3,
+      "45-54": 2.7,
+      "55-64": 2.2,
+      "65+": 0
+    },
+    "country_pct_top5": {
+      "India": 53.2,
+      "United States": 9,
+      "Pakistan": 6.4,
+      "Philippines": 3.7,
+      "United Kingdom": 3.7
+    }
+  }
+}
