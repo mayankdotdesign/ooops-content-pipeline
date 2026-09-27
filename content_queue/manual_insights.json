@@ -109,5 +109,66 @@
       "Pakistan": 5.8,
       "Sri Lanka": 3.6
     }
+  },
+  "28": {
+    "source": "IG app Reel insights screenshots, 2026-09-27 ~13:50 UTC (~53h after posting)",
+    "views": 167,
+    "viewers": 140,
+    "avg_watch_s": 2,
+    "follows": 0,
+    "likes": 4,
+    "likes_note": "2 owner's own; 2 from generic new accounts (not target audience, per owner)",
+    "comments": 0,
+    "reposts": 0,
+    "shares": 0,
+    "saves": 0,
+    "skip_rate_pct": 83.2,
+    "skip_rate_vs_typical": "lower (better)",
+    "like_rate_pct": 2.8,
+    "like_rate_vs_typical": "lower",
+    "retention_pct_by_second": {
+      "0": 100,
+      "1": 48,
+      "2": 25,
+      "3": 20,
+      "4": 15,
+      "5": 15,
+      "6": 11,
+      "7": 9,
+      "8": 4,
+      "9": 4
+    },
+    "retention_note": "read off the chart by eye, +/- ~3 points",
+    "views_vs_typical_reel": "~165 within ~1 day vs typical ~35; flat since",
+    "view_sources_pct": {
+      "reels_tab": 81.8,
+      "explore": 10.3,
+      "profile": 6.1
+    },
+    "followers_vs_non_pct": {
+      "followers": 0,
+      "non_followers": 100
+    },
+    "gender_pct": {
+      "women": 81,
+      "men": 19
+    },
+    "age_pct": {
+      "13-17": 8.5,
+      "18-24": 58.8,
+      "25-34": 27.9,
+      "35-44": 1.8,
+      "45-54": 2.4,
+      "55-64": 0,
+      "65+": 0.6
+    },
+    "country_pct_top5": {
+      "India": 66.1,
+      "Bangladesh": 7.3,
+      "Nepal": 3.6,
+      "Pakistan": 3.6,
+      "United Kingdom": 3.6
+    },
+    "confound_note": "posted off-schedule at ~09:02 UTC (14:32 IST) via manual dispatch, not a 23:00/03:00 slot"
   }
 }
