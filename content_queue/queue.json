@@ -786,11 +786,11 @@
     ],
     "cta": "which one's calling you out specifically?",
     "angle": "green_flags_list",
-    "stage": "queued",
+    "stage": "posted",
     "reviewer_comments": "",
     "source_note": "First-party original observational list -- a different topic from post 7's offense-category list (this one is ironic 'red flags that are actually fine' rather than jar offenses), checked against the existing queue to avoid repeating post 7's format/topic per docs/voice-guide.md's repetition rule.",
     "created_at": "2026-09-17T15:45:00",
-    "ig_media_id": null,
+    "ig_media_id": "18226623853328392",
     "review_tab": "content-2026-09-17",
     "reel": {
       "template": "paper-light",
