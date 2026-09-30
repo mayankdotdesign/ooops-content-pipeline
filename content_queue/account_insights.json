@@ -516,5 +516,117 @@
     "engaged_audience_demographics_country": [],
     "engaged_audience_demographics_age": [],
     "engaged_audience_demographics_gender": []
+  },
+  "2026-09-30": {
+    "followers_count": 0,
+    "follows_count": 0,
+    "media_count": 29,
+    "id": "28157390877252984",
+    "reach": 114,
+    "views": 172,
+    "profile_views": 4,
+    "accounts_engaged": 2,
+    "total_interactions": 6,
+    "likes": 6,
+    "comments": 0,
+    "shares": 0,
+    "saves": 0,
+    "website_clicks": 0,
+    "views_by_follow_type": [
+      {
+        "name": "views",
+        "period": "day",
+        "title": "Views",
+        "description": "The number of times your content was played or displayed. Content includes reels, posts, stories.",
+        "total_value": {
+          "value": 172,
+          "breakdowns": [
+            {
+              "dimension_keys": [
+                "follow_type"
+              ],
+              "results": [
+                {
+                  "dimension_values": [
+                    "NON_FOLLOWER"
+                  ],
+                  "value": 172
+                }
+              ]
+            }
+          ]
+        },
+        "id": "17841442686565936/insights/views/day"
+      }
+    ],
+    "views_by_media_product_type": [
+      {
+        "name": "views",
+        "period": "day",
+        "title": "Views",
+        "description": "The number of times your content was played or displayed. Content includes reels, posts, stories.",
+        "total_value": {
+          "value": 172,
+          "breakdowns": [
+            {
+              "dimension_keys": [
+                "media_product_type"
+              ],
+              "results": [
+                {
+                  "dimension_values": [
+                    "REEL"
+                  ],
+                  "value": 165
+                },
+                {
+                  "dimension_values": [
+                    "CAROUSEL_CONTAINER"
+                  ],
+                  "value": 7
+                }
+              ]
+            }
+          ]
+        },
+        "id": "17841442686565936/insights/views/day"
+      }
+    ],
+    "reach_by_follow_type": [
+      {
+        "name": "reach",
+        "period": "day",
+        "title": "Accounts reached",
+        "description": "The number of unique accounts that have seen your content, at least once, including in ads. Content includes posts, stories, reels, videos and live videos. Reach is different from impressions, which may include multiple views of your content by the same accounts. This metric is estimated and in development.",
+        "total_value": {
+          "value": 114,
+          "breakdowns": [
+            {
+              "dimension_keys": [
+                "follow_type"
+              ],
+              "results": [
+                {
+                  "dimension_values": [
+                    "NON_FOLLOWER"
+                  ],
+                  "value": 114
+                }
+              ]
+            }
+          ]
+        },
+        "id": "17841442686565936/insights/reach/day"
+      }
+    ],
+    "follower_demographics_country": [],
+    "follower_demographics_age": [],
+    "follower_demographics_gender": [],
+    "reached_audience_demographics_country": [],
+    "reached_audience_demographics_age": [],
+    "reached_audience_demographics_gender": [],
+    "engaged_audience_demographics_country": [],
+    "engaged_audience_demographics_age": [],
+    "engaged_audience_demographics_gender": []
   }
 }
