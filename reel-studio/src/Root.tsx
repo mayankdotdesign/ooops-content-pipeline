@@ -5,11 +5,41 @@ import { OoopsReel } from "./OoopsReel";
 import { PaperReel } from "./PaperReel";
 import { GrainGradientReel } from "./GrainGradientReel";
 import { JarBanter, JAR_BANTER_MESSAGES } from "./JarBanter";
+import { PhoneEdit, PhoneEditProps, phoneEditDuration } from "./PhoneEdit";
 import { paperSlidesDuration } from "./PaperSlides";
 import reelPosts from "./reelPosts.json";
 import { imessageChatFlowDuration } from "@/components/remocn/imessage-chat-flow";
 
 const FPS = 30;
+
+// Batch 3 (2026-10-02): Gemini/Flow-rendered skits cut down to an amateur
+// phone edit. Timings were picked by watching each source clip; the user
+// adds IG text + trending audio at upload. Output: content_queue/manual/.
+const PHONE_EDITS: { id: string; props: PhoneEditProps }[] = [
+  {
+    // "babe i'm not hungry" / "me 10 minutes later" (Gemini app render)
+    id: "EditNotHungry",
+    props: {
+      src: "manual/notHungry_src.mp4",
+      segments: [
+        { from: 0.8, to: 4.0, rate: 1.25 },
+        { from: 4.0, to: 8.5, rate: 1.15, punch: { at: 5.6, scale: 1.35, originX: 0.85, originY: 0.1 } },
+      ],
+    },
+  },
+  {
+    // "me pretending i'm not checking his location..." (Google Flow render)
+    id: "EditLocationCheck",
+    props: {
+      src: "manual/locationCheck_src.mp4",
+      segments: [
+        { from: 0, to: 4.0, rate: 2.5 },
+        { from: 4.0, to: 7.5, rate: 1.5, punch: { at: 5.9, scale: 1.3, originX: 0.5, originY: 0.35 } },
+        { from: 7.5, to: 10.0, rate: 2 },
+      ],
+    },
+  },
+];
 
 // All standard CSS mix-blend-mode values that make sense on a texture
 // overlay (excludes hue/saturation/color/luminosity -- those need a
@@ -268,6 +298,19 @@ export const RemotionRoot: React.FC = () => {
           );
         });
       })()}
+
+      {PHONE_EDITS.map((edit) => (
+        <Composition
+          key={edit.id}
+          id={edit.id}
+          component={PhoneEdit}
+          fps={FPS}
+          width={1080}
+          height={1920}
+          durationInFrames={phoneEditDuration(edit.props.segments, FPS)}
+          defaultProps={edit.props}
+        />
+      ))}
 
       <Composition
         id="JarBanter"
