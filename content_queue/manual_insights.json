@@ -170,5 +170,22 @@
       "United Kingdom": 3.6
     },
     "confound_note": "posted off-schedule at ~09:02 UTC (14:32 IST) via manual dispatch, not a 23:00/03:00 slot"
+  },
+  "account_weekly_2026-09-22_to_09-28": {
+    "source": "IG app weekly recap screenshots, seen 2026-10-02",
+    "views": 1100,
+    "views_change_pct": 1550,
+    "non_follower_view_share_pct": 99,
+    "reels_shared": 10,
+    "posts_shared": 4,
+    "streak_weeks": 2,
+    "most_viewed": {
+      "20": 196,
+      "21": 171,
+      "28": 166
+    },
+    "ig_recommendation": "3 reels + 4 posts per week",
+    "ig_suggested_inspiration": "real-person couple POV skit (Indian couple), football clip, woman reacting to a wifi-password meme",
+    "followers_note": "the 1 follower (2026-10-01) is the owner's own account"
   }
 }
