@@ -6,6 +6,7 @@ import { PaperReel } from "./PaperReel";
 import { GrainGradientReel } from "./GrainGradientReel";
 import { JarBanter, JAR_BANTER_MESSAGES } from "./JarBanter";
 import { PhoneEdit, PhoneEditProps, phoneEditDuration } from "./PhoneEdit";
+import { ChatScreenshot, ChatScreenshotProps } from "./ChatScreenshot";
 import { paperSlidesDuration } from "./PaperSlides";
 import reelPosts from "./reelPosts.json";
 import { imessageChatFlowDuration } from "@/components/remocn/imessage-chat-flow";
@@ -15,6 +16,47 @@ const FPS = 30;
 // Batch 3 (2026-10-02): Gemini/Flow-rendered skits cut down to an amateur
 // phone edit. Timings were picked by watching each source clip; the user
 // adds IG text + trending audio at upload. Output: content_queue/manual/.
+
+// Batch 3 text-bubble reels (2026-10-02): approved scripts only. Static
+// iMessage screenshot on black, 5s, silent; user adds IG audio at upload.
+const CHAT_POSTS: { id: string; props: ChatScreenshotProps }[] = [
+  {
+    // T1 "i hate you" -- his phone, she's texting
+    id: "ChatIHateYou",
+    props: {
+      contact: "babe 🙄❤️",
+      initials: "B",
+      statusTime: "6:44",
+      timestamp: "Today 6:42 PM",
+      readAt: "",
+      screenHeight: 1240,
+      messages: [
+        { from: "them", text: "i hate you" },
+        { from: "them", text: "i hate you" },
+        { from: "them", text: "i hate you" },
+        { from: "them", text: "come home early. i hate you" },
+      ],
+    },
+  },
+  {
+    // T2 "two days a week" -- her phone; he's always busy with work
+    id: "ChatTwoDays",
+    props: {
+      contact: "him 💼",
+      initials: "H",
+      statusTime: "9:17",
+      timestamp: "Today 9:15 PM",
+      readAt: "Read 9:16 PM",
+      screenHeight: 1320,
+      messages: [
+        { from: "me", text: "i can only love you two days a week" },
+        { from: "them", text: "excuse me???" },
+        { from: "me", text: "saturday and sunday. the days you're not \"in a meeting\"" },
+      ],
+    },
+  },
+];
+
 const PHONE_EDITS: { id: string; props: PhoneEditProps }[] = [
   {
     // "babe i'm not hungry" / "me 10 minutes later" (Gemini app render)
@@ -309,6 +351,19 @@ export const RemotionRoot: React.FC = () => {
           height={1920}
           durationInFrames={phoneEditDuration(edit.props.segments, FPS)}
           defaultProps={edit.props}
+        />
+      ))}
+
+      {CHAT_POSTS.map((post) => (
+        <Composition
+          key={post.id}
+          id={post.id}
+          component={ChatScreenshot}
+          fps={FPS}
+          width={1080}
+          height={1920}
+          durationInFrames={FPS * 5}
+          defaultProps={post.props}
         />
       ))}
 
