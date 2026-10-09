@@ -26,10 +26,9 @@ PERF_PATH = os.path.join(os.path.dirname(__file__), "..", "content_queue", "perf
 # Content pillars — Claude should rotate through these, weighting
 # toward whatever performance.json shows is working best.
 CONTENT_ANGLES = [
-    "jar_entry",       # "Things that'd cost him ₹200 in the jar"
-    "ldr_pain",        # relatable long-distance specific frustration
+    "jar_entry",       # "Things that'd cost one of us ₹200 in the jar" (no he/she)
+    "ldr_pain",        # long-distance specific frustration (max 1 post in 5)
     "couple_debate",   # "is X a ₹500 offense or ₹1000 offense" polls
-    "origin_story",    # spin-offs of the real notepad -> ₹18K story
     "relatable_text",  # generic relationship text-post, jar-adjacent
 ]
 

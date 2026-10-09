@@ -19,15 +19,15 @@ Ooops is a mobile-first couples accountability app (iOS, pre-launch, 2026). Inst
 
 **Important nuance:** there is no payment gateway. Nobody actually transfers money through the app. The ritual and the running tally are what matter — settlement can be real money, coffee, chores, or just bragging rights. Don't write copy that implies Ooops processes payments.
 
-### Origin story (useful for founder/relatable content)
-Mayank (the founder) kept a physical notepad with his girlfriend during a long-distance relationship between Indian cities, tracking offenses owed to her — it reached ₹18,000 in two months. That real, lived habit is where the app idea came from. This is a strong authentic angle for content — a real couple actually did this before it was an app.
+### Origin story (NOT used on @ooops.app)
+The app grew out of a notepad joke between two people. That story belongs to the founder's own accounts (LinkedIn, X, personal IG), where it follows the founder-story rules in the Ooops repo (`docs/beta-recruiting-plan.md` §0). **@ooops.app is about couples in general: the founder's own relationship never appears here.** No origin-story posts, no ₹18K figure, no "founder kept a notepad", no cities, no names, no relationship labels. If a post would only work with the founder's story, drop the post.
 
 ---
 
 ## 2. Audience — who this content is for
 
 - **Primary target for the Instagram pipeline specifically: English-speaking couples, 22–32, skewing US/UK/Canada.** This is a deliberate choice — Western audiences are more likely to convert to a paid app, so IG content should default to Western/English relatable scenarios and phrasing, not Indian-specific references, unless a post is explicitly for a different channel.
-- Long-distance relationships (LDR) are an especially strong niche — high relatability, high Reddit engagement, a specific and underserved pain point. **But LDR is one segment of the primary audience, not the whole thing** (corrected 2026-09-17 after a batch skewed too LDR-heavy — 6 of 9 posts were LDR-specific). The jar mechanic is just as relevant to couples who live together or see each other daily — shared chores, gaming/screen time, who-forgot-what, meeting-the-parents, etc. **Every batch should mix co-located/general-couple content in alongside LDR, not default to LDR as the assumed scenario.**
+- Long-distance relationships (LDR) are one niche — high relatability, high Reddit engagement, a specific and underserved pain point. **But LDR is one segment of the primary audience, not the whole thing** (corrected 2026-09-17 after a batch skewed too LDR-heavy — 6 of 9 posts were LDR-specific). The jar mechanic is just as relevant to couples who live together or see each other daily — shared chores, gaming/screen time, who-forgot-what, meeting-the-parents, etc. **Default to couples who live together or see each other daily (updated 10 Oct 2026: the beta pool is mostly cohabiting couples). At most 1 post in 5 is LDR-specific.**
 - Secondary audience (not the IG content priority): Indian couples, LDR and co-located, 22–35.
 - **Not the audience:** couples who share finances, or anyone who'd treat the jar as punitive/real financial tracking rather than a bit.
 
