@@ -19,6 +19,14 @@
   `tracking_meta.json`, Scrape Creators, dashboard screenshots), check for
   confounded variables, and don't present hypotheses as findings.
 
+## Founder and gender rules (set 10 Oct 2026, from the Ooops repo plan §0)
+
+- @ooops.app never mentions the founder's relationship, backstory or the
+  ₹18K story. Never name, describe or label anyone connected to the founder.
+- Gender-neutral copy only ("partner", "they"), mutual jokes, no he/she.
+- Hashtags: general-couple first, at most 1 long-distance tag in 5.
+- Full rules: `docs/voice-guide.md` ("Gender-neutral, mutual, and never the founder").
+
 ## Reel batch rules
 
 - Every post is a Reel (no static posts). Paper templates (light/coral);

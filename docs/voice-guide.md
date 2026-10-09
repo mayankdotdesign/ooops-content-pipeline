@@ -30,8 +30,8 @@ authentic vs. AI-generated in relationship content (sources at bottom).
    a question or a setup ("What do you do when you have disagreements
    in your marriage?", "Life really said...") and land on something
    sharper or more ironic than the setup implied.
-3. **Specific and concrete beats abstract.** "₹18,000 in 2 months" and
-   "the same small stupid arguments" work because they're specific.
+3. **Specific and concrete beats abstract.** "₹200 for leaving the
+   dishes overnight" and "the same small stupid arguments" work because they're specific.
    "Relationships take work" doesn't work because it's not.
 4. **Texting-register spelling, used naturally, not performed.**
    Lowercase starts, "u" / "ppl" / "abt" / "js" / "nd" — but only where
@@ -54,9 +54,9 @@ authentic vs. AI-generated in relationship content (sources at bottom).
 ## Ooops-specific angle
 
 The above is genre voice. Layer the Ooops-specific hook on top: the
-jar/accountability mechanic, LDR-specific detail (timezones, "good
-morning"/"good night" as the same text, phone chargers before calls),
-and the real origin story (a notepad, a jar, ₹50-per-"sorry"). Keep
+jar/accountability mechanic and everyday shared-life detail (dishes,
+screen time, who forgot what; LDR detail like timezones only occasionally,
+max 1 post in 5). Never the founder's origin story. Keep
 Western/US-relatable once Phase 5 research starts (USD, US scenarios) —
 this guide's structural rules carry over regardless of currency/market.
 
@@ -127,6 +127,28 @@ Real research now goes through the Scrape Creators MCP connector (see
 [docs/pipeline-walkthrough.md](pipeline-walkthrough.md)); if a claim in
 a `source_note` can't be traced to an actual tool call from that
 session, it doesn't belong in the queue.
+
+## Gender-neutral, mutual, and never the founder (10 Oct 2026)
+
+Applies to every caption, slide, CTA and hashtag set. Source of truth for the
+founder rules: the Ooops repo, `docs/beta-recruiting-plan.md` §0.
+
+- **Say "partner" or "they/them". Never "girlfriend", "boyfriend", "he", "she",
+  "him", "her", "wife", "husband"** for the couple in a post. If a scenario only
+  works with a gendered pronoun, rewrite it so it works without one.
+- **Mutual, never one-sided.** Both partners are equally the joke ("we",
+  "one of us", "whoever forgot"). No post where one gender is the punchline
+  ("sassy girlfriend", "this is how she says it") and no gendered stereotypes.
+- **Never the founder.** No origin-story posts, no ₹18K figure, no notepad
+  backstory, no cities, no names, no relationship labels. The founder's own
+  relationship does not appear on @ooops.app in any form.
+- **Hashtags (max 5):** lead with general-couple tags (`#relatablecouple`,
+  `#funnycouple`, `#couplegoals`, `#coupleproblems`, `#relationshipmemes`). At
+  most 1 of the 5 may be a long-distance tag (`#ldrcouple` etc.), and only on a
+  post that is actually about long distance. Don't put LDR tags on every post.
+- **Scenarios default to couples who live together:** shared chores, screen
+  time, who-forgot-what, thermostat, dishes, plans, texts. Max 1 post in 5 is LDR-specific.
+- If in doubt, leave it out.
 
 ## CTA — always direct-engagement, always shareable
 
